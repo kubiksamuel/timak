@@ -57,6 +57,7 @@
 <route lang="yaml">
 meta:
     layout: home
+path: /home
 </route>
 <script setup lang="ts">
 import { ref } from "vue"
