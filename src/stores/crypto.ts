@@ -2,7 +2,7 @@
 import { ethers } from 'ethers'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import contractABI from '../artifacts/contracts/WavePortal.sol/WavePortal.json'
-const contractAddress = '0x45AAC22B57259D6bd7B06E26679cb6593F3E9eCa'
+const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 
 export const useCryptoStore = defineStore('user', () => {
   const account = ref(null)
@@ -152,6 +152,7 @@ export const useCryptoStore = defineStore('user', () => {
   }
 
   async function connectWallet() {
+    console.log('Connect wallet')
     try {
       const { ethereum } = window
       if (!ethereum) {
