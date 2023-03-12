@@ -14,6 +14,8 @@
     "up": "taze major -I"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.12",
+    "@heroicons/vue": "^2.0.16",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-waffle": "^2.0.5",
     "@unocss/reset": "^0.48.4",
