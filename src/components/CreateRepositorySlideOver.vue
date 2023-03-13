@@ -1,5 +1,5 @@
 <template>
-    <SlideOver v-bind="{ open }" @close="emit('close')">
+    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title">
         <div class="w-full">Hello</div>
     </SlideOver>
 </template>
