@@ -1,7 +1,7 @@
 import { ethers } from "ethers"
 import { acceptHMRUpdate, defineStore } from "pinia"
 import contractABI from "../artifacts/contracts/RepositoryFactory.sol/RepositoryFactory.json"
-const contractAddress = "0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
+const contractAddress = "0x37a0aD4fb46250Bf4C07824d4e5F2E920Ae5819E" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
 
 export const useRepositoryStore = defineStore("user", () => {
     const account = ref(null)
