@@ -13,4 +13,9 @@ contract RepositoryFactory {
         repositories.push(repository);
     }
 
+    function getAllRepositories() public view returns(Repository[] memory){
+        return repositories;
+    }
+
+
 }
