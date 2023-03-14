@@ -298,12 +298,13 @@
                         <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Dashboard</h1>
                     </div>
                     <div class="mt-4 flex sm:mt-0 sm:ml-4">
-                        <!--                        <button-->
-                        <!--                            type="button"-->
-                        <!--                            class="sm:order-0 order-1 ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-0"-->
-                        <!--                        >-->
-                        <!--                            Share-->
-                        <!--                        </button>-->
+                        <button
+                            type="button"
+                            class="sm:order-0 order-1 ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-0"
+                            @click="testAddFileToIPFS()"
+                            >
+                            Test
+                        </button>
                         <button
                             type="button"
                             class="order-0 inline-flex items-center rounded-md bg-violet-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
@@ -456,6 +457,8 @@ import { Dialog, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionC
 import { Bars3CenterLeftIcon, Bars4Icon, ClockIcon, HomeIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 import { ChevronRightIcon, ChevronUpDownIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
+import { Buffer } from 'buffer';
+import { addToIPFS } from '~/composables/ipfs'
 
 const navigation = [
     { name: "Home", href: "#", icon: HomeIcon, current: true },
@@ -764,4 +767,10 @@ const sidebarOpen = ref(false)
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
+const testAddFileToIPFS = () => {
+    console.log("a")
+    const buff = Buffer.from("ahoj", 'utf-8')
+    console.log(buff)
+    addToIPFS(buff)
+}
 </script>

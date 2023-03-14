@@ -26,6 +26,7 @@
     "ethereum-waffle": "^4.0.10",
     "ethers": "5.4",
     "hardhat": "^2.12.7",
+    "ipfs-http-client": "^60.0.0",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.29",
     "vue": "^3.2.45",
