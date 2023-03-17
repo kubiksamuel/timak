@@ -6,25 +6,32 @@ import "./RoleManager.sol";
 
 contract Repository is RoleManager("Administrator"){
     string public name;
-    uint256 public timestamp;
+    uint256 public createdAt;
     address public owner;
 
-    struct File {
-        string name;
+    struct Version {
+        uint256 timestamp;
+        address committer;
+        string commitName;
     }
 
-    File[] public files;
+    mapping(bytes32 => Version) public version;
+    bytes32[] public versionHashes;
 
     constructor(string memory _name) {
         name = _name;
-        timestamp = block.timestamp;
+        createdAt = block.timestamp;
         owner = msg.sender;
     }
 
-    function addToFiles(string memory _name) public {
-        files.push(File({
-            name: _name
-        }));
+    function addVersionOfRepository(string memory _name) public {
+        bytes32 versionHash;
+        versionHash = keccak256(abi.encodePacked(msg.sender, block.timestamp));
+        Version storage newVersion = version[versionHash];
+        newVersion.timestamp = block.timestamp;
+        newVersion.committer = msg.sender;
+        newVersion.commitName = _name;
+        versionHashes.push(versionHash);
     }
 
 }
