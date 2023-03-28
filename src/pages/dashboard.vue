@@ -458,7 +458,7 @@ import { Bars3CenterLeftIcon, Bars4Icon, ClockIcon, HomeIcon, XMarkIcon } from "
 import { ChevronRightIcon, ChevronUpDownIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { Buffer } from 'buffer';
-import { addToIPFS } from '~/composables/ipfs'
+import { addToIPFS, getFromIPFS } from '~/composables/ipfs'
 
 const navigation = [
     { name: "Home", href: "#", icon: HomeIcon, current: true },
@@ -769,8 +769,7 @@ const showCreateRepository = ref(false)
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
 const testAddFileToIPFS = () => {
     console.log("a")
-    const buff = Buffer.from("ahoj", 'utf-8')
-    console.log(buff)
-    addToIPFS(buff)
+    const blob = new Blob([Buffer.from([1,2,3])])
+    addToIPFS(blob)
 }
 </script>
