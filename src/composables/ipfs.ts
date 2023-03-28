@@ -1,18 +1,33 @@
-import { create } from 'ipfs-http-client'
-const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+import axios from 'axios'
 
+const api_endpoint_pinata_post = "https://api.pinata.cloud/pinning/"
+const api_endpoint_pinata_get = "https://gateway.pinata.cloud/ipfs/pinFileToIPFS"
+const access_token = "..."
+const authorization = "Bearer " + access_token
 export const getFromIPFS = async (fileHash: string) => {
-    const stream = ipfs.cat(fileHash)
-    let content: any[] = [];
-    for await (const chunk of stream) {
-        content = [...content, ...chunk]
-    }
-    return content;
+    const res = await axios.get(api_endpoint_pinata_get + fileHash, {
+        headers: {
+            'Accept': 'text/plain'
+        }
+    })
+    console.log(res)
 }
 
-export const addToIPFS = async (fileToUpload: Buffer) => {
-    console.log("test")
-    const IPFSFile = await ipfs.add(fileToUpload);
-    console.log(IPFSFile)
-    return IPFSFile.path;
+export const addToIPFS = async (fileToUpload: Blob) => {
+    const formData = new FormData()
+    formData.append("file", fileToUpload)
+    formData.append("pinataMetadata", JSON.stringify({
+        name: "test"
+    }))
+    formData.append("pinataOptions", JSON.stringify({
+        cidVersion: 0
+    }))
+    const res = await axios.post(api_endpoint_pinata_post, formData, {
+        maxBodyLength: Infinity,
+        headers: {
+            'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+            "Authorization": authorization
+        }
+    })
+    console.log(res.data)
 }
