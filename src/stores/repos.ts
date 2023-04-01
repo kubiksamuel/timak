@@ -1,7 +1,8 @@
 import { ethers } from "ethers"
 import { acceptHMRUpdate, defineStore } from "pinia"
 import contractABI from "../artifacts/contracts/RepositoryFactory.sol/RepositoryFactory.json"
-const contractAddress = "0x222301fA451400abA5EF63FCdbF046e6787ffF4D" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
+import { RepositoryMeta } from "~/types/repository"
+const contractAddress = "0x5Dc9F2148542b1F8723404abC1a52D51b94d05E2" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
 
 export const useRepositoryStore = defineStore("user", () => {
     const account = ref(null)
@@ -56,11 +57,11 @@ export const useRepositoryStore = defineStore("user", () => {
         }
     }
 
-    async function createRepository(messageInput) {
+    async function createRepository(newRepository: RepositoryMeta) {
         console.log("setting loader")
         setLoader(true)
         try {
-            console.log("got", messageInput)
+            console.log("got", newRepository)
             const { ethereum } = window
             if (ethereum) {
                 // create provider object from ethers library, using ethereum object injected by metamask
@@ -71,12 +72,11 @@ export const useRepositoryStore = defineStore("user", () => {
                 /*
                  * Execute the actual wave from your smart contract
                  */
-                const repositoryTxn = await repositoryFactoryContract.createRepositoryContract(messageInput)
+                const repositoryTxn = await repositoryFactoryContract.createRepositoryContract(newRepository.name, newRepository.description)
                 console.log("Mining...", repositoryTxn.hash)
                 await repositoryTxn.wait()
                 console.log("Mined -- ", repositoryTxn.hash)
 
-                messageInput = ""
                 setLoader(false)
             } else {
                 console.log("Ethereum object doesn't exist!")

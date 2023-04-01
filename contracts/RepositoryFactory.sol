@@ -17,8 +17,8 @@ contract RepositoryFactory {
     mapping(address => User) internal usersData;
     address[] public users;
 
-    function createRepositoryContract(string memory _name) public{
-        Repository repository = new Repository(_name);
+    function createRepositoryContract(string memory _name, string memory _description) public{
+        Repository repository = new Repository(_name, _description);
         bytes32 repoHash;
         repoHash = keccak256(abi.encodePacked(msg.sender, block.timestamp));
         repositories[repoHash] = repository;
