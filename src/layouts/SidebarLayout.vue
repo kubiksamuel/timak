@@ -1,141 +1,108 @@
 <template>
-    <div class="flex min-h-screen w-screen">
+    <!--
+      This example requires updating your template:
+
+      ```
+      <html class="h-full bg-white">
+      <body class="h-full">
+      ```
+    -->
+    <div class="min-h-screen w-full">
         <!-- Static sidebar for desktop -->
-        <div class="flex w-64 flex-col border-r border-gray-200 bg-violet-200 pt-5 pb-4">
-            <div class="text-lg flex justify-center flex-shrink-0 items-center px-6 text-violet-800">
-                VersionVault
-                <!--                <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=purple&shade=500" alt="Your Company" />-->
-            </div>
+        <div class="lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
             <!-- Sidebar component, swap this element with another sidebar if you like -->
-            <div class="mt-5 flex h-0 flex-1 flex-col overflow-y-auto pt-1">
-                <!-- User account dropdown -->
-                <Menu as="div" class="relative inline-block px-3 text-left">
-                    <div>
-                        <MenuButton
-                            class="group w-full rounded-md bg-gray-100 px-3.5 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-100"
-                        >
-                            <span class="flex w-full items-center justify-between">
-                                <span class="flex min-w-0 items-center justify-between space-x-3">
+            <div class="flex grow flex-col gap-y-1 overflow-y-auto bg-violet-600 px-6">
+                <div class="flex h-16 text-violet-100 text-lg font-bold shrink-0 items-center justify-center">
+                    <div>VersionVault</div>
+                </div>
+                <nav class="flex flex-1 flex-col">
+                    <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                        <li>
+                            <ul role="list" class="-mx-2 space-y-1">
+                                <li v-for="item in navigation" :key="item.name">
+                                    <a
+                                        :href="item.href"
+                                        :class="[
+                                            item.current ? 'bg-violet-700 text-white' : 'text-violet-200 hover:text-white hover:bg-violet-700',
+                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
+                                        ]"
+                                    >
+                                        <component :is="item.icon" :class="[item.current ? 'text-white' : 'text-violet-200 group-hover:text-white', 'h-6 w-6 shrink-0']" aria-hidden="true" />
+                                        {{ item.name }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="text-xs font-semibold leading-6 text-violet-200">Your teams</div>
+                            <ul role="list" class="-mx-2 mt-2 space-y-1">
+                                <li v-for="team in teams" :key="team.name">
+                                    <a
+                                        :href="team.href"
+                                        :class="[
+                                            team.current ? 'bg-violet-700 text-white' : 'text-violet-200 hover:text-white hover:bg-violet-700',
+                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
+                                        ]"
+                                    >
+                                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-violet-400 bg-violet-500 text-[0.625rem] font-medium text-white">{{
+                                            team.initial
+                                        }}</span>
+                                        <span class="truncate">{{ team.name }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="-mx-6 mt-auto">
+                            <a href="#" class="flex items-center px-3 py-3 text-sm font-semibold justify-between leading-6 text-white">
+                                <div class="flex items-center gap-x-3">
                                     <img
-                                        class="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
-                                        src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80"
+                                        class="h-8 w-8 rounded-full bg-violet-700"
+                                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                                         alt=""
                                     />
-                                    <span class="flex min-w-0 flex-1 flex-col">
-                                        <span class="truncate text-sm font-medium text-gray-900">Jessy Schwarz</span>
-                                        <span class="truncate text-sm text-gray-500">@jessyschwarz</span>
-                                    </span>
-                                </span>
-                            </span>
-                        </MenuButton>
-                    </div>
-                    <transition
-                        enter-active-class="transition ease-out duration-100"
-                        enter-from-class="transform opacity-0 scale-95"
-                        enter-to-class="transform opacity-100 scale-100"
-                        leave-active-class="transition ease-in duration-75"
-                        leave-from-class="transform opacity-100 scale-100"
-                        leave-to-class="transform opacity-0 scale-95"
-                    >
-                        <MenuItems class="absolute right-0 left-0 z-10 mx-3 mt-1 origin-top divide-y divide-gray-200 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div class="py-1">
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">View profile</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Settings</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Notifications</a>
-                                </MenuItem>
-                            </div>
-                            <div class="py-1">
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Get desktop app</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Support</a>
-                                </MenuItem>
-                            </div>
-                            <div class="py-1">
-                                <MenuItem v-slot="{ active }">
-                                    <button :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Logout</button>
+                                    <span>Tom cook</span>
+                                </div>
 
-                                    <!--                                    <button @click="logout" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Logout</button>-->
-                                </MenuItem>
-                            </div>
-                        </MenuItems>
-                    </transition>
-                </Menu>
-                <!-- Sidebar Search -->
-                <div class="mt-5 px-3">
-                    <label for="search" class="sr-only">Search</label>
-                    <div class="relative mt-1 rounded-md shadow-sm">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3" aria-hidden="true">
-                            <MagnifyingGlassIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input
-                            type="text"
-                            name="search"
-                            id="search"
-                            class="block w-full rounded-md border-0 py-1.5 pl-9 ring-1 ring-violet-300 placeholder:text-gray-400 focus:ring-1 outline-none focus:ring-violet-600 sm:text-sm sm:leading-6"
-                            placeholder="Search123a"
-                        />
-                    </div>
-                </div>
-                <!-- Navigation -->
-                <nav class="mt-6 px-3">
-                    <div class="space-y-1">
-                        <a
-                            v-for="item in navigation"
-                            :key="item.name"
-                            :href="item.href"
-                            :class="[
-                                item.current ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900',
-                                'group flex items-center rounded-md px-2 py-2 text-sm font-medium',
-                            ]"
-                            :aria-current="item.current ? 'page' : undefined"
-                        >
-                            <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'mr-3 h-6 w-6 flex-shrink-0']" aria-hidden="true" />
-                            {{ item.name }}
-                        </a>
-                    </div>
-                    <div class="mt-8">
-                        <!-- Secondary navigation -->
-                        <h3 class="px-3 text-sm font-medium text-gray-500" id="desktop-teams-headline">Teams</h3>
-                        <div class="mt-1 space-y-1" role="group" aria-labelledby="desktop-teams-headline">
-                            <a
-                                v-for="team in teams"
-                                :key="team.name"
-                                :href="team.href"
-                                class="group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                            >
-                                <span :class="[team.bgColorClass, 'mr-4 h-2.5 w-2.5 rounded-full']" aria-hidden="true" />
-                                <span class="truncate">{{ team.name }}</span>
+                                <div class="h-full">
+                                    <button @click="logout" class="px-6 py-1 font-medium hover:bg-violet-700 rounded-md">Logout</button>
+                                </div>
                             </a>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                 </nav>
             </div>
         </div>
-        <!-- Main column -->
-        <div class="w-full">
-            <slot></slot>
-        </div>
+
+        <main class="h-ful w-full py-2 lg:pl-72">
+            <div class="px-4 sm:px-6 :px-8">
+                <slot></slot>
+            </div>
+        </main>
     </div>
 </template>
-<script setup lang="ts">
-import { Dialog, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionChild, TransitionRoot } from "@headlessui/vue"
-import { Bars3CenterLeftIcon, Bars4Icon, ClockIcon, HomeIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 
+<script setup>
+import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon } from "@heroicons/vue/24/outline"
+import { useRepositoryStore } from "~/stores/repos"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+const repositoryStore = useRepositoryStore()
 const navigation = [
-    { name: "Home", href: "#", icon: HomeIcon, current: true },
-    { name: "My tasks", href: "#", icon: Bars4Icon, current: false },
-    { name: "Recent", href: "#", icon: ClockIcon, current: false },
+    { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
+    { name: "Team", href: "#", icon: UsersIcon, current: false },
+    { name: "Projects", href: "#", icon: FolderIcon, current: false },
+    { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
+    { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
+    { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
 ]
 const teams = [
-    { name: "Engineering", href: "#", bgColorClass: "bg-indigo-500" },
-    { name: "Human Resources", href: "#", bgColorClass: "bg-green-500" },
-    { name: "Customer Success", href: "#", bgColorClass: "bg-yellow-500" },
+    { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
+    { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
+    { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
 ]
+const logout = () => {
+    repositoryStore.logoutAccount()
+    router.push({ path: "/" })
+}
 </script>
