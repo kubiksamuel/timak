@@ -6,11 +6,12 @@ import "./RoleManager.sol";
 
 contract Repository is RoleManager("Administrator"){
     event VersionAdded(address committer, string versionName, uint256 timestamp);
-    event RepositoryCreated(string name, uint256 createdAt, address owner);
+    event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
 
     string public name;
     uint256 public createdAt;
     address public owner;
+    string public description;
 
     struct Version {
         uint256 timestamp;
@@ -27,11 +28,12 @@ contract Repository is RoleManager("Administrator"){
     mapping(bytes32 => Version) public version;
     bytes32[] public versionHashes;
 
-    constructor(string memory _name) {
+    constructor(string memory _name, string memory _description) {
         name = _name;
         createdAt = block.timestamp;
         owner = msg.sender;
-        emit RepositoryCreated(_name, createdAt, owner);
+        description = _description;
+        emit RepositoryCreated(_name, createdAt, owner, _description);
     }
 
     function addVersionOfRepository(string memory _name) public
