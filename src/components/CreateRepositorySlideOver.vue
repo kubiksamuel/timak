@@ -1,5 +1,5 @@
 <template>
-    <SlideOver v-bind="{ open }" @close="write" :title="title">
+    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title">
         <div class="flex flex-col space-y-2">
             <div>
                 <label for="name" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Name</label>
@@ -61,7 +61,6 @@ defineProps({
 const emit = defineEmits<{
     (e: "close"): void
 }>()
-const write = () => console.log("All repos: ", useRepositoryStore().getRepositories)
 
 const newRepository: Ref<RepositoryMeta | {}> = ref({})
 </script>

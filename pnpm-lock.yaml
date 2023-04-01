@@ -40,6 +40,7 @@ specifiers:
   markdown-it-shiki: ^0.7.2
   nprogress: ^0.2.0
   pinia: ^2.0.29
+  pinia-plugin-persistedstate: ^3.1.0
   pnpm: ^7.25.1
   prettier: 2.8.4
   shiki: ^0.12.1
@@ -86,6 +87,7 @@ dependencies:
   hardhat: 2.12.7_typescript@4.9.4
   nprogress: 0.2.0
   pinia: 2.0.29_prq2uz4lho2pwp6irk4cfkrxwu
+  pinia-plugin-persistedstate: 3.1.0_pinia@2.0.29
   vue: 3.2.45
   vue-demi: 0.13.11_vue@3.2.45
   vue-i18n: 9.2.2_vue@3.2.45
@@ -9876,6 +9878,14 @@ packages:
     resolution: {integrity: sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==}
     engines: {node: '>=4'}
     dev: true
+
+  /pinia-plugin-persistedstate/3.1.0_pinia@2.0.29:
+    resolution: {integrity: sha512-8UN+vYMEPBdgNLwceY08mi5olI0wkYaEb8b6hD6xW7SnBRuPydWHlEhZvUWgNb/ibuf4PvufpvtS+dmhYjJQOw==}
+    peerDependencies:
+      pinia: ^2.0.0
+    dependencies:
+      pinia: 2.0.29_prq2uz4lho2pwp6irk4cfkrxwu
+    dev: false
 
   /pinia/2.0.29_prq2uz4lho2pwp6irk4cfkrxwu:
     resolution: {integrity: sha512-5z/KpFecq/cIgfeTnulJXldiLcTITRkTe3N58RKYSj0Pc1EdR6oyCdnf5A9jLoVwBqX5LtHhd0kGlpzWvk9oiQ==}
