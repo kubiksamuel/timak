@@ -17,10 +17,7 @@ export const useRepositoryStore = defineStore("user", () => {
                 const provider = new ethers.providers.Web3Provider(ethereum)
                 const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
-                console.log(account.value)
                 const repositories = await repositoryFactoryContract.getUserRepos(account.value)
-                console.log(repositories)
-                console.log(repositories[0].name)
 
                 const allRepositories = [] as any
                 repositories.forEach((repository) => {
@@ -39,16 +36,13 @@ export const useRepositoryStore = defineStore("user", () => {
     }
 
     async function connectWallet() {
-        console.log("pls")
         try {
             const { ethereum } = window
             if (!ethereum) {
                 console.log("Must connect to MetaMask!")
                 return
             }
-            console.log("vxc")
             const myAccounts = await ethereum.request({ method: "eth_requestAccounts" })
-            console.log(myAccounts)
             console.log("Connected: ", myAccounts[0])
             account.value = myAccounts[0]
             await getAllRepositories()
