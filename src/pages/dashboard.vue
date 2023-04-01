@@ -154,7 +154,7 @@
                             </div>
                             <div class="py-1">
                                 <MenuItem v-slot="{ active }">
-                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Logout</a>
+                                    <button @click="logout" class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Logout</button>
                                 </MenuItem>
                             </div>
                         </MenuItems>
@@ -313,57 +313,6 @@
                         </button>
                     </div>
                 </div>
-                <!-- Pinned projects -->
-                <div class="mt-6 px-4 sm:px-6 lg:px-8">
-                    <h2 class="text-sm font-medium text-gray-900">Recent Projects</h2>
-                    <ul role="list" class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
-                        <li v-for="project in pinnedProjects" :key="project.id" class="relative col-span-1 flex rounded-md shadow-sm">
-                            <div :class="[project.bgColorClass, 'flex w-16 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white']">
-                                {{ project.initials }}
-                            </div>
-                            <div class="flex flex-1 bg-white shadow-md items-center justify-between truncate rounded-r-md border-t border-r border-b border-gray-200">
-                                <div class="flex-1 truncate px-4 py-2 text-sm">
-                                    <a href="#" class="font-medium text-gray-900 hover:text-gray-600">{{ project.title }}</a>
-                                    <p class="text-gray-500">{{ project.totalMembers }} Members</p>
-                                </div>
-                                <Menu as="div" class="flex-shrink-0 pr-2">
-                                    <MenuButton
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
-                                    >
-                                        <span class="sr-only">Open options</span>
-                                        <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
-                                    </MenuButton>
-                                    <transition
-                                        enter-active-class="transition ease-out duration-100"
-                                        enter-from-class="transform opacity-0 scale-95"
-                                        enter-to-class="transform opacity-100 scale-100"
-                                        leave-active-class="transition ease-in duration-75"
-                                        leave-from-class="transform opacity-100 scale-100"
-                                        leave-to-class="transform opacity-0 scale-95"
-                                    >
-                                        <MenuItems
-                                            class="absolute right-10 top-3 z-10 mx-3 mt-1 w-48 origin-top-right divide-y divide-gray-200 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                        >
-                                            <div class="py-1">
-                                                <MenuItem v-slot="{ active }">
-                                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">View</a>
-                                                </MenuItem>
-                                            </div>
-                                            <div class="py-1">
-                                                <MenuItem v-slot="{ active }">
-                                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Removed from pinned</a>
-                                                </MenuItem>
-                                                <MenuItem v-slot="{ active }">
-                                                    <a href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Share</a>
-                                                </MenuItem>
-                                            </div>
-                                        </MenuItems>
-                                    </transition>
-                                </Menu>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
 
                 <!-- Projects list (only on smallest breakpoint) -->
                 <div class="mt-10 sm:hidden">
@@ -445,17 +394,18 @@
         <CreateRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
     </div>
 </template>
-<route lang="yaml">
-meta:
-    layout: home
-path: /dashboard
-</route>
+<!--<route lang="yaml">-->
+<!--meta:-->
+<!--    layout: home-->
+<!--path: /dashboard-->
+<!--</route>-->
 <script setup lang="ts">
 import { ref } from "vue"
 import { Dialog, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionChild, TransitionRoot } from "@headlessui/vue"
 import { Bars3CenterLeftIcon, Bars4Icon, ClockIcon, HomeIcon, XMarkIcon } from "@heroicons/vue/24/outline"
-import { ChevronRightIcon, ChevronUpDownIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
+import { useRepositoryStore } from "~/stores/repos"
+import { useRouter } from "vue-router"
 
 const navigation = [
     { name: "Home", href: "#", icon: HomeIcon, current: true },
@@ -500,268 +450,21 @@ const projects = [
         pinned: true,
         bgColorClass: "bg-violet-600",
     },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    {
-        id: 1,
-        title: "GraphQL API",
-        initials: "GA",
-        team: "Engineering",
-        members: [
-            {
-                name: "Dries Vincent",
-                handle: "driesvincent",
-                imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Lindsay Walton",
-                handle: "lindsaywalton",
-                imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Courtney Henry",
-                handle: "courtneyhenry",
-                imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-            {
-                name: "Tom Cook",
-                handle: "tomcook",
-                imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            },
-        ],
-        totalMembers: 12,
-        lastUpdated: "March 17, 2020",
-        pinned: true,
-        bgColorClass: "bg-violet-600",
-    },
-    // More projects...
 ]
-const pinnedProjects = projects.filter((project) => project.pinned)
+const router = useRouter()
+const repositoryStore = useRepositoryStore()
+console.log("Account in index: ", repositoryStore.account)
 
 const sidebarOpen = ref(false)
 const showCreateRepository = ref(false)
+
+const logout = () => {
+    console.log("Logout")
+    console.log("Old account: ", repositoryStore.account)
+    repositoryStore.logoutAccount()
+    console.log("New Account: ", repositoryStore.account)
+    router.push({ path: "/" })
+}
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
 </script>

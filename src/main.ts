@@ -7,8 +7,14 @@ import generatedRoutes from "~pages"
 import "./input.css"
 // import "@unocss/reset/tailwind.css"
 import "uno.css"
-
-const routes = setupLayouts(generatedRoutes)
+import index from "./pages/index.vue"
+import Dashboard from "~/pages/dashboard.vue"
+import HomeLayout from "./layouts/home.vue"
+const routes = [
+    { path: "/", component: index, meta: { layout: HomeLayout } },
+    { path: "/dashboard", component: Dashboard, meta: { layout: HomeLayout } },
+]
+// const routes = setupLayouts(generatedRoutes)
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(App, { routes, base: import.meta.env.BASE_URL }, (ctx) => {
