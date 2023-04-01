@@ -14,11 +14,14 @@ contract RepositoryFactory {
         bytes32[] listOfRepositories;
     }
 
+    Repository[] public repositoriess;
+
     mapping(address => User) internal usersData;
     address[] public users;
 
     function createRepositoryContract(string memory _name, string memory _description) public{
         Repository repository = new Repository(_name, _description);
+        repositoriess.push(repository);
         bytes32 repoHash;
         repoHash = keccak256(abi.encodePacked(msg.sender, block.timestamp));
         repositories[repoHash] = repository;
@@ -30,5 +33,9 @@ contract RepositoryFactory {
 
     function getUserRepos(address user) external view returns (bytes32[] memory) {
         return usersData[user].listOfRepositories;
+    }
+
+    function getAllRepositories() public view returns(Repository[] memory){
+        return repositoriess;
     }
 }

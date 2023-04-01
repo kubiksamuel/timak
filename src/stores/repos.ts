@@ -5,7 +5,7 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 
 import { RepositoryMeta } from "~/types/repository"
 
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
+const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -35,14 +35,23 @@ export const useRepositoryStore = defineStore("user", {
                 const provider = new ethers.providers.Web3Provider(ethereum)
                 // const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
-                const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
+                // const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
+
+                const rawRepositories = await repositoryFactoryContract.getAllRepositories()
+                console.log(rawRepositories)
                 this.repositories = []
                 for (const repository of rawRepositories) {
                     console.log("Repo address: ", repository)
                     const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
                     const name = await repositoryProxy.name()
+                    const owner = await repositoryProxy.owner()
+                    const createdAt = await repositoryProxy.createdAt()
+                    const repoTime = new Date(createdAt * 1000)
+                    const repoTimeFormatted = new Intl.DateTimeFormat("en-US").format(repoTime) as any
+                    const description = await repositoryProxy.description()
+
                     // console.log("REPOSITORY NAME", name)
-                    console.log("Repository data:", name)
+                    console.log("Repository data:", name, owner, repoTimeFormatted, description)
                     const repositoryData = {
                         name: repositoryProxy.name,
                         createdAt: repositoryProxy.createdAt,
