@@ -8,8 +8,7 @@
                         <p class="text-violet-600">VersionVault:</p>
                         The Ultimate Backup System for Science Projects
                     </h1>
-                    <p class="mt-6 text-lg leading-8 text-gray-600">
-                    </p>
+                    <p class="mt-6 text-lg leading-8 text-gray-600"></p>
                     <div class="mt-10 flex items-center gap-x-6">
                         <button v-if="!account" class="mx-auto bg-violet-700 text-white rounded p-4" @click="connectWallet">Connect Wallet</button>
                     </div>
@@ -22,7 +21,7 @@
                     alt=""
                 />
             </div>
-                        Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat aliqua.
+            Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat aliqua.
         </div>
         <div v-else class="border shadow w-4/12 p-4 mt-10">
             <h3 class="text-2xl">Number Of Entries: {{ guestPostsCount }}</h3>
@@ -60,7 +59,6 @@ meta:
 path: /home
 </route>
 <script setup lang="ts">
-import { ref } from "vue"
 import { storeToRefs } from "pinia"
 import { useRepositoryStore } from "~/stores/repos"
 const something = "s"
@@ -68,9 +66,10 @@ console.log("something: ", something)
 if (something == "s") {
     console.log(something)
 }
-const messageInput = ref(null as any)
+
 const repositoryStore = useRepositoryStore()
-const { createRepository, connectWallet } = useRepositoryStore()
+const { connectWallet } = useRepositoryStore()
 const { postedRepositories, account } = storeToRefs(repositoryStore)
+
 console.log(postedRepositories)
 </script>

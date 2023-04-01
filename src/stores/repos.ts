@@ -1,7 +1,7 @@
 import { ethers } from "ethers"
 import { acceptHMRUpdate, defineStore } from "pinia"
 import contractABI from "../artifacts/contracts/RepositoryFactory.sol/RepositoryFactory.json"
-const contractAddress = "0x37a0aD4fb46250Bf4C07824d4e5F2E920Ae5819E" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
+const contractAddress = "0x222301fA451400abA5EF63FCdbF046e6787ffF4D" //"0x9A5B8A941A6B9a4f4d3A6876eb5D30045181A7bE"
 
 export const useRepositoryStore = defineStore("user", () => {
     const account = ref(null)
@@ -16,7 +16,8 @@ export const useRepositoryStore = defineStore("user", () => {
                 const provider = new ethers.providers.Web3Provider(ethereum)
                 const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
-                const repositories = await repositoryFactoryContract.getAllRepositories()
+                console.log(account.value)
+                const repositories = await repositoryFactoryContract.getUserRepos(account.value)
                 console.log(repositories)
                 console.log(repositories[0].name)
 
@@ -37,14 +38,16 @@ export const useRepositoryStore = defineStore("user", () => {
     }
 
     async function connectWallet() {
+        console.log("pls")
         try {
             const { ethereum } = window
             if (!ethereum) {
-                alert("Must connect to MetaMask!")
+                console.log("Must connect to MetaMask!")
                 return
             }
+            console.log("vxc")
             const myAccounts = await ethereum.request({ method: "eth_requestAccounts" })
-
+            console.log(myAccounts)
             console.log("Connected: ", myAccounts[0])
             account.value = myAccounts[0]
             await getAllRepositories()
@@ -99,4 +102,4 @@ export const useRepositoryStore = defineStore("user", () => {
     }
 })
 
-if (import.meta.hot) import.meta.hot.accept(acceptHMRUpdate(useCryptoStore, import.meta.hot))
+if (import.meta.hot) import.meta.hot.accept(acceptHMRUpdate(useRepositoryStore, import.meta.hot))
