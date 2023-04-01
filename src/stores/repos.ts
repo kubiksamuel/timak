@@ -5,7 +5,7 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 
 import { RepositoryMeta } from "~/types/repository"
 
-const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+const contractAddress = "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -35,9 +35,9 @@ export const useRepositoryStore = defineStore("user", {
                 const provider = new ethers.providers.Web3Provider(ethereum)
                 // const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
-                // const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
-
-                const rawRepositories = await repositoryFactoryContract.getAllRepositories()
+                const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
+                console.log("aeuhwe: ", await repositoryFactoryContract.getUsers())
+                // const rawRepositories = await repositoryFactoryContract.getAllRepositories()
                 console.log(rawRepositories)
                 this.repositories = []
                 for (const repository of rawRepositories) {
@@ -47,7 +47,7 @@ export const useRepositoryStore = defineStore("user", {
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
-                    const repoTimeFormatted = new Intl.DateTimeFormat("en-US").format(repoTime) as any
+                    const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
 
                     // console.log("REPOSITORY NAME", name)
