@@ -42,8 +42,7 @@ const router = useRouter()
 console.log("Router: ", router)
 watchEffect(async () => {
     if (repositoryStore.account) {
-        console.log("CHANGE ACCOUNT")
-        await router.push({ path: "/dashboard" })
+        setTimeout(async () => await router.push({ path: "/dashboard" }, 1000))
     }
 })
 </script>

@@ -5,7 +5,7 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 
 import { RepositoryMeta } from "~/types/repository"
 
-const contractAddress = "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -47,20 +47,22 @@ export const useRepositoryStore = defineStore("user", {
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
-                    const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repoTime) as any
+                    const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
+                    // console.log("Time format: ", repoTimeFormatted)
                     const description = await repositoryProxy.description()
 
                     // console.log("REPOSITORY NAME", name)
-                    console.log("Repository data:", name, owner, repoTimeFormatted, description)
                     const repositoryData = {
-                        name: repositoryProxy.name,
-                        createdAt: repositoryProxy.createdAt,
-                        owner: repositoryProxy.owner,
-                        description: repositoryProxy.description,
-                        versionHashes: repositoryProxy.versionHashes,
-                        version: repositoryProxy.version,
+                        name: name,
+                        createdAt: repoTimeFormatted,
+                        owner: owner,
+                        description: description,
+                        versionHashes: [],
+                        version: "",
                     }
+                    console.log("Repository data:", name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
+                    console.log("After repository data: ", this.repositories)
                 }
                 // console.log("Temp repos: ", this.getRepositories)
                 // console.log("All repositories: ", this.getRepositories)
@@ -84,8 +86,31 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryTxn = await repositoryFactoryContract.createRepositoryContract(newRepository.name, newRepository.description)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
-                    console.log("Transaction reciept: ", transaction)
+                    console.log("Event: ", transaction.logs)
+                    // console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
+
+                    const repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
+                    const name = await repositoryProxy.name()
+                    const owner = await repositoryProxy.owner()
+                    const createdAt = await repositoryProxy.createdAt()
+                    const repoTime = new Date(createdAt * 1000)
+                    const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
+                    // console.log("Time format: ", repoTimeFormatted)
+                    const description = await repositoryProxy.description()
+
+                    // console.log("REPOSITORY NAME", name)
+                    const repositoryData = {
+                        name: name,
+                        createdAt: repoTimeFormatted,
+                        owner: owner,
+                        description: description,
+                        versionHashes: [],
+                        version: "",
+                    }
+                    console.log("Repository data:", name, owner, repoTime, description)
+                    this.repositories.push(repositoryData)
+                    console.log("After repository data: ", this.repositories)
                 } else {
                     console.log("Ethereum object doesn't exist!")
                 }
