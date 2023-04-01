@@ -36,12 +36,25 @@ export const useRepositoryStore = defineStore("user", {
                 // const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
-                console.log(rawRepositories)
+                this.repositories = []
                 for (const repository of rawRepositories) {
-                    const repositoryStruct = new ethers.Contract(repository, RepositoryABI.abi, provider)
-                    this.repositories.push(repositoryStruct)
+                    console.log("Repo address: ", repository)
+                    const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
+                    const name = await repositoryProxy.name()
+                    // console.log("REPOSITORY NAME", name)
+                    console.log("Repository data:", name)
+                    const repositoryData = {
+                        name: repositoryProxy.name,
+                        createdAt: repositoryProxy.createdAt,
+                        owner: repositoryProxy.owner,
+                        description: repositoryProxy.description,
+                        versionHashes: repositoryProxy.versionHashes,
+                        version: repositoryProxy.version,
+                    }
+                    this.repositories.push(repositoryData)
                 }
-                console.log("All repositories: ", this.repositories)
+                // console.log("Temp repos: ", this.getRepositories)
+                // console.log("All repositories: ", this.getRepositories)
             } catch (error) {
                 console.log(error)
             }
@@ -58,9 +71,11 @@ export const useRepositoryStore = defineStore("user", {
                     /*
                      * Execute the actual wave from your smart contract
                      */
+                    console.log("New repository creation data: ", newRepository)
                     const repositoryTxn = await repositoryFactoryContract.createRepositoryContract(newRepository.name, newRepository.description)
                     console.log("Mining...", repositoryTxn.hash)
-                    await repositoryTxn.wait()
+                    const transaction = await repositoryTxn.wait()
+                    console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
                 } else {
                     console.log("Ethereum object doesn't exist!")
@@ -70,6 +85,7 @@ export const useRepositoryStore = defineStore("user", {
             }
         },
     },
+    persist: true,
 })
 
 // if (import.meta.hot) import.meta.hot.accept(acceptHMRUpdate(useRepositoryStore, import.meta.hot))

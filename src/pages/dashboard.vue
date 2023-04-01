@@ -120,7 +120,6 @@
                                         <span class="truncate text-sm text-gray-500">@jessyschwarz</span>
                                     </span>
                                 </span>
-                                <ChevronUpDownIcon class="h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                             </span>
                         </MenuButton>
                     </div>
@@ -330,7 +329,6 @@
                                         <span class="truncate font-normal text-gray-500">in {{ project.team }}</span>
                                     </span>
                                 </span>
-                                <ChevronRightIcon class="ml-4 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                             </a>
                         </li>
                     </ul>
@@ -400,12 +398,15 @@
 <!--path: /dashboard-->
 <!--</route>-->
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { Dialog, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionChild, TransitionRoot } from "@headlessui/vue"
 import { Bars3CenterLeftIcon, Bars4Icon, ClockIcon, HomeIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
+
+const router = useRouter()
+const repositoryStore = useRepositoryStore()
 
 const navigation = [
     { name: "Home", href: "#", icon: HomeIcon, current: true },
@@ -417,6 +418,7 @@ const teams = [
     { name: "Human Resources", href: "#", bgColorClass: "bg-green-500" },
     { name: "Customer Success", href: "#", bgColorClass: "bg-yellow-500" },
 ]
+
 const projects = [
     {
         id: 1,
@@ -451,8 +453,47 @@ const projects = [
         bgColorClass: "bg-violet-600",
     },
 ]
-const router = useRouter()
-const repositoryStore = useRepositoryStore()
+
+const allRepositories = ref(repositoryStore.getRepositories)
+const repositories = computed(() => {
+    return allRepositories.value.map((repository, index) => {
+        return {
+            id: index,
+            title: "repository.name",
+            initials: "repository.name.slice(0, 2)",
+            team: "Engineering",
+            members: [
+                {
+                    name: "Dries Vincent",
+                    handle: "driesvincent",
+                    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+                },
+                {
+                    name: "Lindsay Walton",
+                    handle: "lindsaywalton",
+                    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+                },
+                {
+                    name: "Courtney Henry",
+                    handle: "courtneyhenry",
+                    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+                },
+                {
+                    name: "Tom Cook",
+                    handle: "tomcook",
+                    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+                },
+            ],
+            totalMembers: 12,
+            lastUpdated: "March 17, 2020",
+            pinned: true,
+            bgColorClass: "bg-violet-600",
+        }
+    })
+})
+
+console.log("Repositories: ", allRepositories.value[0])
+
 console.log("Account in index: ", repositoryStore.account)
 
 const sidebarOpen = ref(false)
