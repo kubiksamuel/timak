@@ -1,9 +1,6 @@
 <template>
-  <main class="px-4 py-10 text-center text-gray-700 dark:text-gray-200 bg-black h-screen">
-    <RouterView />
-    <TheFooter />
-    <div class="mt-5 mx-auto text-center opacity-75 dark:opacity-50 text-sm">
-      [Home Layout]
-    </div>
-  </main>
+    <main class="max-h-screen overflow-auto bg-gray-50">
+        <RouterView />
+        <!--    <TheFooter />-->
+    </main>
 </template>
