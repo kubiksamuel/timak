@@ -5,9 +5,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 pragma solidity >=0.7.0 <0.9.0;
 
 contract RoleManager is AccessControl {
-    event RoleGranted(address account, string name, string roleName);
-    event RoleRevoked(address account, string roleName);
-
     bytes32 public constant CONTRIBUTOR_ROLE = keccak256("CONTRIBUTOR_ROLE");
     uint256 public userId;
 
@@ -28,7 +25,6 @@ contract RoleManager is AccessControl {
         usersInfo[msg.sender].name = name;
         usersInfo[msg.sender].id = userId;
         users.push(msg.sender);
-        emit RoleGranted(msg.sender, name, "Contributor");
     }
 
     function setPrivillegeContributor(address account, string memory name) public
@@ -39,7 +35,6 @@ contract RoleManager is AccessControl {
         usersInfo[account].id = userId;
         usersInfo[account].name = name;
         users.push(account);
-        emit RoleGranted(account, name, "Administrator");
     }
 
     function revokeContributorRole(address account) public
@@ -47,7 +42,6 @@ contract RoleManager is AccessControl {
     {
         revokeRole(CONTRIBUTOR_ROLE, account);
         delete users[usersInfo[account].id];
-        emit RoleRevoked(account, "Contributor");
     }
 
 
