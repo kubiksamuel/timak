@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Krupa\\Projects\\timak\\contracts\\Repository.sol": {
-      "lastModificationDate": 1680350197671,
+      "lastModificationDate": 1680362786463,
       "contentHash": "d96b1f1d42a54fb7287b9e07c797449d",
       "sourceName": "contracts/Repository.sol",
       "solcConfig": {
@@ -39,8 +39,8 @@
       ]
     },
     "C:\\Users\\Krupa\\Projects\\timak\\contracts\\RoleManager.sol": {
-      "lastModificationDate": 1680338880853,
-      "contentHash": "938d1beb8353013c595b31be59f0d525",
+      "lastModificationDate": 1680362786731,
+      "contentHash": "b261dc4d50fe6ca8e3d791a11f25406d",
       "sourceName": "contracts/RoleManager.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -330,8 +330,8 @@
       ]
     },
     "C:\\Users\\Krupa\\Projects\\timak\\contracts\\RepositoryFactory.sol": {
-      "lastModificationDate": 1680350249238,
-      "contentHash": "e5cc3f0dc6d83314293e4312f7bd3061",
+      "lastModificationDate": 1680378681670,
+      "contentHash": "04cdeabec8fcd70a62d7ffd2f94ac75c",
       "sourceName": "contracts/RepositoryFactory.sol",
       "solcConfig": {
         "version": "0.8.4",
