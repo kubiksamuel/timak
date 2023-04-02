@@ -52,28 +52,28 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="-mx-6 mt-auto">
-                            <a href="#" class="flex items-center px-3 py-3 text-sm font-semibold justify-between leading-6 text-white">
-                                <div class="flex items-center gap-x-3">
-                                    <img
-                                        class="h-8 w-8 rounded-full bg-violet-700"
-                                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                        alt=""
-                                    />
-                                    <span>Tom cook</span>
-                                </div>
+                        <li class="mx-auto mt-auto w-full">
+                            <div class="flex items-center w-full py-3 gap-x-2 text-sm font-semibold justify-between leading-6 text-white">
+                                <div class="bg-white rounded-full p-1" v-html="svgString"></div>
 
-                                <div class="h-full">
+                                <!--                                    <img-->
+                                <!--                                        class="h-8 w-8 rounded-full bg-violet-700"-->
+                                <!--                                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"-->
+                                <!--                                        alt=""-->
+                                <!--                                    />-->
+                                <!--                                    <Identicon :size="128" :theme="'polkadot'" :value="'5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'"></Identicon>-->
+                                <span class="truncate">{{ account }}</span>
+                                <div class="">
                                     <button @click="logout" class="px-6 py-1 font-medium hover:bg-violet-700 rounded-md">Logout</button>
                                 </div>
-                            </a>
+                            </div>
                         </li>
                     </ul>
                 </nav>
             </div>
         </div>
 
-        <main class="h-ful w-full py-2 lg:pl-72">
+        <main class="lg:pl-72">
             <div class="px-4 sm:px-6 :px-8">
                 <slot></slot>
             </div>
@@ -85,9 +85,15 @@
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon } from "@heroicons/vue/24/outline"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
+import { toSvg } from "jdenticon"
+import { storeToRefs } from "pinia"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
+
+const { account } = storeToRefs(repositoryStore)
+const svgString = toSvg(account, 25)
+console.log(svgString)
 const navigation = [
     { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
     { name: "Team", href: "#", icon: UsersIcon, current: false },
