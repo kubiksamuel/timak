@@ -5,30 +5,37 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./Repository.sol";
 
 contract RepositoryFactory {
-    event NewRepositorySet(string name, uint256 createdAt, address owner);
+    event NewRepositorySet(string name, uint256 createdAt, address owner, Repository repository);
 
-    mapping(bytes32 => Repository) public repositories;
-    bytes32[] public repoHashes;
+    Repository[] public repositories;
+    uint256 public userCounter;
 
     struct User {
-        bytes32[] listOfRepositories;
+        uint id;
+        Repository[] listOfRepositories;
     }
 
     mapping(address => User) internal usersData;
     address[] public users;
 
-    function createRepositoryContract(string memory _name) public{
-        Repository repository = new Repository(_name);
-        bytes32 repoHash;
-        repoHash = keccak256(abi.encodePacked(msg.sender, block.timestamp));
-        repositories[repoHash] = repository;
-        repoHashes.push(repoHash);
-        usersData[msg.sender].listOfRepositories.push(repoHash);
-        users.push(msg.sender);
-        emit NewRepositorySet(_name, block.timestamp, msg.sender);
+    function createRepositoryContract(string memory _name, string memory _description) public{
+        if (usersData[msg.sender].id == 0) {
+            userCounter++;
+            usersData[msg.sender].id = userCounter;
+            users.push(msg.sender);
+        }
+        Repository repository = new Repository(_name, _description);
+        repositories.push(repository);
+        usersData[msg.sender].listOfRepositories.push(repository);
+        emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
     }
 
-    function getUserRepos(address user) external view returns (bytes32[] memory) {
+    function getUserRepos(address user) external view returns (Repository[] memory) {
         return usersData[user].listOfRepositories;
     }
+
+    function getUsers() external view returns(address[] memory){
+        return users;
+    }
+
 }
