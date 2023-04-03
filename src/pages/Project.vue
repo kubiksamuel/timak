@@ -13,9 +13,9 @@
                         v-if="allRepositories.length > 0"
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerAddFile(true)"
+                        @click="triggerAddVersion(true)"
                     >
-                        Add
+                        Add version
                     </button>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                     <p class="mt-1 text-sm text-gray-500">Get started by adding a new file.</p>
                     <div class="mt-6">
                         <button
-                            @click="triggerAddFile(true)"
+                            @click="triggerAddVersion(true)"
                             type="button"
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         >
@@ -97,7 +97,7 @@
                 </div>
             </div>
         </div>
-        <AddFileSlideOver title="Add new file" :open="showAddFile" @close="triggerAddFile(false)" />
+        <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -105,7 +105,7 @@ import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, computed } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
-import AddFileSlideOver from "~/components/AddFileSlideOver.vue"
+import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 
 const repositoryStore = useRepositoryStore()
@@ -151,7 +151,7 @@ const allRepositories = computed(() => {
         }
     })
 })
-const showAddFile = ref(false)
+const showAddVersion = ref(false)
 
-const triggerAddFile = (show: boolean) => (showAddFile.value = show)
+const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
 </script>
