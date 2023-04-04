@@ -8,6 +8,13 @@
                 <div class="min-w-0 flex-1">
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Dashboard</h1>
                 </div>
+                <button
+                            type="button"
+                            class="sm:order-0 order-1 ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-0"
+                            @click="testAddFileToIPFS()"
+                            >
+                            Test
+                        </button>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
                         v-if="allRepositories.length > 0"
@@ -41,7 +48,7 @@
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[project.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'dashboard/project/'+ project.title" class="truncate hover:text-gray-600">
+                                        <a :href="'/dashboard/project/'+ project.address" class="truncate hover:text-gray-600">
                                             <span>
                                                 {{ project.title }}
                                                 {{ " " }}
@@ -109,6 +116,7 @@ import { ref, computed } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
+import { Buffer } from "buffer"
 
 const repositoryStore = useRepositoryStore()
 const { repositories } = storeToRefs(repositoryStore)
@@ -117,6 +125,7 @@ const allRepositories = computed(() => {
         console.log("Repository in map: ", repository)
         return {
             id: index,
+            address: repository.address,
             title: repository.name,
             initials: repository.name.slice(0, 2),
             team: repository.description,
@@ -156,4 +165,13 @@ const allRepositories = computed(() => {
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
+
+const testAddFileToIPFS = async () => {
+    // const buff = readFileSync('./README.md')
+    const buff = Buffer.from([1,2])
+    const blob = new Blob([buff])
+    // const data = await getFromIPFS("QmcJaPLCrnHfKC6zZmdskkF6tdTqSfE7RnbwBN9UMhuEXj", "file")
+    // const data = await addToIPFS(blob)
+    // console.log(data)
+}
 </script>

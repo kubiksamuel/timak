@@ -91,6 +91,7 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Mined -- ", repositoryTxn.hash)
 
                     const repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
+                    const address = repositoryProxy.address
                     const name = await repositoryProxy.name()
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
@@ -101,6 +102,7 @@ export const useRepositoryStore = defineStore("user", {
 
                     // console.log("REPOSITORY NAME", name)
                     const repositoryData = {
+                        address: address,
                         name: name,
                         createdAt: repoTimeFormatted,
                         owner: owner,

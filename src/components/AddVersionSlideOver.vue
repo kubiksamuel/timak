@@ -1,5 +1,5 @@
 <template>
-    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title">
+    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title" :folderName="folderName">
         <div class="flex flex-col space-y-2">
             <div>
                 <label for="commitMessage" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Commit message</label>
@@ -31,7 +31,7 @@
 
             <div class="px-4 py-3 text-right sm:px-6">
                 <button
-                    @click="createVersion(commitMessage, files)"
+                    @click="createVersion(commitMessage, files, folderName)"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 >
                     Create new version
@@ -46,8 +46,13 @@ import { ref, Ref } from "vue"
 import SlideOver from "./SlideOver.vue"
 
 
-const createVersion = (commitMessage: string | undefined, files: FileList | undefined) => {
+const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
     console.log(commitMessage, files)
+    let hash: string = "blbost"
+    if (commitMessage && files) {
+        hash = await addToIPFS(files, folderName)
+    }
+    console.log(hash)
 }
 
 const handleFolderToUpload = (event: Event) => {
@@ -63,6 +68,10 @@ defineProps({
         required: true,
     },
     title: {
+        type: String,
+        required: true,
+    },
+    folderName: {
         type: String,
         required: true,
     },

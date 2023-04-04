@@ -5,36 +5,47 @@ const api_endpoint_pinata_get = "https://gateway.pinata.cloud/ipfs/"
 const access_token = "..."
 const authorization = "Bearer " + access_token
 
-export const getFromIPFS = async (fileHash: string, fileName: string) => {
-    const res = await axios.get(api_endpoint_pinata_get + fileHash, {
-        headers: {
-            'Accept': 'text/plain',
-        },
-        responseType: 'blob'
+export const getFromIPFS = async (hash: string) => {
+    const res = await axios.get(api_endpoint_pinata_get + hash,
+        {
+            headers: {
+                'Accept': 'text/plain',
+            },
+        }
+    )
+
+    const dom = new DOMParser().parseFromString(res.data, 'text/html')
+    const table_rows = dom.querySelectorAll("tr")
+    const data: Array<Object> = []
+    table_rows.forEach(row => {
+        data.push({
+            fileHash: row.children[1].children[0].href.split('/ipfs/')[1],
+            name: row.children[1].children[0].innerHTML,
+            size: row.children[3].innerHTML
+        })
     })
-    console.log(res)
-    const href = URL.createObjectURL(res.data);
-
-    const link = document.createElement('a');
-    link.href = href;
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
-    return res.data
+    return data
 }
 
-export const addToIPFS = async (fileToUpload: Blob, fileName: string) => {
-    const formData = new FormData()
-    formData.append("file", fileToUpload)
-    formData.append("pinataMetadata", JSON.stringify({
-        name: fileName
-    }))
-    formData.append("pinataOptions", JSON.stringify({
-        cidVersion: 0
-    }))
+export const addToIPFS = async (files: FileList, folderName: string) => {
+    const formData = new FormData();
+
+    Array.from(files).forEach((file) => {
+      formData.append("file", file)
+    })
+
+    const metadata = JSON.stringify({
+      name: folderName,
+    });
+    formData.append('pinataMetadata', metadata);
+
+    const options = JSON.stringify({
+      cidVersion: 0,
+    })
+    formData.append('pinataOptions', options);
+
+
+
     const res = await axios.post(api_endpoint_pinata_post, formData, {
         maxBodyLength: Infinity,
         headers: {
