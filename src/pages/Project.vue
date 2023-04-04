@@ -10,12 +10,18 @@
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
-                        v-if="allRepositories.length > 0"
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="triggerAddVersion(true)"
                     >
                         Add version
+                    </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="triggerAddContributor(true)"
+                    >
+                        Add contributor
                     </button>
                 </div>
             </div>
@@ -98,6 +104,7 @@
             </div>
         </div>
         <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
+        <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -154,4 +161,8 @@ const allRepositories = computed(() => {
 const showAddVersion = ref(false)
 
 const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
+
+const showAddContributor = ref(false)
+
+const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
 </script>
