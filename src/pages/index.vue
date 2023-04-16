@@ -1,15 +1,14 @@
 <template>
-    <div>
+    <div class="h-full">
         <div class="h-full flex w-full">
-            <div class="h-full w-full px-6 flex flex-col items-center lg:col-span-7 xl:col-span-6 justify-center items-center">
-                <div class="mx-auto max-w-2xl lg:mx-0 pt-20">
-                    <div class="hidden sm:mt-32 sm:flex lg:mt-16"></div>
-                    <h1 class="mt-24 text-4xl text-center font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl">
+            <div class="h-full w-full px-6 pb-10 flex flex-col items-center lg:col-span-7 xl:col-span-6 justify-center items-center">
+                <div class="mx-auto max-w-2xl lg:mx-0">
+                    <h1 class="text-4xl text-center font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl">
                         <p class="text-violet-600">VersionVault:</p>
                         The Ultimate Backup System for Science Projects
                     </h1>
                     <p class="mt-6 text-lg leading-8 text-gray-600"></p>
-                    <div class="mt-10 flex items-center gap-x-6">
+                    <div class="mt-12 flex items-center gap-x-6">
                         <button class="mx-auto bg-violet-700 text-white rounded p-4" @click="connectWallet">Connect Wallet</button>
                     </div>
                 </div>
@@ -42,8 +41,7 @@ const router = useRouter()
 console.log("Router: ", router)
 watchEffect(async () => {
     if (repositoryStore.account) {
-        console.log("CHANGE ACCOUNT")
-        await router.push({ path: "/dashboard" })
+        setTimeout(async () => await router.push({ path: "/dashboard" }, 1000))
     }
 })
 </script>

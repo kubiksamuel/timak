@@ -5,7 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./Repository.sol";
 
 contract RepositoryFactory {
-    event NewRepositorySet(string name, uint256 createdAt, address owner);
+    event NewRepositorySet(string name, uint256 createdAt, address owner, Repository repository);
 
     Repository[] public repositories;
     uint256 public userCounter;
@@ -23,11 +23,11 @@ contract RepositoryFactory {
             userCounter++;
             usersData[msg.sender].id = userCounter;
             users.push(msg.sender);
-        } 
+        }
         Repository repository = new Repository(_name, _description);
         repositories.push(repository);
         usersData[msg.sender].listOfRepositories.push(repository);
-        emit NewRepositorySet(_name, block.timestamp, msg.sender);
+        emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
     }
 
     function getUserRepos(address user) external view returns (Repository[] memory) {

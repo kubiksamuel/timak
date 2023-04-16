@@ -27,6 +27,7 @@
     "ethereum-waffle": "^4.0.10",
     "ethers": "5.4",
     "hardhat": "^2.12.7",
+    "jdenticon": "^3.2.0",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.29",
     "pinia-plugin-persistedstate": "^3.1.0",
