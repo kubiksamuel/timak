@@ -17,6 +17,7 @@ contract Repository is RoleManager(){
         uint256 timestamp;
         address committer;
         string commitName;
+        string ipfsHash;
     }
 
     struct Milestone {
@@ -44,17 +45,18 @@ contract Repository is RoleManager(){
         emit RepositoryCreated(_name, createdAt, owner, _description);
     }
 
-    function addVersionOfRepository(string memory _name) public
+    function addVersionOfRepository(string memory _name, string memory _ipfsHash, address _sender) public
     onlyRole(CONTRIBUTOR_ROLE)
     {
         bytes32 versionHash;
-        versionHash = keccak256(abi.encodePacked(msg.sender, block.timestamp));
+        versionHash = keccak256(abi.encodePacked(_sender, block.timestamp));
         Version storage newVersion = version[versionHash];
         newVersion.timestamp = block.timestamp;
-        newVersion.committer = msg.sender;
+        newVersion.committer = _sender;
         newVersion.commitName = _name;
+        newVersion.ipfsHash = _ipfsHash;
         versionHashes.push(versionHash);
-        emit VersionAdded(msg.sender, _name, block.timestamp);
+        emit VersionAdded(_sender, _name, block.timestamp);
     }
 
     function addContributor(address contributor, string memory _name) public
@@ -65,5 +67,13 @@ contract Repository is RoleManager(){
 
     function getContributors() external view returns(address[] memory){
         return contributors;
+    }
+
+    function getVersionHashes() external view returns(bytes32[] memory){
+        return versionHashes;
+    }
+
+    function getVersion(bytes32 hash) external view returns(Version memory){
+        return version[hash];
     }
 }
