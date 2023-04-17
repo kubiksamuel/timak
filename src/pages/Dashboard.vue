@@ -41,7 +41,7 @@
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[project.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'dashboard/project/'+ project.title" class="truncate hover:text-gray-600">
+                                        <a :href="'dashboard/project/' + project.title" class="truncate hover:text-gray-600">
                                             <span>
                                                 {{ project.title }}
                                                 {{ " " }}
@@ -118,7 +118,7 @@ const allRepositories = computed(() => {
         return {
             id: index,
             title: repository.name,
-            initials: repository.name.slice(0, 2),
+            // initials: repository.name.slice(0, 2),
             team: repository.description,
             members: [
                 {
@@ -156,4 +156,8 @@ const allRepositories = computed(() => {
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
+
+const showCreateReview = ref(false)
+
+const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
 </script>

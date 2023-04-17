@@ -6,7 +6,7 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Project name ({{ $route.params.projectHash}})</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Project name ({{ $route.params.projectHash }})</h1>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
@@ -45,7 +45,7 @@
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href=file.title class="truncate hover:text-gray-600">
+                                        <a :href="file.title" class="truncate hover:text-gray-600">
                                             <span>
                                                 {{ file.title }}
                                                 {{ " " }}
@@ -65,9 +65,7 @@
                                                 :alt="member.name"
                                             />
                                         </div>
-                                        <span v-if="file.totalMembers > file.members.length" class="flex-shrink-0 text-xs font-medium leading-5"
-                                            >+{{ file.totalMembers - file.members.length }}</span
-                                        >
+                                        <span v-if="file.totalMembers > file.members.length" class="flex-shrink-0 text-xs font-medium leading-5">+{{ file.totalMembers - file.members.length }}</span>
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.createdAt }}</td>
@@ -105,6 +103,7 @@
         </div>
         <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
+        <AskReview title="Ask for review" :open="showAskForReview" @close="triggerAskForReview(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -123,7 +122,7 @@ const allRepositories = computed(() => {
         return {
             id: index,
             title: repository.name,
-            initials: repository.name.slice(0, 2),
+            // initials: repository.name.slice(0, 2),
             team: repository.description,
             members: [
                 {
@@ -165,4 +164,8 @@ const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
 const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
+
+const showAskForReview = ref(false)
+
+const triggerAskForReview = (show: boolean) => (showAskForReview.value = show)
 </script>
