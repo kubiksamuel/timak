@@ -7,6 +7,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AddcontributorSlideOver: typeof import('./components/AddcontributorSlideOver.vue')['default']
     AddVersionSlideOver: typeof import('./components/AddVersionSlideOver.vue')['default']
     CreateRepositorySlideOver: typeof import('./components/CreateRepositorySlideOver.vue')['default']
     Loader: typeof import('./components/Loader.vue')['default']
@@ -14,8 +15,5 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SlideOver: typeof import('./components/SlideOver.vue')['default']
-    TheCounter: typeof import('./components/TheCounter.vue')['default']
-    TheFooter: typeof import('./components/TheFooter.vue')['default']
-    TheInput: typeof import('./components/TheInput.vue')['default']
   }
 }

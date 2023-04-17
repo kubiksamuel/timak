@@ -6,7 +6,7 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Project name ({{ $route.params.projectHash}})</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Project name ({{ allRepositories[0].title }}???)</h1>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
@@ -49,7 +49,7 @@
                                             <span>
                                                 {{ file.title }}
                                                 {{ " " }}
-                                                <span class="font-normal text-gray-500"> {{ $route.params.projectHash }}</span>
+                                                <span class="font-normal text-gray-500"> file.title</span>
                                             </span>
                                         </a>
                                     </div>
