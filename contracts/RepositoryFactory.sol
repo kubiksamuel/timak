@@ -44,28 +44,40 @@ contract RepositoryFactory {
         emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
     }
 
+    // function createReview(address _repository, string memory _description) public {
+    //     if(repositoryMapping[_repository].toReview() == true && repositoryMapping[_repository].numberOfReviews() > repositoryReview[_repository].length){
+    //     //TODO all parameters
+    //         if (usersData[msg.sender].id == 0) {
+    //             userCounter++;
+    //             usersData[msg.sender].id = userCounter;
+    //             users.push(msg.sender);
+    //         }
+    //         Review memory newReview = Review(_repository, msg.sender, _description);
+    //         reviews.push(newReview);
+    //         repositoryReview[_repository].push(reviews.length - 1);
+    //         reviewerReview[msg.sender].push(reviews.length - 1);
+    //     }
+    // }
+
     function createReview(address _repository, string memory _description) public {
-        if(repositoryMapping[_repository].toReview() == true && repositoryMapping[_repository].numberOfReviews() > repositoryReview[_repository].length){
-        //TODO all parameters
-            if (usersData[msg.sender].id == 0) {
-                userCounter++;
-                usersData[msg.sender].id = userCounter;
-                users.push(msg.sender);
-            }
-            Review memory newReview = Review(_repository, msg.sender, _description);
-            reviews.push(newReview);
-            repositoryReview[_repository].push(reviews.length - 1);
-            reviewerReview[msg.sender].push(reviews.length - 1);
+        if (usersData[msg.sender].id == 0) {
+            userCounter++;
+            usersData[msg.sender].id = userCounter;
+            users.push(msg.sender);
         }
+        Review memory newReview = Review(_repository, msg.sender, _description);
+        reviews.push(newReview);
+        repositoryReview[_repository].push(reviews.length - 1);
+        reviewerReview[msg.sender].push(reviews.length - 1);
     }
 
-    // function getRepositoryReviews(address _repository) external view returns (Review[] memory repositoryReviews) {
-    //     Review[] memory tmp = new Review[](repositoryReview[_repository].length); 
-    //     for(uint i = 0; i < repositoryReview[_repository].length; i++ ){
-    //         tmp[i] = repositories[repositoryReview[_repository][i]];
-    //     }
-    //     repositoryReviews = tmp;
-    // }
+    function getRepositoryReviews(address _repository) external view returns (Review[] memory repositoryReviews) {
+        Review[] memory tmp = new Review[](repositoryReview[_repository].length); 
+        for(uint i = 0; i < repositoryReview[_repository].length; i++ ){
+            tmp[i] = reviews[repositoryReview[_repository][i]];
+        }
+        repositoryReviews = tmp;
+    }
 
     function getReviewableRepositories() external view returns(Repository[] memory reviewableRepository){
         uint counter = 0;
