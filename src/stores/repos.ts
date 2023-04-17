@@ -11,10 +11,12 @@ export const useRepositoryStore = defineStore("user", {
     state: () => ({
         account: null as null | string,
         repositories: [],
+        score: null as null | number,
     }),
     getters: {
         getAcccount: (state) => state.account,
         getRepositories: (state) => state.repositories,
+        getScore: (state) => state.score,
     },
     actions: {
         logoutAccount() {
@@ -35,24 +37,22 @@ export const useRepositoryStore = defineStore("user", {
                 const provider = new ethers.providers.Web3Provider(ethereum)
                 // const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
+                const userReviewScore = await repositoryFactoryContract.getUserReviewScore(this.account)
+                this.score = userReviewScore
+                console.log("Score: ", this.score)
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
-                console.log("aeuhwe: ", await repositoryFactoryContract.getUsers())
-                // const rawRepositories = await repositoryFactoryContract.getAllRepositories()
-                console.log(rawRepositories)
                 this.repositories = []
                 for (const repository of rawRepositories) {
-                    console.log("Repo address: ", repository)
                     const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
                     const name = await repositoryProxy.name()
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
-                    // console.log("Time format: ", repoTimeFormatted)
                     const description = await repositoryProxy.description()
 
-                    // console.log("REPOSITORY NAME", name)
                     const repositoryData = {
+                        repositoryHash: repository,
                         name: name,
                         createdAt: repoTimeFormatted,
                         owner: owner,
@@ -60,12 +60,10 @@ export const useRepositoryStore = defineStore("user", {
                         versionHashes: [],
                         version: "",
                     }
-                    console.log("Repository data:", name, owner, repoTime, description)
+                    console.log("Repository data:", repository, name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
-                    console.log("After repository data: ", this.repositories)
+                    console.log("After repository daa: ", this.repositories)
                 }
-                // console.log("Temp repos: ", this.getRepositories)
-                // console.log("All repositories: ", this.getRepositories)
             } catch (error) {
                 console.log(error)
             }
@@ -96,10 +94,8 @@ export const useRepositoryStore = defineStore("user", {
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
-                    // console.log("Time format: ", repoTimeFormatted)
                     const description = await repositoryProxy.description()
 
-                    // console.log("REPOSITORY NAME", name)
                     const repositoryData = {
                         name: name,
                         createdAt: repoTimeFormatted,
@@ -111,6 +107,31 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Repository data:", name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
                     console.log("After repository data: ", this.repositories)
+                } else {
+                    console.log("Ethereum object doesn't exist!")
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async createReview(newRepository: RepositoryMeta) {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
+                    /*
+                     * Execute the actual wave from your smart contract
+                     */
+                    console.log("New repository creation data: ", newRepository)
+                    const repositoryTxn = await repositoryFactoryContract.createReview(this.repositories[0].repositoryHash, newRepository.description)
+                    console.log("Mining...", repositoryTxn.hash)
+                    const transaction = await repositoryTxn.wait()
+                    console.log("Event: ", transaction.logs)
+                    // console.log("Transaction reciept: ", transaction)
+                    console.log("Mined -- ", repositoryTxn.hash)
                 } else {
                     console.log("Ethereum object doesn't exist!")
                 }

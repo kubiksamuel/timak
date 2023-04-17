@@ -12,6 +12,7 @@ contract Repository is RoleManager("Administrator"){
     uint256 public createdAt;
     address public owner;
     string public description;
+    bool public toReview;
 
     struct Version {
         uint256 timestamp;
@@ -33,6 +34,7 @@ contract Repository is RoleManager("Administrator"){
         createdAt = block.timestamp;
         owner = msg.sender;
         description = _description;
+        toReview = false;
         emit RepositoryCreated(_name, createdAt, owner, _description);
     }
 
@@ -48,5 +50,10 @@ contract Repository is RoleManager("Administrator"){
         versionHashes.push(versionHash);
         emit VersionAdded(msg.sender, _name, block.timestamp);
     }
+
+    function setToReview(bool _toReview) public {
+        toReview = _toReview;
+    }
+
 
 }
