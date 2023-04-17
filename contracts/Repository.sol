@@ -46,18 +46,18 @@ contract Repository is RoleManager(){
         emit RepositoryCreated(_name, createdAt, owner, _description);
     }
 
-    function addVersionOfRepository(string memory _name, string memory _ipfsHash, address _sender) public
+    function addVersionOfRepository(string memory _name, string memory _ipfsHash) public
     onlyRole(CONTRIBUTOR_ROLE)
     {
         bytes32 versionHash;
-        versionHash = keccak256(abi.encodePacked(_sender, block.timestamp));
+        versionHash = keccak256(abi.encodePacked(msg.sender, block.timestamp));
         Version storage newVersion = version[versionHash];
         newVersion.timestamp = block.timestamp;
-        newVersion.committer = _sender;
+        newVersion.committer = msg.sender;
         newVersion.commitName = _name;
         newVersion.ipfsHash = _ipfsHash;
         versionHashes.push(versionHash);
-        emit VersionAdded(_sender, _name, block.timestamp);
+        emit VersionAdded(msg.sender, _name, block.timestamp);
     }
 
     function addContributor(address contributor, string memory _name) public
@@ -70,7 +70,7 @@ contract Repository is RoleManager(){
         return contributors;
     }
 
-    function getVersionHashes() external view returns(bytes32[] memory){
+    function getVersionsHashes() external view returns(bytes32[] memory){
         return versionHashes;
     }
 

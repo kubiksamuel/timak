@@ -122,7 +122,6 @@ const repositoryStore = useRepositoryStore()
 const { repositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
     return Object.values(repositories.value).map((repository, index) => {
-        console.log("Repository in map: ", repository)
         return {
             id: index,
             address: repository.address,
