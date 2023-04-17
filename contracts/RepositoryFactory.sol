@@ -24,6 +24,7 @@ contract RepositoryFactory {
         // bytes32 versionId;
     }
 
+    mapping(address => Repository) internal repositoryMapping;
     mapping(address => uint[]) internal repositoryReview;
     mapping(address => uint[]) internal reviewerReview;
     mapping(address => User) internal usersData;
@@ -38,23 +39,34 @@ contract RepositoryFactory {
         }
         Repository repository = new Repository(_name, _description);
         repositories.push(repository);
+        repositoryMapping[address(repository)] = repository;
         usersData[msg.sender].listOfRepositories.push(repository);
         emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
     }
 
     function createReview(address _repository, string memory _description) public {
-        //TODO if repository toReview == true
+        if(repositoryMapping[_repository].toReview() == true && repositoryMapping[_repository].numberOfReviews() > repositoryReview[_repository].length){
         //TODO all parameters
-        if (usersData[msg.sender].id == 0) {
-            userCounter++;
-            usersData[msg.sender].id = userCounter;
-            users.push(msg.sender);
+            if (usersData[msg.sender].id == 0) {
+                userCounter++;
+                usersData[msg.sender].id = userCounter;
+                users.push(msg.sender);
+            }
+            Review memory newReview = Review(_repository, msg.sender, _description);
+            reviews.push(newReview);
+            repositoryReview[_repository].push(reviews.length - 1);
+            reviewerReview[msg.sender].push(reviews.length - 1);
         }
-        Review memory newReview = Review(_repository, msg.sender, _description);
-        reviews.push(newReview);
-        repositoryReview[_repository].push(reviews.length - 1);
-        reviewerReview[msg.sender].push(reviews.length - 1);
     }
+
+    // function getRepositoryReviews(address _repository) external view returns (Review[] memory) {
+        
+    //     return repositoryReview[_repository];
+    // }
+
+    // function getReviewableRepositories() external view returns(Repository[] memory reviewableRepository){
+    //     for (uint i = 0; i < reposit )
+    // }
 
     function getUserReviewScore(address user) external view returns (uint) {
         return reviewerReview[user].length;

@@ -13,6 +13,7 @@ contract Repository is RoleManager("Administrator"){
     address public owner;
     string public description;
     bool public toReview;
+    uint public numberOfReviews;
 
     struct Version {
         uint256 timestamp;
@@ -51,8 +52,9 @@ contract Repository is RoleManager("Administrator"){
         emit VersionAdded(msg.sender, _name, block.timestamp);
     }
 
-    function setToReview(bool _toReview) public {
+    function setToReview(bool _toReview, uint _numberOfReviews) public {
         toReview = _toReview;
+        numberOfReviews = _numberOfReviews;
     }
 
 
