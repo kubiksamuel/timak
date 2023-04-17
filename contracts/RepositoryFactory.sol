@@ -24,7 +24,7 @@ contract RepositoryFactory {
             usersData[msg.sender].id = userCounter;
             users.push(msg.sender);
         }
-        Repository repository = new Repository(_name, _description);
+        Repository repository = new Repository(_name, _description, msg.sender);
         repositories.push(repository);
         usersData[msg.sender].listOfRepositories.push(repository);
         emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
