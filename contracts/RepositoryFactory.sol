@@ -59,14 +59,30 @@ contract RepositoryFactory {
         }
     }
 
-    // function getRepositoryReviews(address _repository) external view returns (Review[] memory) {
-        
-    //     return repositoryReview[_repository];
+    // function getRepositoryReviews(address _repository) external view returns (Review[] memory repositoryReviews) {
+    //     Review[] memory tmp = new Review[](repositoryReview[_repository].length); 
+    //     for(uint i = 0; i < repositoryReview[_repository].length; i++ ){
+    //         tmp[i] = repositories[repositoryReview[_repository][i]];
+    //     }
+    //     repositoryReviews = tmp;
     // }
 
-    // function getReviewableRepositories() external view returns(Repository[] memory reviewableRepository){
-    //     for (uint i = 0; i < reposit )
-    // }
+    function getReviewableRepositories() external view returns(Repository[] memory reviewableRepository){
+        uint counter = 0;
+        for (uint i = 0; i < repositories.length; i++ ){
+            if (repositories[i].toReview() == true){
+                counter++;
+            }
+        }
+        Repository[] memory tmpReviewableRepository = new Repository[](counter);
+        for (uint i = 0; i< repositories.length; i++){
+            if (repositories[i].toReview() == true){
+                tmpReviewableRepository[i] = repositories[i];
+            }
+            
+        }
+        reviewableRepository = tmpReviewableRepository;
+    }
 
     function getUserReviewScore(address user) external view returns (uint) {
         return reviewerReview[user].length;

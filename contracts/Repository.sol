@@ -36,6 +36,7 @@ contract Repository is RoleManager("Administrator"){
         owner = msg.sender;
         description = _description;
         toReview = false;
+        numberOfReviews = 0;
         emit RepositoryCreated(_name, createdAt, owner, _description);
     }
 
@@ -52,10 +53,11 @@ contract Repository is RoleManager("Administrator"){
         emit VersionAdded(msg.sender, _name, block.timestamp);
     }
 
-    function setToReview(bool _toReview, uint _numberOfReviews) public {
+    function setToReview(bool _toReview) public {
         toReview = _toReview;
-        numberOfReviews = _numberOfReviews;
     }
 
-
+    function setNumberOfReviews(uint _numberOfReviews) public {
+        numberOfReviews = _numberOfReviews;
+    }
 }
