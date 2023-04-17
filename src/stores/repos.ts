@@ -6,7 +6,7 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 import { RepositoryMeta } from "~/types/repository"
 import {getAddress} from "ethers/lib/utils";
 
-const contractAddress = "0x4A679253410272dd5232B3Ff7cF5dbB88f295319"
+const contractAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -99,6 +99,7 @@ export const useRepositoryStore = defineStore("user", {
 
                     console.log("Repositories: ", await repositoryFactoryContract.getUserRepos(this.account))
                     let repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
+                    const repoHash = transaction.logs[0].address
                     const name = await repositoryProxy.name()
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
@@ -110,6 +111,7 @@ export const useRepositoryStore = defineStore("user", {
                     // console.log("REPOSITORY NAME", name)
 
                     const repositoryData = {
+                        repoHash: repoHash,
                         name: name,
                         createdAt: repoTimeFormatted,
                         owner: owner,
@@ -117,7 +119,7 @@ export const useRepositoryStore = defineStore("user", {
                         versionHashes: [],
                         version: "",
                     }
-                    console.log("Repository data:", name, owner, repoTime, description)
+                    console.log("Repository data:", repoHash, name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
                     console.log("After repository data: ", this.repositories)
                 } else {
@@ -127,7 +129,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-        async addContributor(RepoAddress: string, ConAddress: string) {
+        async addContributor(RepoAddress: string, ConAddress: string, ConName: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -138,7 +140,7 @@ export const useRepositoryStore = defineStore("user", {
                     // get repository
                     const repositoryContract = new ethers.Contract(RepoAddress, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.addContributor(ConAddress, "Fero")
+                    const repositoryTxn = await repositoryContract.addContributor(ConAddress, ConName)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)

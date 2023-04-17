@@ -8,6 +8,7 @@ contract Repository is RoleManager(){
     event VersionAdded(address committer, string versionName, uint256 timestamp);
     event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
 
+    bytes32 public repoHash;
     string public name;
     uint256 public createdAt;
     address public owner;
