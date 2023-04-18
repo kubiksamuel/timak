@@ -6,12 +6,22 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repositories to review</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repository to review</h1>
+                </div>
+                <div class="mt-4 flex sm:mt-0 sm:ml-4">
+                    <button
+                        v-if="allRepositories.length > 0"
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="triggerCreateReview(true)"
+                    >
+                        Add my review
+                    </button>
                 </div>
             </div>
 
             <!-- Projects table (small breakpoint and up) -->
-            <div v-if="allRepositories.length > 0 && !selectedReview" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+            <div v-if="allRepositories.length > 0 && !selectedRepository" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -27,17 +37,15 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="repository in allRepositories" @click="redirectToRepo(repository.id)" :key="repository.id" class="hover:bg-violet-100 cursor-pointer w-full h-full relative">
+                            <tr v-for="repository in allRepositories" @click="showRepoReviews(repository.id)" :key="repository.id" class="hover:bg-violet-100 cursor-pointer w-full h-full relative">
                                 <td class="whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[repository.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'dashboard/repository/' + repository.title" class="truncate hover:text-gray-600">
-                                            <span>
-                                                {{ repository.title }}
-                                                {{ " " }}
-                                                <span class="font-normal text-gray-500"> {{ repository.team }}</span>
-                                            </span>
-                                        </a>
+                                        <span>
+                                            {{ repository.title }}
+                                            {{ " " }}
+                                            <span class="font-normal text-gray-500"> {{ repository.team }}</span>
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500 flex justify-center">
@@ -52,7 +60,7 @@
                     </table>
                 </div>
             </div>
-            <ReviewGrid v-else-if="allRepositories.length > 0 && selectedReview" />
+            <ReviewGrid v-else-if="allRepositories.length > 0 && selectedRepository" />
             <!--            <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">-->
             <!--                <div class="border rounded-md p-10 mb-10 border-dotted border-4">-->
             <!--                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">-->
@@ -79,15 +87,14 @@
             <!--                </div>-->
             <!--            </div>-->
         </div>
-        <CreateRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
+        <AddReviewSlideOver :repository-hash="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, computed } from "vue"
-import { PlusIcon } from "@heroicons/vue/20/solid"
-import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
+import AddReviewSlideOver from "~/components/AddReviewSlideOver.vue"
 import ReviewGrid from "./ReviewGrid.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
@@ -136,16 +143,11 @@ const allRepositories = computed(() => {
         }
     })
 })
-const showCreateRepository = ref(false)
-const selectedReview = ref(true)
-const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
-const redirectToRepo = (repositoryHash: string) => {
-    router.push({
-        path: "/dashboard/repository/" + repositoryHash,
-    })
-}
-
 const showCreateReview = ref(false)
-
+const selectedRepository = ref()
 const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
+const showRepoReviews = (repositoryHash: string) => {
+    console.log("Hash : ", repositoryHash)
+    selectedRepository.value = repositoryHash
+}
 </script>
