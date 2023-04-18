@@ -7,6 +7,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AddcontributorSlideOver: typeof import('./components/AddcontributorSlideOver.vue')['default']
     AddVersionSlideOver: typeof import('./components/AddVersionSlideOver.vue')['default']
     CreateRepositorySlideOver: typeof import('./components/CreateRepositorySlideOver.vue')['default']
     Loader: typeof import('./components/Loader.vue')['default']

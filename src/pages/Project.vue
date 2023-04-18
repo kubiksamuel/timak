@@ -6,7 +6,7 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository[0].title }} ({{ $route.params.projectHash }})</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ $route.params.projectHash }})</h1>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
@@ -85,7 +85,7 @@
                 </div>
             </div>
         </div>
-        <AddVersionSlideOver title="Add new version" :folder-name=repository[0].title :open="showAddVersion" @close="triggerAddVersion(false)" />
+        <AddVersionSlideOver title="Add new version" folder-name="A" :open="showAddVersion" @close="triggerAddVersion(false)" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
     </SidebarLayout>
 </template>
@@ -104,10 +104,10 @@ const { repositories } = storeToRefs(repositoryStore)
 const repository = computed(() => {
     const r = Object.values(repositories.value).find(repo => repo.address == route.params.projectHash)
     if (!r) {
-        return []
+        return null
     }
     console.log(r)
-    return [{
+    return {
             address: r.address,
             title: r.name,
             initials: r.name.slice(0, 2),
@@ -142,7 +142,7 @@ const repository = computed(() => {
             // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
             bgColorClass: "bg-violet-600",
-        }]
+        }
 })
 
 // tu si gettnem priecinok z ipfs
@@ -166,23 +166,6 @@ onMounted(async () => {
 })
 console.log('data: ', data)
 
-// // chcem pouzit files ako repositories v dashboarde
-// const files = computed(() => {
-//     const result: Array<Object> = []
-//     data.forEach((item, index) => {
-//         result.push({
-//             id: index,
-//             fileHash: item.fileHash,
-//             title: item.name,
-//             size: item.size,
-//             bgColorClass: "bg-violet-600",
-//             createdAt: "today",
-//             updatedAt: "today"
-//         })
-//     });
-//     console.log("result: ", result)
-//     return result
-// })
 const showAddVersion = ref(false)
 
 const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
