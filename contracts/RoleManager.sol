@@ -10,38 +10,33 @@ contract RoleManager is AccessControl {
 
     mapping(address => RoleInfo) public usersInfo;
     // list of all addresses that has some role
-    address[] public users;
+    address[] public contributors;
 
     struct RoleInfo {
         uint id;
         string name;
     }
 
-    constructor(string memory name)
+    constructor()
     {
-        userId = 0;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        grantRole(CONTRIBUTOR_ROLE, msg.sender);
-        usersInfo[msg.sender].name = name;
-        usersInfo[msg.sender].id = userId;
-        users.push(msg.sender);
     }
 
     function setPrivillegeContributor(address account, string memory name) public
-        onlyRole(DEFAULT_ADMIN_ROLE)
+    onlyRole(DEFAULT_ADMIN_ROLE)
     {
         grantRole(CONTRIBUTOR_ROLE, account);
         userId++;
         usersInfo[account].id = userId;
         usersInfo[account].name = name;
-        users.push(account);
+        contributors.push(account);
     }
 
     function revokeContributorRole(address account) public
-        onlyRole(DEFAULT_ADMIN_ROLE)
+    onlyRole(DEFAULT_ADMIN_ROLE)
     {
         revokeRole(CONTRIBUTOR_ROLE, account);
-        delete users[usersInfo[account].id];
+        delete contributors[usersInfo[account].id];
     }
 
 

@@ -149,7 +149,7 @@ const repository = computed(() => {
 // const data = await getFromIPFS("QmZwTfY8xta6tsZrZZWFFURbS65vUHb8MWYPk6Sf64u4xt")
 const data = ref()
 onMounted(async () => {
-    const res = await getFromIPFS("QmZwTfY8xta6tsZrZZWFFURbS65vUHb8MWYPk6Sf64u4xt")
+    const res = await getFromIPFS("QmVfw2V8C9oeGWRaSzEH8oy8n2Mxq1m2JUQwPZUP5AJRWs")
     const result: Array<Object> = []
     res.forEach((item, index) => {
         result.push({

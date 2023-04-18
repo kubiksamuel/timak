@@ -37,6 +37,22 @@
                     Create new version
                 </button>
             </div>
+            <div class="px-4 py-3 text-right sm:px-6">
+                <button
+                    @click="addVersionOfRepository($route.params.projectHash, 'ipfs hash', 'add function')"
+                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                >
+                    Add versions
+                </button>
+            </div>
+            <div class="px-4 py-3 text-right sm:px-6">
+                <button
+                    @click="getVersionsOfRepository($route.params.projectHash)"
+                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                >
+                    Get versions
+                </button>
+            </div>
         </div>
     </SlideOver>
 </template>
@@ -44,7 +60,11 @@
 <script setup lang="ts">
 import { ref, Ref } from "vue"
 import SlideOver from "./SlideOver.vue"
+import { useRepositoryStore } from "~/stores/repos"
+import { useRoute } from "vue-router"
 
+const { addVersionOfRepository, getVersionsOfRepository } = useRepositoryStore()
+const route = useRoute()
 
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
     console.log(commitMessage, files)
@@ -52,6 +72,7 @@ const createVersion = async (commitMessage: string | undefined, files: FileList 
     if (commitMessage && files) {
         hash = await addToIPFS(files, folderName)
     }
+    addVersionOfRepository(route.params.projectHash, hash, commitMessage)
     console.log(hash)
 }
 
