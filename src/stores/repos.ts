@@ -1,14 +1,12 @@
-import { ethers } from "ethers"
-import { acceptHMRUpdate, defineStore } from "pinia"
+import {ethers} from "ethers"
+import {defineStore} from "pinia"
 import contractABI from "../artifacts/contracts/RepositoryFactory.sol/RepositoryFactory.json"
 import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json"
 
-import { RepositoryMeta } from "~/types/repository"
+import {RepositoryMeta} from "~/types/repository"
 import {getAddress} from "ethers/lib/utils";
-import {boolean} from "hardhat/internal/core/params/argumentTypes";
-import {isBoolean} from "@intlify/shared";
 
-const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+const contractAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -16,12 +14,14 @@ export const useRepositoryStore = defineStore("user", {
         repositories: [],
         contributors: [],
         versions: [],
+        latestVersion: null as null | string,
     }),
     getters: {
         getAcccount: (state) => state.account,
         getRepositories: (state) => state.repositories,
         getContributors: (state) => state.contributors,
         getVersions: (state) => state.versions,
+        getLatestVersionn: (state) => state.latestVersion,
     },
     actions: {
         logoutAccount() {
@@ -189,7 +189,7 @@ export const useRepositoryStore = defineStore("user", {
                     // create provider object from ethers library, using ethereum object injected by metamask
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const signer = provider.getSigner()
-
+                    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     // get repository
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
 
@@ -199,7 +199,6 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Event: ", transaction.logs)
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
-
 
                 }
             } catch (error) {
@@ -245,6 +244,23 @@ export const useRepositoryStore = defineStore("user", {
 
                 }
             } catch (error) {
+                console.log(error)
+            }
+        },
+        async getLatestVersion(repoAddress: string){
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+                    const versionsHashes = await repositoryContract.getVersionsHashes()
+                    this.latestVersion = await repositoryContract.getVersion(versionsHashes[versionsHashes.length - 1])
+                    this.latestVersion = this.latestVersion[3]
+                    console.log(this.latestVersion)
+                }
+            } catch (error) {
+                this.latestVersion = ""
                 console.log(error)
             }
         },

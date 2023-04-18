@@ -53,6 +53,14 @@
                     Get versions
                 </button>
             </div>
+            <div class="px-4 py-3 text-right sm:px-6">
+                <button
+                    @click="getLatestVersion($route.params.projectHash)"
+                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                >
+                    Get latest version
+                </button>
+            </div>
         </div>
     </SlideOver>
 </template>
@@ -63,7 +71,7 @@ import SlideOver from "./SlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
-const { addVersionOfRepository, getVersionsOfRepository } = useRepositoryStore()
+const { addVersionOfRepository, getVersionsOfRepository, getLatestVersion } = useRepositoryStore()
 const route = useRoute()
 
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
