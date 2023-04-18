@@ -4,9 +4,9 @@ import contractABI from "../artifacts/contracts/RepositoryFactory.sol/Repository
 import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json"
 
 import { RepositoryMeta } from "~/types/repository"
-import {getAddress} from "ethers/lib/utils";
+import { getAddress } from "ethers/lib/utils"
 
-const contractAddress = "0x4A679253410272dd5232B3Ff7cF5dbB88f295319"
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -40,12 +40,15 @@ export const useRepositoryStore = defineStore("user", {
                 const provider = new ethers.providers.Web3Provider(ethereum)
                 const signer = provider.getSigner()
                 const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
-                // const signer = provider.getSigner()
-                const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
+                // // const signer = provider.getSigner()
+                // const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
                 const userReviewScore = await repositoryFactoryContract.getUserReviewScore(this.account)
                 this.score = userReviewScore
                 console.log("Score: ", this.score)
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
+                //SKUSKA getnutie repoReviews
+                const reposss = await repositoryFactoryContract.getRepositoryReviews(this.repositories[0].repositoryHash)
+                console.log("Repo reviews [0]: ", reposss)
                 this.repositories = []
                 for (const repository of rawRepositories) {
                     const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
@@ -98,7 +101,7 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Repo address: ", transaction.logs[0].address)
 
                     console.log("Repositories: ", await repositoryFactoryContract.getUserRepos(this.account))
-                    let repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
+                    const repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
                     const name = await repositoryProxy.name()
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
