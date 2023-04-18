@@ -18,9 +18,10 @@ contract RepositoryFactory {
     struct Review {
         address repository;
         address reviewer;
-        // uint reviewerSkillLevel;
-        // bytes32 contentIdentifier;
-        string description;
+        uint reviewerSkillLevel;
+        string contentIdentifier;
+        //        bytes32 contentIdentifier;
+        uint rating;
         // bytes32 versionId;
     }
 
@@ -59,20 +60,20 @@ contract RepositoryFactory {
     //     }
     // }
 
-    function createReview(address _repository, string memory _description) public {
+    function createReview(address _repository, string memory _contentIdentifier, uint _rating, uint _reviewerSkillLevel) public {
         if (usersData[msg.sender].id == 0) {
             userCounter++;
             usersData[msg.sender].id = userCounter;
             users.push(msg.sender);
         }
-        Review memory newReview = Review(_repository, msg.sender, _description);
+        Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating );
         reviews.push(newReview);
         repositoryReview[_repository].push(reviews.length - 1);
         reviewerReview[msg.sender].push(reviews.length - 1);
     }
 
     function getRepositoryReviews(address _repository) external view returns (Review[] memory repositoryReviews) {
-        Review[] memory tmp = new Review[](repositoryReview[_repository].length); 
+        Review[] memory tmp = new Review[](repositoryReview[_repository].length);
         for(uint i = 0; i < repositoryReview[_repository].length; i++ ){
             tmp[i] = reviews[repositoryReview[_repository][i]];
         }
@@ -91,7 +92,7 @@ contract RepositoryFactory {
             if (repositories[i].toReview() == true){
                 tmpReviewableRepository[i] = repositories[i];
             }
-            
+
         }
         reviewableRepository = tmpReviewableRepository;
     }
