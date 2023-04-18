@@ -10,12 +10,12 @@ import "uno.css"
 import index from "./pages/index.vue"
 import Dashboard from "~/pages/Dashboard.vue"
 import Project from "~/pages/Project.vue"
-import HomeLayout from "./layouts/home.vue"
-import SidebarLayout from "./layouts/SidebarLayout.vue"
+import ToReview from "~/pages/ToReview.vue"
 
 const routes = [
     { path: "/", component: index },
     { path: "/dashboard", component: Dashboard },
+    { path: "/toReview", component: ToReview },
     { path: "/dashboard/project/:projectHash", component: Project },
 ]
 // const routes = setupLayouts(generatedRoutes)
