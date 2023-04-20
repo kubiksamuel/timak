@@ -77,4 +77,8 @@ contract Repository is RoleManager(){
     function getVersion(bytes32 hash) external view returns(Version memory){
         return version[hash];
     }
+
+    function getLatestVersion() external view returns(Version memory){
+        return version[versionHashes[versionHashes.length-1]];
+    }
 }

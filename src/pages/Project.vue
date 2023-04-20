@@ -100,6 +100,7 @@ import { useRoute } from "vue-router"
 
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
+// const { getLatestVersion } = useRepositoryStore()
 const { repositories } = storeToRefs(repositoryStore)
 const repository = computed(() => {
     const r = Object.values(repositories.value).find(repo => repo.address == route.params.projectHash)
@@ -112,6 +113,8 @@ const repository = computed(() => {
             title: r.name,
             initials: r.name.slice(0, 2),
             team: r.description,
+            versions: r.versions,
+            lastVersion: r.lastVersion,
             members: [
                 {
                     name: "Dries Vincent",
@@ -147,9 +150,14 @@ const repository = computed(() => {
 
 // tu si gettnem priecinok z ipfs
 // const data = await getFromIPFS("QmZwTfY8xta6tsZrZZWFFURbS65vUHb8MWYPk6Sf64u4xt")
+
+const { getLatestVersion } = useRepositoryStore()
+const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 onMounted(async () => {
-    const res = await getFromIPFS("QmVfw2V8C9oeGWRaSzEH8oy8n2Mxq1m2JUQwPZUP5AJRWs")
+    console.log("Versions: ",repository.value[0].versions)
+    const ipfsHash = repository.value[0].lastVersion[3]
+    const res = await getFromIPFS(ipfsHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
         result.push({
