@@ -78,5 +78,7 @@ contract Repository is RoleManager(){
         return version[hash];
     }
 
-
+    function getLatestVersion() external view returns(Version memory){
+        return version[versionHashes[versionHashes.length-1]];
+    }
 }

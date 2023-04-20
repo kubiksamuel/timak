@@ -6,21 +6,23 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 import {RepositoryMeta} from "~/types/repository"
 import {getAddress} from "ethers/lib/utils";
 
-const contractAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+import { isProxy, toRaw } from 'vue';
+
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
         account: null as null | string,
         repositories: [],
         contributors: [],
-        versions: [],
+        // versions: [],
         latestVersion: null as null | string,
     }),
     getters: {
         getAcccount: (state) => state.account,
         getRepositories: (state) => state.repositories,
         getContributors: (state) => state.contributors,
-        getVersions: (state) => state.versions,
+        // getVersions: (state) => state.versions,
         getLatestVersionn: (state) => state.latestVersion,
     },
     actions: {
@@ -69,14 +71,27 @@ export const useRepositoryStore = defineStore("user", {
                     // console.log("Time format: ", repoTimeFormatted)
                     const description = await repositoryProxy.description()
 
+                    // const versionHashes = await repositoryProxy.getVersionsHashes()
+                    // const version = await repositoryProxy.getVersion()
+                    // console.log(versionHashes)
+                    // const v =
+                    // console.log("ccccccc", v)
+                    let versions
+                    this.getVersionsOfRepository(repository).then(function(result){
+                        console.log("BBBBBB",toRaw(result))
+                        versions = toRaw(result)
+                    })
+                    // const repo = this.repositories.find(repo => repo.address == repoAddress)
+
                     // console.log("REPOSITORY NAME", name)
                     const repositoryData = {
+                        address: repository,
                         name: name,
                         createdAt: repoTimeFormatted,
                         owner: owner,
                         description: description,
-                        versionHashes: [],
-                        version: "",
+                        versions: versions,
+                        latestVersion: versions[versions.length-1],
                     }
                     console.log("Repository data:", name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
@@ -131,8 +146,8 @@ export const useRepositoryStore = defineStore("user", {
                         createdAt: repoTimeFormatted,
                         owner: owner,
                         description: description,
-                        versionHashes: [],
-                        version: "",
+                        versions: [],
+                        latestVersion: [],
                     }
                     console.log("Repository data:", repoHash, name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
@@ -191,7 +206,7 @@ export const useRepositoryStore = defineStore("user", {
                     const signer = provider.getSigner()
                     console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     // get repository
-                    const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
+                    let repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
 
                     const repositoryTxn = await repositoryContract.addVersionOfRepository(commitName, ipfsHash)
                     console.log("Mining...", repositoryTxn.hash)
@@ -200,13 +215,19 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
 
+
+                    repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+                    const repo = this.repositories.find(repo => repo.address == repoAddress)
+                    const latestVersion = await repositoryContract.getLatestVersion()
+                    repo.versions.push(latestVersion)
+                    repo.lastVersion = latestVersion
                 }
             } catch (error) {
                 console.log(error)
             }
         },
 
-        async getVersionsOfRepository(repoAddress: string){
+        async getVersionsOfRepository(repoAddress: string): Promise<any>{
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -216,10 +237,10 @@ export const useRepositoryStore = defineStore("user", {
                     const versionsHashes = await repositoryContract.getVersionsHashes()
                     console.log("Versions: ", this.versions)
 
-
+                    const repo = this.repositories.find(repo => repo.address == repoAddress)
                     for (const versionHash of versionsHashes) {
-                        console.log(await repositoryContract.getVersion(versionHash))
-
+                        let version = await repositoryContract.getVersion(versionHash)
+                        repo.versions.push(version)
                         // const name = await repositoryProxy.name()
                         // const owner = await repositoryProxy.owner()
                         // const createdAt = await repositoryProxy.createdAt()
@@ -242,28 +263,46 @@ export const useRepositoryStore = defineStore("user", {
                         // console.log("After repository data: ", this.repositories)
                     }
 
+                    return repo.versions
                 }
             } catch (error) {
                 console.log(error)
             }
         },
-        async getLatestVersion(repoAddress: string){
-            try {
-                const { ethereum } = window
-                if (ethereum) {
-                    // create provider object from ethers library, using ethereum object injected by metamask
-                    const provider = new ethers.providers.Web3Provider(ethereum)
-                    const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
-                    const versionsHashes = await repositoryContract.getVersionsHashes()
-                    this.latestVersion = await repositoryContract.getVersion(versionsHashes[versionsHashes.length - 1])
-                    this.latestVersion = this.latestVersion[3]
-                    console.log(this.latestVersion)
-                }
-            } catch (error) {
-                this.latestVersion = ""
-                console.log(error)
-            }
-        },
+        // async getLatestVersion(repoAddress: string){
+        //     try {
+        //         const { ethereum } = window
+        //         if (ethereum) {
+        //             // create provider object from ethers library, using ethereum object injected by metamask
+        //             const provider = new ethers.providers.Web3Provider(ethereum)
+        //             const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+        //             const versionsHashes = await repositoryContract.getVersionsHashes()
+        //             this.latestVersion = await repositoryContract.getVersion(versionsHashes[versionsHashes.length - 1])
+        //             this.latestVersion = this.latestVersion[3]
+        //             console.log(this.latestVersion)
+        //         }
+        //     } catch (error) {
+        //         this.latestVersion = ""
+        //         console.log(error)
+        //     }
+        // },
+        // async getLatestVersion(repoAddress: string, versionHash: string){
+        //     try {
+        //         const { ethereum } = window
+        //         if (ethereum) {
+        //             // create provider object from ethers library, using ethereum object injected by metamask
+        //             const provider = new ethers.providers.Web3Provider(ethereum)
+        //             const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+        //             const versionsHashes = await repositoryContract.getVersionsHashes()
+        //             this.latestVersion = await repositoryContract.getVersion(versionHash)
+        //             this.latestVersion = this.latestVersion[3]
+        //             console.log(this.latestVersion)
+        //         }
+        //     } catch (error) {
+        //         this.latestVersion = ""
+        //         console.log(error)
+        //     }
+        // },
     },
     persist: true,
 })
