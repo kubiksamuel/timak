@@ -23,6 +23,20 @@
                     >
                         Add contributor
                     </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="triggerAddMilestone(true)"
+                    >
+                        Add milestone
+                    </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="completeMilestone(true)"
+                    >
+                        Complete next milestone
+                    </button>
                 </div>
             </div>
 
@@ -103,7 +117,7 @@
         </div>
         <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
-        <AskReview title="Ask for review" :open="showAskForReview" @close="triggerAskForReview(false)" />
+        <AddMilestone title="Ask for review" :open="showAddMilestone" @close="triggerAddMilestone(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -115,6 +129,7 @@ import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 
 const repositoryStore = useRepositoryStore()
+const { completeMilestone } = repositoryStore
 const { repositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
     return Object.values(repositories.value).map((repository, index) => {
@@ -165,7 +180,7 @@ const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
 
-const showAskForReview = ref(false)
+const showAddMilestone = ref(false)
 
-const triggerAskForReview = (show: boolean) => (showAskForReview.value = show)
+const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
 </script>

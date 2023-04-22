@@ -6,6 +6,7 @@ import "./RoleManager.sol";
 
 contract Repository is RoleManager(){
     event VersionAdded(address committer, string versionName, uint256 timestamp);
+    event MilestoneAdded(uint256 timestamp, string milestoneName, string  milestoneDescription, bool completed);
     event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
 
     string public name;
@@ -23,9 +24,12 @@ contract Repository is RoleManager(){
 
     struct Milestone {
         uint256 timestamp;
-        address committer;
-        string name;
+        string title;
+        string description;
+        bool completed;
     }
+
+    Milestone[] public milestones;
 
     mapping(bytes32 => Version) public version;
     bytes32[] public versionHashes;
@@ -46,6 +50,29 @@ contract Repository is RoleManager(){
         toReview = false;
         numberOfReviews = 0;
         emit RepositoryCreated(_name, createdAt, owner, _description);
+    }
+
+    function addMilestone(string memory _title, string memory _description) public
+    onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        Milestone memory newMilestone = Milestone(block.timestamp, _title, _description, false);
+        milestones.push(newMilestone);
+        emit MilestoneAdded(newMilestone.timestamp, newMilestone.title, newMilestone.description, newMilestone.completed);
+    }
+
+    function getAllMilestones() external view returns(Milestone[] memory){
+        return milestones;
+    }
+
+    function completeMilestone() public
+    onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        for (uint i = 0; i< milestones.length; i++){
+            if(milestones[i].completed == false){
+                milestones[i].completed = true;
+                break;
+            }
+        }
     }
 
     function addVersionOfRepository(string memory _name) public
