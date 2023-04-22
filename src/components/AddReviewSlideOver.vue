@@ -58,7 +58,7 @@
                         <label for="description" class="ml-px block text-sm font-medium leading-6 text-gray-900">CID(temporary)</label>
                         <div class="mt-1">
                             <input
-                                v-model="ipfsHash"
+                                v-model="contentIdentifier"
                                 type="text"
                                 name="description"
                                 class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
@@ -83,15 +83,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch } from "vue"
+import { ref, watch } from "vue"
 import SlideOver from "./SlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
-import { Review } from "~/types/repository"
+import { Review, SkillLevel } from "~/types/review"
 import { RadioGroup, RadioGroupDescription, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue"
 import { CheckCircleIcon } from "@heroicons/vue/20/solid"
 import { StarIcon } from "@heroicons/vue/20/solid"
 
 const repository = useRepositoryStore()
+const { createReview } = repository
 const skillLevels = [
     { title: "Beginner", description: "Limited knowledge, new to the field." },
     { title: "Competent", description: "Good understanding, some experience in the area." },
@@ -124,24 +125,14 @@ const emit = defineEmits<{
     (e: "close"): void
 }>()
 
-enum SkillLevel {
-    Beginner,
-    Competent,
-    Proficient,
-    Expert,
-}
-
-const ipfsHash = ref()
-const selectRating = (rating: number) => console.log("Rating: ", rating)
+const contentIdentifier = ref()
 const addReview = () => {
-    console.log("Repo hash: ", props.repositoryHash)
-    console.log("Rating: ", selectedRating.value)
-    console.log("Skill level: ", SkillLevel[selectedSkillLevel.value.title])
-    console.log("CID: ", ipfsHash)
-    // repository.createReview()
+    const newReview: Omit<Review, "reviewerAddress"> = {
+        repositoryHash: props.repositoryHash,
+        contentIdentifier: contentIdentifier.value,
+        rating: selectedRating.value,
+        reviewerSkillLevel: SkillLevel[selectedSkillLevel.value.title],
+    }
+    createReview(newReview)
 }
-
-watch(selectedRating, () => {
-    console.log("Rating: ", selectedRating.value)
-})
 </script>

@@ -60,7 +60,7 @@
                     </table>
                 </div>
             </div>
-            <ReviewGrid v-else-if="allRepositories.length > 0 && selectedRepository" />
+            <ReviewGrid v-else-if="allRepositories.length > 0 && selectedRepository" :repository-hash="selectedRepository" />
             <!--            <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">-->
             <!--                <div class="border rounded-md p-10 mb-10 border-dotted border-4">-->
             <!--                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">-->
@@ -145,7 +145,9 @@ const allRepositories = computed(() => {
 })
 const showCreateReview = ref(false)
 const selectedRepository = ref()
-const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
+const triggerCreateReview = (show: boolean) => {
+    showCreateReview.value = show
+}
 const showRepoReviews = (repositoryHash: string) => {
     console.log("Hash : ", repositoryHash)
     selectedRepository.value = repositoryHash

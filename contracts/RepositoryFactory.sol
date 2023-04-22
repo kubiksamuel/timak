@@ -6,6 +6,7 @@ import "./Repository.sol";
 
 contract RepositoryFactory {
     event NewRepositorySet(string name, uint256 createdAt, address owner, Repository repository);
+    event ReviewAdded(address indexed repository, address indexed reviewer, uint reviewerSkillLevel, string contentIdentifier, uint rating);
 
     Repository[] public repositories;
     uint256 public userCounter;
@@ -20,7 +21,6 @@ contract RepositoryFactory {
         address reviewer;
         uint reviewerSkillLevel;
         string contentIdentifier;
-        //        bytes32 contentIdentifier;
         uint rating;
         // bytes32 versionId;
     }
@@ -70,6 +70,7 @@ contract RepositoryFactory {
         reviews.push(newReview);
         repositoryReview[_repository].push(reviews.length - 1);
         reviewerReview[msg.sender].push(reviews.length - 1);
+        emit ReviewAdded(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating);
     }
 
     function getRepositoryReviews(address _repository) external view returns (Review[] memory repositoryReviews) {

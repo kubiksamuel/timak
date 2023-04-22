@@ -35,6 +35,7 @@
                 </div>
                 <div class="absolute bottom-0 flex h-11 w-full items-center border-t px-6">
                     <button
+                        @click="downloadReview(review.ipfsHash)"
                         type="button"
                         class="focus:ring-none w-full group inline-flex flex-shrink-0 h-full items-center text-sm font-medium text-violet-500 hover:text-violet-800 focus:outline-none"
                     >
@@ -47,27 +48,42 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ArrowDownTrayIcon as DownloadIcon } from "@heroicons/vue/24/outline"
 import { StarIcon } from "@heroicons/vue/20/solid"
+import { Review, SkillLevel } from "~/types/review"
 import { toSvg } from "jdenticon"
+import { useRepositoryStore } from "~/stores/repos"
+import { ref, onMounted } from "vue"
 
-const reviews = [
-    {
-        id: 0,
-        reviewer: "0x427f7c59ED72bCf26DfFc634FEF3034e00922DD8",
-        reviewerScore: 3,
-        reviewerSkillLevel: "Beginner",
-        rating: 4,
+const props = defineProps({
+    repositoryHash: {
+        type: String,
+        required: true,
     },
-    {
-        id: 1,
-        reviewer: "0x427f7c59ED725Cf2123Fc634FEF3034e00922DD8",
-        reviewerScore: 3,
-        reviewerSkillLevel: "Advanced",
-        rating: 5,
-    },
-]
+})
+const repositoryStore = useRepositoryStore()
+
+const reviews = ref()
+
+onMounted(async () => {
+    await repositoryStore.getNewReview(props.repositoryHash)
+    const repositoryReviews = await repositoryStore.getReviewsByRepository(props.repositoryHash)
+    reviews.value = await Promise.all(
+        repositoryReviews.map(async (review: Review) => {
+            return {
+                id: review.repositoryHash,
+                reviewer: review.reviewer,
+                reviewerScore: await repositoryStore.getReviewerScore(review.reviewer),
+                reviewerSkillLevel: SkillLevel[review.reviewerSkillLevel],
+                rating: review.rating,
+                ipfsHash: review.contentIdentifier,
+            }
+        })
+    )
+})
+
+const downloadReview = (ipfsHash: string) => {
+    console.log("Ipfs hash: ", ipfsHash)
+}
 </script>
-
-<style scoped></style>
