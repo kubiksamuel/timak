@@ -20,16 +20,13 @@
                         <li>
                             <ul role="list" class="-mx-2 space-y-1">
                                 <li v-for="item in navigation" :key="item.name">
-                                    <a
-                                        :href="item.href"
-                                        :class="[
-                                            item.current ? 'bg-violet-700 text-white' : 'text-violet-200 hover:text-white hover:bg-violet-700',
-                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                                        ]"
+                                    <button
+                                        @click="redirect(item.href)"
+                                        class="text-violet-200 hover:text-white hover:bg-violet-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
                                     >
-                                        <component :is="item.icon" :class="[item.current ? 'text-white' : 'text-violet-200 group-hover:text-white', 'h-6 w-6 shrink-0']" aria-hidden="true" />
+                                        <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                                         {{ item.name }}
-                                    </a>
+                                    </button>
                                 </li>
                             </ul>
                         </li>
@@ -81,32 +78,39 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon } from "@heroicons/vue/24/outline"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
 import { toSvg } from "jdenticon"
 import { storeToRefs } from "pinia"
+import { ref } from "vue"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
 
 const { account } = storeToRefs(repositoryStore)
 const svgString = toSvg(account, 25)
-console.log(svgString)
-const navigation = [
-    { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-    { name: "Team", href: "#", icon: UsersIcon, current: false },
-    { name: "Projects", href: "#", icon: FolderIcon, current: false },
-    { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-    { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
-    { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
-]
+
+const navigation = ref([
+    { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+    { name: "Team", href: "#", icon: UsersIcon },
+    { name: "Projects", href: "#", icon: FolderIcon },
+    { name: "To review", href: "/toReview", icon: DocumentDuplicateIcon },
+    { name: "My reviews", href: "#", icon: ChartPieIcon },
+])
 const teams = [
-    { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
-    { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
-    { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
+    { id: 1, name: "Heroicons", href: "#", initial: "H" },
+    { id: 2, name: "Tailwind Labs", href: "#", initial: "T" },
+    { id: 3, name: "Workcation", href: "#", initial: "W" },
 ]
+
+const redirect = (_path: string) => {
+    router.push({
+        path: _path,
+    })
+}
+
 const logout = () => {
     repositoryStore.logoutAccount()
     router.push({ path: "/" })
