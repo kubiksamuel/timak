@@ -5,7 +5,7 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 
 import { RepositoryMeta } from "~/types/repository"
 import { MilestoneMeta } from "~/types/milestone"
-import { Review } from "~/types/review"
+import { Review, SkillLevel } from "~/types/review"
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
@@ -15,6 +15,7 @@ export const useRepositoryStore = defineStore("user", {
         repositories: [],
         contributors: [],
         score: null as null | number,
+        reviews: [],
     }),
     getters: {
         getAcccount: (state) => state.account,
@@ -248,7 +249,7 @@ export const useRepositoryStore = defineStore("user", {
                     // const usdcAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" ///USDC Contract
                     const filter = repositoryFactoryContract.filters.ReviewAdded(repository, null)
                     // eslint-disable-next-line no-use-before-define
-                    return repositoryFactoryContract.on(filter, (...event) => {
+                    repositoryFactoryContract.on(filter, (...event) => {
                         console.log("Review: ", {
                             repositoryHash: event[5].args.repository,
                             reviewer: event[5].args.reviewer,
@@ -271,7 +272,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-        async createReview(newReview: Review) {
+        async createReview(newReview: Omit<Review, "reviewer">): Promise<Review> {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -284,13 +285,21 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
+                    const eventData = transaction.events.find((event) => event.event === "ReviewAdded").args
                     // console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
+                    return {
+                        reviewer: eventData.reviewer,
+                        reviewerScore: await this.getReviewerScore(eventData.reviewer),
+                        reviewerSkillLevel: eventData.reviewerSkillLevel,
+                        rating: eventData.rating,
+                        contentIdentifier: eventData.contentIdentifier,
+                    }
                 } else {
-                    console.log("Ethereum object doesn't exist!")
+                    throw new "Ethereum object doesn't exist!"()
                 }
             } catch (error) {
-                console.log(error)
+                throw new error()
             }
         },
     },
