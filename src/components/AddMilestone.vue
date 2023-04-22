@@ -29,7 +29,6 @@
                             />
                         </div>
                     </div>
-
                     <div class="flex items-center space-x-10">
                         <div class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Request review after finish:</div>
                         <Switch
@@ -44,15 +43,16 @@
                             />
                         </Switch>
                     </div>
+                    <Datepicker v-model="newMilestone.deadline" lang="en"> </Datepicker>
                 </div>
             </div>
             <hr class="-mx-6" />
             <div class="px-4 py-3 text-right sm:px-6">
                 <button
-                    @click="addMilestone(newMilestone, $route.params.projectHash)"
+                    @click="emit('create', newMilestone)"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 >
-                    Add milestone
+                    Add mileston
                 </button>
             </div>
         </div>
@@ -60,13 +60,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref } from "vue"
+import { ref, Ref, watch } from "vue"
 import { Switch } from "@headlessui/vue"
 import SlideOver from "./SlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { MilestoneMeta } from "~/types/milestone"
-
-const { addMilestone } = useRepositoryStore()
 
 defineProps({
     open: {
@@ -77,15 +75,27 @@ defineProps({
         type: String,
         required: true,
     },
-    description: {
-        type: String,
-        required: true,
-    },
 })
-
 const emit = defineEmits<{
     (e: "close"): void
+    (e: "create", newMilestone: MilestoneMeta): void
 }>()
+
+const getTodayDate = () => {
+    const today = new Date()
+    const day = String(today.getDate()).padStart(2, "0")
+    const month = String(today.getMonth() + 1).padStart(2, "0") //January is 0!
+    const year = today.getFullYear()
+    return year + "-" + month + "-" + day
+}
+const today = getTodayDate()
+console.log("Today: ", today)
+
+const date = ref()
+watch(date, () => {
+    const datum = Date.parse(date.value)
+    console.log(datum / 100)
+})
 
 const newMilestone: Ref<MilestoneMeta> = ref({
     title: "",

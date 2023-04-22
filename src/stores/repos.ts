@@ -146,7 +146,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-        async addMilestone(newMilestone: MilestoneMeta, repositoryHash: string) {
+        async createMilestone(newMilestone: MilestoneMeta, repositoryHash: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -156,19 +156,41 @@ export const useRepositoryStore = defineStore("user", {
 
                     // get repository
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
-
                     const repositoryTxn = await repositoryContract.addMilestone(newMilestone.deadline, newMilestone.title, newMilestone.description, newMilestone.requestReview)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
+
+                    const eventData = transaction.events.find((event) => event.event === "MilestoneAdded").args
+                    return {
+                        id: eventData.id,
+                        completed: false,
+                        title: eventData.title,
+                        description: eventData.description,
+                        requestReview: eventData.requestReview,
+                        deadline: eventData.deadline,
+                    }
                 }
             } catch (error) {
                 console.log(error)
             }
         },
-
+        async getMilestones(repositoryHash: string) {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    console.log("Repository contract: ", repositoryContract)
+                    return await repositoryContract.getAllMilestones()
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
         async completeMilestone() {
             try {
                 const { ethereum } = window
