@@ -27,7 +27,7 @@
             </div>
             <!-- Project files table (small breakpoint and up) -->
             <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
-                <VersionHistoryDropdown :versions="versions"></VersionHistoryDropdown>
+                <VersionHistoryDropdown :versions="versions" @change-version="changeVersion"></VersionHistoryDropdown>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -116,28 +116,6 @@ const repository = computed(() => {
             team: r.description,
             versions: r.versions,
             lastVersion: r.lastVersion,
-            members: [
-                {
-                    name: "Dries Vincent",
-                    handle: "driesvincent",
-                    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Lindsay Walton",
-                    handle: "lindsaywalton",
-                    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Courtney Henry",
-                    handle: "courtneyhenry",
-                    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Tom Cook",
-                    handle: "tomcook",
-                    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-            ],
             totalMembers: 12,
             createdAt: r.createdAt,
             updatedAt: r.createdAt,
@@ -154,21 +132,21 @@ const versions = [
         id: 1,
         commitMessage: "commit message1",
         commiter: "committer 1",
-        IPFSHash: "ipfs hash 1",
+        IPFSHash: "QmNfN67qJW3YgT9zxJpCf4fbBg61MXCsmyauKHk7JyUFBj",
         commitDate: new Date().toISOString()
     },
     {
         id: 2,
         commitMessage: "commit message2",
         commiter: "committer 2",
-        IPFSHash: "ipfs hash 2",
+        IPFSHash: "QmT7mhgAwqXdJVXaTC9tXL8vmJNR2EVcd6i4JfYM4aera2",
         commitDate: new Date().toISOString()
     },
     {
         id: 3,
         commitMessage: "commit message3",
         commiter: "committer 3",
-        IPFSHash: "ipfs hash 3",
+        IPFSHash: "QmNfN67qJW3YgT9zxJpCf4fbBg61MXCsmyauKHk7JyUFBj",
         commitDate: new Date().toISOString()
     },
 ]
@@ -179,6 +157,10 @@ const data = ref()
 onMounted(async () => {
     console.log("Versions: ",repository.value.versions)
     const ipfsHash = repository.value.lastVersion[3]
+    await changeVersion(ipfsHash)
+})
+
+const changeVersion = async (ipfsHash) => {
     const res = await getFromIPFS(ipfsHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
@@ -193,8 +175,7 @@ onMounted(async () => {
         })
     });
     data.value = result
-})
-console.log('data: ', data)
+}
 
 const showAddVersion = ref(false)
 

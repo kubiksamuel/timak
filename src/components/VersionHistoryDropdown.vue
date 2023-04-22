@@ -1,5 +1,5 @@
 <template>
-    <Listbox as="div" v-model="selected">
+    <Listbox as="div" v-model="selected" @click="$emit('changeVersion', selected.IPFSHash)">
         <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900">Version</ListboxLabel>
         <div class="relative mt-2">
             <ListboxButton
