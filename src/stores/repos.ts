@@ -8,7 +8,7 @@ import {getAddress} from "ethers/lib/utils";
 
 import { isProxy, toRaw } from 'vue';
 
-const contractAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+const contractAddress = "0x4A679253410272dd5232B3Ff7cF5dbB88f295319"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -195,10 +195,8 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
 
-                    console.log("BBBBBBBBBBB")
                     console.log(repositoryContract)
                     const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address)
-                    console.log("CCCCCCCCCC")
                     console.log("Mining...", repositoryTxn1.hash)
                     const transaction1 = await repositoryTxn1.wait()
                     console.log("Event: ", transaction1.logs)
@@ -260,6 +258,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repo = this.repositories.find(repo => repo.address == repoAddress)
                     const latestVersion = await repositoryContract.getLatestVersion()
                     repo.versions.push(latestVersion)
+                    console.log("TUUUUUUUUU",repo.versions)
                     repo.latestVersion = latestVersion
                 }
             } catch (error) {
