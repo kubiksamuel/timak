@@ -4,6 +4,7 @@ import contractABI from "../artifacts/contracts/RepositoryFactory.sol/Repository
 import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json"
 
 import { RepositoryMeta } from "~/types/repository"
+import { MilestoneMeta } from "~/types/milestone"
 import { Review } from "~/types/review"
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
@@ -42,9 +43,6 @@ export const useRepositoryStore = defineStore("user", {
                 const userReviewScore = await repositoryFactoryContract.getUserReviewScore(this.account)
                 this.score = userReviewScore
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
-                //SKUSKA getnutie repoReviews
-                const reposss = await repositoryFactoryContract.getRepositoryReviews(this.repositories[0].repositoryHash)
-                console.log("Repo reviews [0]: ", reposss)
                 this.repositories = []
                 for (const repository of rawRepositories) {
                     const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
@@ -93,7 +91,7 @@ export const useRepositoryStore = defineStore("user", {
                     // console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
 
-                    console.log("Repo address: ", transaction.logs[0].address)
+                    // console.log("Repo address: ", transaction.logs[0].address)
 
                     console.log("Repositories: ", await repositoryFactoryContract.getUserRepos(this.account))
                     const repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
@@ -147,6 +145,59 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
+
+        async addMilestone(newMilestone: MilestoneMeta) {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+
+                    // get repository
+                    const repositoryContract = new ethers.Contract(`0xa16E02E87b7454126E5E10d957A927A7F5B5d2be`, RepositoryABI.abi, signer)
+
+                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.title, newMilestone.title)
+                    console.log("Mining...", repositoryTxn.hash)
+                    const transaction = await repositoryTxn.wait()
+                    console.log("Event: ", transaction.logs)
+                    console.log("Transaction reciept: ", transaction)
+                    console.log("Mined -- ", repositoryTxn.hash)
+
+                    const allMilestones = await repositoryContract.getAllMilestones()
+                    console.log("allmilestones: ", allMilestones)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async completeMilestone() {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+
+                    // get repository
+                    const repositoryContract = new ethers.Contract(`0xa16E02E87b7454126E5E10d957A927A7F5B5d2be`, RepositoryABI.abi, signer)
+
+                    const repositoryTxn = await repositoryContract.completeMilestone()
+                    console.log("Mining...", repositoryTxn.hash)
+                    const transaction = await repositoryTxn.wait()
+                    console.log("Event: ", transaction.logs)
+                    console.log("Transaction reciept: ", transaction)
+                    console.log("Mined -- ", repositoryTxn.hash)
+
+                    const allMilestones = await repositoryContract.getAllMilestones()
+                    console.log("allmilestones: ", allMilestones)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
         async getRepositoryContributors(RepoAddress: string) {
             try {
                 const { ethereum } = window
