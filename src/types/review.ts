@@ -1,9 +1,10 @@
 export type Review = {
-    repositoryHash: string
+    repositoryHash?: string
     reviewer: string
     reviewerSkillLevel: number
     rating: number
     contentIdentifier: string
+    reviewerScore?: number
     // versionId: string
 }
 

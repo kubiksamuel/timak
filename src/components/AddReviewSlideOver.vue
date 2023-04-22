@@ -92,7 +92,6 @@ import { CheckCircleIcon } from "@heroicons/vue/20/solid"
 import { StarIcon } from "@heroicons/vue/20/solid"
 
 const repository = useRepositoryStore()
-const { createReview } = repository
 const skillLevels = [
     { title: "Beginner", description: "Limited knowledge, new to the field." },
     { title: "Competent", description: "Good understanding, some experience in the area." },
@@ -123,16 +122,17 @@ const props = defineProps({
 
 const emit = defineEmits<{
     (e: "close"): void
+    (e: "create", newReview: Omit<Review, "reviewer">): void
 }>()
 
 const contentIdentifier = ref()
 const addReview = () => {
-    const newReview: Omit<Review, "reviewerAddress"> = {
+    const newReview: Omit<Review, "reviewer"> = {
         repositoryHash: props.repositoryHash,
         contentIdentifier: contentIdentifier.value,
         rating: selectedRating.value,
         reviewerSkillLevel: SkillLevel[selectedSkillLevel.value.title],
     }
-    createReview(newReview)
+    emit("create", newReview)
 }
 </script>
