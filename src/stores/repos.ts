@@ -8,7 +8,7 @@ import {getAddress} from "ethers/lib/utils";
 
 import { isProxy, toRaw } from 'vue';
 
-const contractAddress = "0x4A679253410272dd5232B3Ff7cF5dbB88f295319"
+const contractAddress = "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({

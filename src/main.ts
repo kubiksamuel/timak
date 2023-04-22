@@ -12,11 +12,14 @@ import Dashboard from "~/pages/Dashboard.vue"
 import Project from "~/pages/Project.vue"
 import HomeLayout from "./layouts/home.vue"
 import SidebarLayout from "./layouts/SidebarLayout.vue"
+import ContributorProjects from "~/pages/ContributorProjects.vue";
 
 const routes = [
     { path: "/", component: index },
     { path: "/dashboard", component: Dashboard },
     { path: "/dashboard/project/:projectHash", component: Project },
+    { path: "/contributor_projects", component: ContributorProjects },
+    { path: "/contributor_projects/project/:projectHash", component: Project },
 ]
 // const routes = setupLayouts(generatedRoutes)
 

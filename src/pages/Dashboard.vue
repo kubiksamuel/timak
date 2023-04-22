@@ -17,7 +17,7 @@
                         </button>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
-                        v-if="allRepositories.length > 0"
+                        v-if="allOwnerRepositories.length > 0"
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="triggerCreateRepository(true)"
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Projects table (small breakpoint and up) -->
-            <div v-if="allRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+            <div v-if="allOwnerRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -44,7 +44,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="project in allRepositories" :key="project.id" class="hover:bg-violet-100 cursor-pointer">
+                            <tr v-for="project in allOwnerRepositories" :key="project.id" class="hover:bg-violet-100 cursor-pointer">
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[project.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
@@ -117,11 +117,20 @@ import { PlusIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { Buffer } from "buffer"
+import { toSvg } from "jdenticon";
+
 
 const repositoryStore = useRepositoryStore()
-const { repositories } = storeToRefs(repositoryStore)
-const allRepositories = computed(() => {
-    return Object.values(repositories.value).map((repository, index) => {
+
+const { repositories, account } = storeToRefs(repositoryStore)
+
+const ownerRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() == account.value)
+// console.log("Owner Repositories" + ownerRepositories)
+const contributorRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() != account.value)
+// console.log("Contributor Repositories" + contributorRepositories)
+
+const allOwnerRepositories = computed(() => {
+    return ownerRepositories.map((repository, index) => {
         return {
             id: index,
             address: repository.address,
