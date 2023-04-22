@@ -27,7 +27,7 @@
             </div>
             <!-- Project files table (small breakpoint and up) -->
             <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
-                <VersionHistoryDropdown :versions="versions" @change-version="changeVersion"></VersionHistoryDropdown>
+                <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -120,7 +120,7 @@ const repository = computed(() => {
             commitMessage: version[2],
             commiter: version[1],
             IPFSHash: version[3],
-            commmitDate: currentTime
+            commitDate: currentTime
         })
     });
 
@@ -142,30 +142,6 @@ const repository = computed(() => {
             bgColorClass: "bg-violet-600",
         }
 })
-
-const versions = [
-    {
-        id: 1,
-        commitMessage: "commit message1",
-        commiter: "committer 1",
-        IPFSHash: "QmNfN67qJW3YgT9zxJpCf4fbBg61MXCsmyauKHk7JyUFBj",
-        commitDate: new Date().toISOString()
-    },
-    {
-        id: 2,
-        commitMessage: "commit message2",
-        commiter: "committer 2",
-        IPFSHash: "QmT7mhgAwqXdJVXaTC9tXL8vmJNR2EVcd6i4JfYM4aera2",
-        commitDate: new Date().toISOString()
-    },
-    {
-        id: 3,
-        commitMessage: "commit message3",
-        commiter: "committer 3",
-        IPFSHash: "QmNfN67qJW3YgT9zxJpCf4fbBg61MXCsmyauKHk7JyUFBj",
-        commitDate: new Date().toISOString()
-    },
-]
 
 const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)
