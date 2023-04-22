@@ -86,7 +86,7 @@
                 </div>
             </div>
         </div>
-        <AddVersionSlideOver title="Add new version" folder-name="A" :open="showAddVersion" @close="triggerAddVersion(false)" />
+        <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
     </SidebarLayout>
 </template>
@@ -99,7 +99,6 @@ import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
-import { isProxy, toRaw } from 'vue';
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
 // const { getLatestVersion } = useRepositoryStore()
