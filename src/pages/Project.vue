@@ -114,7 +114,8 @@ const repository = computed(() => {
             initials: r.name.slice(0, 2),
             team: r.description,
             versions: r.versions,
-            lastVersion: r.lastVersion,
+            lastVersion: r.latestVersion,
+            contributors: r.contributors,
             members: [
                 {
                     name: "Dries Vincent",
@@ -155,7 +156,9 @@ const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 onMounted(async () => {
+    console.log("Contr: ", repository.value[0].contributors)
     console.log("Versions: ",repository.value[0].versions)
+    console.log("Latest version: ",repository.value[0].lastVersion)
     const ipfsHash = repository.value[0].lastVersion[3]
     const res = await getFromIPFS(ipfsHash)
     const result: Array<Object> = []
