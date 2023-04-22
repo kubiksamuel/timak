@@ -70,6 +70,10 @@ contract Repository is RoleManager(){
         return contributors;
     }
 
+    function getContributor(address _contributor) external view returns(RoleInfo memory){
+        return usersInfo[_contributor];
+    }
+
     function getVersionsHashes() external view returns(bytes32[] memory){
         return versionHashes;
     }

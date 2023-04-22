@@ -99,6 +99,7 @@ import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
+import { isProxy, toRaw } from 'vue';
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
 // const { getLatestVersion } = useRepositoryStore()
@@ -108,14 +109,29 @@ const repository = computed(() => {
     if (!r) {
         return null
     }
-    console.log(r)
+
+    const versions: Array<Object> = []
+    r.versions.forEach((version, index) => {
+        const timeInSeconds=parseInt(version[0].hex,16)
+        const timeInMiliseconds=timeInSeconds*1000
+        const currentTime=new Date(timeInMiliseconds)
+        versions.push({
+            id: ++index,
+            commitMessage: version[2],
+            commiter: version[1],
+            IPFSHash: version[3],
+            commmitDate: currentTime
+        })
+    });
+
     return {
             address: r.address,
             title: r.name,
             initials: r.name.slice(0, 2),
             team: r.description,
-            versions: r.versions,
-            lastVersion: r.lastVersion,
+            versions: versions,
+            lastVersion: versions[versions.length-1],
+            contributors: r.contributors,
             totalMembers: 12,
             createdAt: r.createdAt,
             updatedAt: r.createdAt,
@@ -155,8 +171,10 @@ const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 onMounted(async () => {
+    console.log("Contr: ", repository.value.contributors)
     console.log("Versions: ",repository.value.versions)
-    const ipfsHash = repository.value.lastVersion[3]
+    console.log("Latest version: ",repository.value.lastVersion)
+    const ipfsHash = repository.value.lastVersion.IPFSHash
     await changeVersion(ipfsHash)
 })
 

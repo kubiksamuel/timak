@@ -19,22 +19,26 @@ contract RepositoryFactory {
     address[] public users;
 
     function createRepositoryContract(string memory _name, string memory _description) public{
-//        if (usersData[msg.sender].id == 0) {
-//            userCounter++;
-//            usersData[msg.sender].id = userCounter;
-//            users.push(msg.sender);
-//        }
+        if (usersData[msg.sender].id == 0) {
+            userCounter++;
+            usersData[msg.sender].id = userCounter;
+            users.push(msg.sender);
+        }
         Repository repository = new Repository(_name, _description, msg.sender);
         repositories.push(repository);
         usersData[msg.sender].listOfRepositories.push(repository);
         emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
     }
 
-    function addUser()public
+    function addUser(address user)public
     {
         userCounter++;
-        usersData[msg.sender].id = userCounter;
-        users.push(msg.sender);
+        usersData[user].id = userCounter;
+        users.push(user);
+    }
+
+    function addRepositoryToUser(address user, Repository repository)public{
+        usersData[user].listOfRepositories.push(repository);
     }
 
     function getUserRepos(address user) external view returns (Repository[] memory) {
@@ -45,8 +49,8 @@ contract RepositoryFactory {
         return users;
     }
 
-    function isAlreadyUser() external view returns (bool){
-        if (usersData[msg.sender].id == 0) {
+    function isAlreadyUser(address user) external view returns (bool){
+        if (usersData[user].id == 0) {
             return false;
         }
         return true;
