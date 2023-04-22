@@ -27,6 +27,7 @@
             </div>
             <!-- Project files table (small breakpoint and up) -->
             <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+                <VersionHistoryDropdown :versions="versions"></VersionHistoryDropdown>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -71,7 +72,7 @@
                         />
                     </svg>
                     <h3 class="mt-2 text-sm font-semibold text-gray-900">No files</h3>
-                    <p class="mt-1 text-sm text-gray-500">Get started by adding a new file.</p>
+                    <p class="mt-1 text-sm text-gray-500">Get started by adding a new version.</p>
                     <div class="mt-6">
                         <button
                             @click="triggerAddVersion(true)"
@@ -79,7 +80,7 @@
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         >
                             <PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                            New Repository
+                            New Version
                         </button>
                     </div>
                 </div>
@@ -148,8 +149,29 @@ const repository = computed(() => {
         }
 })
 
-// tu si gettnem priecinok z ipfs
-// const data = await getFromIPFS("QmZwTfY8xta6tsZrZZWFFURbS65vUHb8MWYPk6Sf64u4xt")
+const versions = [
+    {
+        id: 1,
+        commitMessage: "commit message1",
+        commiter: "committer 1",
+        IPFSHash: "ipfs hash 1",
+        commitDate: new Date().toISOString()
+    },
+    {
+        id: 2,
+        commitMessage: "commit message2",
+        commiter: "committer 2",
+        IPFSHash: "ipfs hash 2",
+        commitDate: new Date().toISOString()
+    },
+    {
+        id: 3,
+        commitMessage: "commit message3",
+        commiter: "committer 3",
+        IPFSHash: "ipfs hash 3",
+        commitDate: new Date().toISOString()
+    },
+]
 
 const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)

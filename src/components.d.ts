@@ -15,5 +15,6 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SlideOver: typeof import('./components/SlideOver.vue')['default']
+    VersionHistoryDropdown: typeof import('./components/VersionHistoryDropdown.vue')['default']
   }
 }
