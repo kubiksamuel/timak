@@ -2,37 +2,39 @@
     <SlideOver v-bind="{ open }" @close="emit('close')" :title="title">
         <div class="flex flex-col space-y-2">
             <div>
-                <label for="name" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Name</label>
+                <label for="commitMessage" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Commit message</label>
                 <div class="mt-1">
                     <input
-                        v-model="newRepository.name"
+                        v-model="commitMessage"
                         type="text"
-                        name="name"
-                        id="name"
+                        name="commitMessage"
+                        id="commitMessage"
                         class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Name"
+                        placeholder="Commit message"
                     />
                 </div>
             </div>
             <div>
-                <label for="description" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Description</label>
+                <label for="Folder" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Folder</label>
                 <div class="mt-1">
                     <input
-                        v-model="newRepository.description"
-                        type="text"
-                        name="description"
+                        v-on:change="handleFolderToUpload($event)"
+                        type="file"
+                        name="Folder"
                         class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Description"
+                        placeholder="Folder"
+                        ref="files"
+                        webkitdirectory multiple
                     />
                 </div>
             </div>
 
             <div class="px-4 py-3 text-right sm:px-6">
                 <button
-                    @click="createRepository(newRepository)"
+                    @click="createVersion(commitMessage, files)"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 >
-                    Create repository
+                    Create new version
                 </button>
             </div>
         </div>
@@ -42,10 +44,18 @@
 <script setup lang="ts">
 import { ref, Ref } from "vue"
 import SlideOver from "./SlideOver.vue"
-import { useRepositoryStore } from "~/stores/repos"
-import { RepositoryMeta } from "~/types/repository"
 
-const { createRepository } = useRepositoryStore()
+
+const createVersion = (commitMessage: string | undefined, files: FileList | undefined) => {
+    console.log(commitMessage, files)
+}
+
+const handleFolderToUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement
+    if (target && target.files) {
+        files.value = target.files
+    }
+}
 
 defineProps({
     open: {
@@ -62,5 +72,6 @@ const emit = defineEmits<{
     (e: "close"): void
 }>()
 
-const newRepository: Ref<RepositoryMeta | {}> = ref({})
+let files: Ref<FileList | undefined> = ref()
+const commitMessage: Ref<string | undefined> = ref()
 </script>
