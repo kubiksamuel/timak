@@ -4,9 +4,9 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./RoleManager.sol";
 
-contract Repository is RoleManager(){
+contract Repository is RoleManager{
     event VersionAdded(address committer, string versionName, uint256 timestamp);
-    event MilestoneAdded(uint256 timestamp, string milestoneName, string  milestoneDescription, bool completed);
+    event MilestoneAdded(uint256 id, uint256 deadline, string milestoneName, string  milestoneDescription, bool requestReview);
     event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
 
     string public name;
@@ -23,9 +23,11 @@ contract Repository is RoleManager(){
     }
 
     struct Milestone {
-        uint256 timestamp;
+        uint256 id;
+        uint256 deadline;
         string title;
         string description;
+        bool requestReview;
         bool completed;
     }
 
@@ -52,27 +54,22 @@ contract Repository is RoleManager(){
         emit RepositoryCreated(_name, createdAt, owner, _description);
     }
 
-    function addMilestone(string memory _title, string memory _description) public
+    function addMilestone(uint256 deadline, string memory _title, string memory _description, bool _requestReview) public
     onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        Milestone memory newMilestone = Milestone(block.timestamp, _title, _description, false);
+        Milestone memory newMilestone = Milestone(milestones.length, deadline, _title, _description, _requestReview, false);
         milestones.push(newMilestone);
-        emit MilestoneAdded(newMilestone.timestamp, newMilestone.title, newMilestone.description, newMilestone.completed);
+        emit MilestoneAdded(newMilestone.id, newMilestone.deadline, newMilestone.title, newMilestone.description, newMilestone.requestReview);
     }
 
     function getAllMilestones() external view returns(Milestone[] memory){
         return milestones;
     }
 
-    function completeMilestone() public
+    function completeMilestone(uint256 milestoneId) public
     onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        for (uint i = 0; i< milestones.length; i++){
-            if(milestones[i].completed == false){
-                milestones[i].completed = true;
-                break;
-            }
-        }
+        milestones[milestoneId].completed = true;
     }
 
     function addVersionOfRepository(string memory _name) public

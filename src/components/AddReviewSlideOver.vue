@@ -68,7 +68,6 @@
                     </div>
                 </div>
             </div>
-            <hr class="-mx-6" />
 
             <div class="px-4 py-3 text-right sm:px-6">
                 <button

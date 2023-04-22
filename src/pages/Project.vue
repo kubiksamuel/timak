@@ -59,13 +59,11 @@
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="file.title" class="truncate hover:text-gray-600">
-                                            <span>
-                                                {{ file.title }}
-                                                {{ " " }}
-                                                <span class="font-normal text-gray-500"> {{ $route.params.projectHash }}</span>
-                                            </span>
-                                        </a>
+                                        <span>
+                                            {{ file.title }}
+                                            {{ " " }}
+                                            <span class="font-normal text-gray-500"> {{ $route.params.projectHash }}</span>
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500">
@@ -117,7 +115,7 @@
         </div>
         <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
-        <AddMilestone title="Ask for review" :open="showAddMilestone" @close="triggerAddMilestone(false)" />
+        <AddMilestone title="Add milestone" :open="showAddMilestone" @close="triggerAddMilestone(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
