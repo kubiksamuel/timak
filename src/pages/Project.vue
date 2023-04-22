@@ -155,8 +155,8 @@ const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 onMounted(async () => {
-    console.log("Versions: ",repository.value[0].versions)
-    const ipfsHash = repository.value[0].lastVersion[3]
+    console.log("Versions: ",repository.value.versions)
+    const ipfsHash = repository.value.lastVersion[3]
     const res = await getFromIPFS(ipfsHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
