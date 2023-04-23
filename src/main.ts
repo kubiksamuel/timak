@@ -11,12 +11,14 @@ import index from "./pages/index.vue"
 import Dashboard from "~/pages/Dashboard.vue"
 import Project from "~/pages/Project.vue"
 import ToReview from "~/pages/ToReview.vue"
+import MilestoneTimeline from "~/pages/MilestoneTimeline.vue"
 
 const routes = [
     { path: "/", component: index },
     { path: "/dashboard", component: Dashboard },
     { path: "/toReview", component: ToReview },
     { path: "/dashboard/project/:projectHash", component: Project },
+    { path: "/dashboard/project/:projectHash/milestones", component: MilestoneTimeline },
 ]
 // const routes = setupLayouts(generatedRoutes)
 

@@ -188,7 +188,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-        async addMilestone(newMilestone: MilestoneMeta, repositoryHash: string) {
+        async createMilestone(newMilestone: MilestoneMeta, repositoryHash: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -205,13 +205,48 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Event: ", transaction.logs)
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
+
+                    const eventData = transaction.events.find((event) => event.event === "MilestoneAdded").args
+                    return {
+                        id: eventData.id,
+                        completed: false,
+                        title: eventData.title,
+                        description: eventData.description,
+                        requestReview: eventData.requestReview,
+                        deadline: eventData.deadline,
+                    }
                 }
             } catch (error) {
                 console.log(error)
             }
         },
-
-        async completeMilestone(repositoryHash: string) {
+        async getMilestones(repositoryHash: string) {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    console.log("Repository contract: ", repositoryContract)
+                    const allMilestones = await repositoryContract.getAllMilestones()
+                    return await Promise.all(
+                        allMilestones.map(async (milestone: MilestoneMeta) => {
+                            return {
+                                id: milestone.id?.toString(),
+                                title: milestone.title,
+                                description: milestone.description,
+                                deadline: milestone.deadline.toString(),
+                                requestReview: milestone.requestReview,
+                                completed: milestone.completed,
+                            }
+                        })
+                    )
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async completeMilestone() {
             try {
                 const { ethereum } = window
                 if (ethereum) {

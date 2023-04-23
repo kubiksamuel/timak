@@ -124,6 +124,9 @@ import { storeToRefs } from "pinia"
 import { ref, computed } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
+import AddMilestone from "~/components/AddMilestone.vue"
+import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
+
 import { useRepositoryStore } from "~/stores/repos"
 
 const repositoryStore = useRepositoryStore()
