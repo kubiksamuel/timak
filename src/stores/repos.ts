@@ -16,12 +16,14 @@ export const useRepositoryStore = defineStore("user", {
         contributors: [],
         score: null as null | number,
         reviews: [],
+        toReviewRepositories: [],
     }),
     getters: {
         getAcccount: (state) => state.account,
         getRepositories: (state) => state.repositories,
         getContributors: (state) => state.contributors,
         getScore: (state) => state.score,
+        getToReviewRepositories: (state) => state.toReviewRepositories,
     },
     actions: {
         logoutAccount() {
@@ -45,6 +47,7 @@ export const useRepositoryStore = defineStore("user", {
                 this.score = userReviewScore
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
                 this.repositories = []
+                this.toReviewRepositories = []
                 for (const repository of rawRepositories) {
                     const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
                     const name = await repositoryProxy.name()
@@ -53,6 +56,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
+                    const toReview = await repositoryProxy.toReview()
 
                     const repositoryData = {
                         repositoryHash: repository,
@@ -62,13 +66,33 @@ export const useRepositoryStore = defineStore("user", {
                         description: description,
                         versionHashes: [],
                         version: "",
+                        // toReviewLimit: toReviewLimit,
+                        // numOfReviews: numOfReviews,
+                    }
+                    if (toReview > 0) {
+                        const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
+                        console.log("aa: ", requiredReviews)
+                        const repositoryReviewData = {
+                            repositoryHash: repository,
+                            name: name,
+                            createdAt: repoTimeFormatted,
+                            owner: owner,
+                            description: description,
+                            versionHashes: [],
+                            version: "",
+                            requiredReviews: requiredReviews.numberOfRequiredReviews,
+                            committedReviews: requiredReviews.numberOfCommittedReviews,
+                        }
+                        this.toReviewRepositories.push(repositoryReviewData)
                     }
                     this.repositories.push(repositoryData)
                 }
+                console.log(this.toReviewRepositories)
             } catch (error) {
                 console.log(error)
             }
         },
+
         async createRepository(newRepository: RepositoryMeta) {
             try {
                 const { ethereum } = window
@@ -104,8 +128,8 @@ export const useRepositoryStore = defineStore("user", {
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
-                    // const contri = await repositoryProxy.contributors()
-                    // console.log("REPOSITORY NAME", name)
+                    const toReview = await repositoryProxy.toReview()
+                    this.toReviewRepositories = []
 
                     const repositoryData = {
                         repositoryHash: repositoryHash,
@@ -115,6 +139,24 @@ export const useRepositoryStore = defineStore("user", {
                         description: description,
                         versionHashes: [],
                         version: "",
+                        // toReviewLimit: toReviewLimit,
+                        // numOfReviews: numOfReviews,
+                    }
+                    if (toReview > 0) {
+                        const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
+                        console.log("aa: ", requiredReviews)
+                        const repositoryReviewData = {
+                            repositoryHash: repository,
+                            name: name,
+                            createdAt: repoTimeFormatted,
+                            owner: owner,
+                            description: description,
+                            versionHashes: [],
+                            version: "",
+                            requiredReviews: requiredReviews.numberOfRequiredReviews,
+                            committedReviews: requiredReviews.numberOfCommittedReviews,
+                        }
+                        this.toReviewRepositories.push(repositoryReviewData)
                     }
                     this.repositories.push(repositoryData)
                 } else {
@@ -156,7 +198,8 @@ export const useRepositoryStore = defineStore("user", {
 
                     // get repository
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
-                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.deadline, newMilestone.title, newMilestone.description, newMilestone.requestReview)
+                    // await repositoryContract.setNumberOfReviews(2)
+                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.deadline, newMilestone.title, newMilestone.description)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
@@ -212,9 +255,10 @@ export const useRepositoryStore = defineStore("user", {
                     const signer = provider.getSigner()
 
                     // get repository
-                    const repositoryContract = new ethers.Contract(`0xa16E02E87b7454126E5E10d957A927A7F5B5d2be`, RepositoryABI.abi, signer)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.completeMilestone()
+                    const repositoryTxn = await repositoryContract.completeMilestone(0, 1) //index milestonu, pocet reviews ak 0 tak neni reviewable
+
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
@@ -311,8 +355,8 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
                     console.log("New review: ", newReview)
-                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel)
-                    console.log("Mining...", repositoryTxn.hash)
+                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel, 0) //milestoneid
+                    console.log("Mining...", repositoryTxn)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
                     const eventData = transaction.events.find((event) => event.event === "ReviewAdded").args
@@ -329,6 +373,7 @@ export const useRepositoryStore = defineStore("user", {
                     throw new "Ethereum object doesn't exist!"()
                 }
             } catch (error) {
+                console.log(error)
                 throw new error()
             }
         },

@@ -59,7 +59,7 @@
                                 </td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500 flex justify-center">
                                     <div class="flex transform items-center space-x-1.5 rounded-3xl py-1 px-3 w-fit duration-500 bg-violet-50 text-indigo-700 shadow-sm">
-                                        <span class="rounded-3xl text-gray-600 text-sm">2/3</span>
+                                        <span class="rounded-3xl text-gray-600 text-sm">{{ repository.committedReviews }}/{{ repository.requiredReviews }}</span>
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
@@ -163,13 +163,15 @@ import { toSvg } from "jdenticon"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
-const { repositories } = storeToRefs(repositoryStore)
+const { toReviewRepositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
-    return Object.values(repositories.value).map((repository, index) => {
+    return Object.values(toReviewRepositories.value).map((repository, index) => {
         return {
             id: repository.repositoryHash,
             title: repository.name,
             // initials: repository.name.slice(0, 2),
+            requiredReviews: repository.requiredReviews,
+            committedReviews: repository.committedReviews,
             team: repository.description,
             members: [
                 {
