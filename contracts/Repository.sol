@@ -70,6 +70,9 @@ contract Repository is RoleManager{
 
     function incrementReviewCount(uint256 _milestoneId) public{
         milestones[_milestoneId].numberOfCommittedReviews++;
+        if(this.isRepositoryReviewable() == false){
+            this.setToReview(false);
+        }
     }
 
     function completeMilestone(uint256 _milestoneId, uint256 _numberOfRequiredReviews) public
@@ -80,6 +83,19 @@ contract Repository is RoleManager{
             milestones[_milestoneId].numberOfRequiredReviews = _numberOfRequiredReviews;
             toReview = true;
         }
+    }
+
+    function setToReview(bool _val) public {
+        toReview = _val;
+    }
+
+    function isRepositoryReviewable() external view returns (bool){
+        for (uint i = 0; i< milestones.length; i++){
+            if(milestones[i].numberOfRequiredReviews != milestones[i].numberOfCommittedReviews){
+                return true;
+            }
+        }
+        return false;
     }
 
     function addVersionOfRepository(string memory _name) public
@@ -104,8 +120,4 @@ contract Repository is RoleManager{
     function getContributors() external view returns(address[] memory){
         return contributors;
     }
-
-    // function setNumberOfReviews(uint _numberOfReviews) public {
-    //     numberOfReviews = _numberOfReviews;
-    // }
 }

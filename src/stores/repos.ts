@@ -47,6 +47,7 @@ export const useRepositoryStore = defineStore("user", {
                 this.score = userReviewScore
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
                 this.repositories = []
+                this.toReviewRepositories = []
                 for (const repository of rawRepositories) {
                     const repositoryProxy = new ethers.Contract(repository, RepositoryABI.abi, provider)
                     const name = await repositoryProxy.name()
@@ -113,6 +114,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
                     const toReview = await repositoryProxy.toReview()
+                    this.toReviewRepositories = []
 
                     const repositoryData = {
                         repositoryHash: repositoryHash,
@@ -192,7 +194,7 @@ export const useRepositoryStore = defineStore("user", {
                     // get repository
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.completeMilestone(1, 4) //index milestonu, pocet reviews ak 0 tak neni reviewable
+                    const repositoryTxn = await repositoryContract.completeMilestone(1, 1) //index milestonu, pocet reviews ak 0 tak neni reviewable
 
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
@@ -290,7 +292,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
                     console.log("New review: ", newReview)
-                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel, 0) //milestoneid
+                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel, 1) //milestoneid
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
