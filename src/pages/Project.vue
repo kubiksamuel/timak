@@ -36,8 +36,6 @@
                                     <span class="lg:pl-2">File</span>
                                 </th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Updated at</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -45,7 +43,7 @@
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.fileHash" class="truncate hover:text-gray-600">
+                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
                                             <span>
                                                 {{ file.title }}
                                             </span>
@@ -53,8 +51,6 @@
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.createdAt }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.updatedAt }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -154,17 +150,15 @@ onMounted(async () => {
 })
 
 const changeVersion = async (ipfsHash) => {
-    const res = await getFromIPFS(ipfsHash)
+    const res = await getFolderFromIPFS(ipfsHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
         result.push({
             id: index,
-            fileHash: item.fileHash,
+            hash: item.hash,
             title: item.name,
             size: item.size,
-            bgColorClass: "bg-violet-600",
-            createdAt: "today",
-            updatedAt: "today"
+            bgColorClass: "bg-violet-600"
         })
     });
     data.value = result

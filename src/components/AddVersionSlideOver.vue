@@ -54,7 +54,7 @@ const createVersion = async (commitMessage: string | undefined, files: FileList 
     console.log(commitMessage, files)
     let hash: string = "blbost"
     if (commitMessage && files) {
-        hash = await addToIPFS(files, folderName)
+        hash = await addFolderToIPFS(files, folderName)
     }
     await addVersionOfRepository(route.params.projectHash, hash, commitMessage)
     window.location.reload()

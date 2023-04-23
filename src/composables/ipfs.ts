@@ -2,10 +2,10 @@ import axios from 'axios'
 
 const api_endpoint_pinata_post = "https://api.pinata.cloud/pinning/pinFileToIPFS"
 const api_endpoint_pinata_get = "https://gateway.pinata.cloud/ipfs/"
-const access_token = "..."
+const access_token = import.meta.env.VITE_PINATA_ACCESS_TOKEN
 const authorization = "Bearer " + access_token
 
-export const getFromIPFS = async (hash: string) => {
+export const getFolderFromIPFS = async (hash: string) => {
     const res = await axios.get(api_endpoint_pinata_get + hash,
         {
             headers: {
@@ -19,7 +19,7 @@ export const getFromIPFS = async (hash: string) => {
     const data: Array<Object> = []
     table_rows.forEach(row => {
         data.push({
-            fileHash: row.children[1].children[0].href.split('/ipfs/')[1],
+            hash: row.children[1].children[0].href.split('/ipfs/')[1],
             name: row.children[1].children[0].innerHTML,
             size: row.children[3].innerHTML
         })
@@ -27,7 +27,7 @@ export const getFromIPFS = async (hash: string) => {
     return data
 }
 
-export const addToIPFS = async (files: FileList, folderName: string) => {
+export const addFolderToIPFS = async (files: FileList, folderName: string) => {
     const formData = new FormData();
 
     Array.from(files).forEach((file) => {
@@ -45,6 +45,31 @@ export const addToIPFS = async (files: FileList, folderName: string) => {
     formData.append('pinataOptions', options);
 
 
+
+    const res = await axios.post(api_endpoint_pinata_post, formData, {
+        maxBodyLength: Infinity,
+        headers: {
+            'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+            "Authorization": authorization
+        }
+    })
+    return res.data.IpfsHash
+}
+
+export const addFileToIPFS = async (file: File, name: string) => {
+    const formData = new FormData();
+
+    formData.append("file", file)
+
+    const metadata = JSON.stringify({
+      name: name,
+    });
+    formData.append('pinataMetadata', metadata);
+
+    const options = JSON.stringify({
+      cidVersion: 0,
+    })
+    formData.append('pinataOptions', options);
 
     const res = await axios.post(api_endpoint_pinata_post, formData, {
         maxBodyLength: Infinity,
