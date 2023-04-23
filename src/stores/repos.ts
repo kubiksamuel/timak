@@ -146,8 +146,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-
-        async addMilestone(newMilestone: MilestoneMeta) {
+        async addMilestone(newMilestone: MilestoneMeta, repositoryHash: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -156,17 +155,14 @@ export const useRepositoryStore = defineStore("user", {
                     const signer = provider.getSigner()
 
                     // get repository
-                    const repositoryContract = new ethers.Contract(`0xa16E02E87b7454126E5E10d957A927A7F5B5d2be`, RepositoryABI.abi, signer)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.title, newMilestone.title)
+                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.deadline, newMilestone.title, newMilestone.description, newMilestone.requestReview)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
-
-                    const allMilestones = await repositoryContract.getAllMilestones()
-                    console.log("allmilestones: ", allMilestones)
                 }
             } catch (error) {
                 console.log(error)
