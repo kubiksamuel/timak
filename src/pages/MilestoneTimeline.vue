@@ -27,13 +27,13 @@
                 </div>
                 <div class="max-w-xl mx-auto">
                     <div class="text-center">
-                        <p class="mb-16 text-base text-center text-gray-500">
+                        <p class="mb-14 text-base text-center text-gray-500">
                             Stay up-to-date with your project's progress by checking out dynamic timeline section, where you can view all the significant milestones and achievements in chronological
                             order.
                         </p>
                     </div>
                 </div>
-                <div class="flex flex-col justify-center">
+                <div class="flex flex-col justify-center pb-8">
                     <div class="w-full mx-auto lg:max-w-5xl">
                         <div class="relative">
                             <div class="absolute hidden w-1 h-full transform -translate-x-1/2 bg-[#c9e2f5] dark:bg-gray-700 lg:block left-1/2"></div>
@@ -49,17 +49,22 @@
                                                     <div class="relative z-20">
                                                         <div class="flex items-center">
                                                             <div class="p-4 md:w-1/4">
-                                                                <span class="text-lg text-gray-500">March</span>
-                                                                <p class="text-2xl font-bold text-gray-500 text-bold">11</p>
-                                                                <span class="text-lg text-gray-500">2021</span>
+                                                                <span class="text-lg font-medium text-gray-500">{{
+                                                                    new Date(parseFloat(milestone.deadline)).toLocaleString("default", { month: "long" })
+                                                                }}</span>
+                                                                <p class="text-xl font-bold text-gray-700 text-bold">
+                                                                    {{ new Date(parseFloat(milestone.deadline)).toLocaleString("default", { day: "numeric" }) }}
+                                                                </p>
+                                                                <span class="text-lg font-medium text-gray-500">
+                                                                    {{ new Date(parseFloat(milestone.deadline)).toLocaleString("default", { year: "numeric" }) }}
+                                                                </span>
                                                             </div>
                                                             <div class="flex-1 p-4 pr-4 border-l border-gray-300">
                                                                 <div class="flex justify-between items-center h-full">
                                                                     <p class="mb-2 text-xl font-bold text-gray-700">{{ milestone.title }}</p>
-
                                                                     <span
                                                                         v-if="milestone.completed"
-                                                                        class="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200"
+                                                                        class="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-200"
                                                                     >
                                                                         <svg class="h-1.5 w-1.5 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
                                                                             <circle cx="3" cy="3" r="3" />
@@ -68,7 +73,7 @@
                                                                     </span>
                                                                     <span
                                                                         v-else-if="index === 0 || (milestones[index - 1].completed && !milestone.completed)"
-                                                                        class="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200"
+                                                                        class="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-200"
                                                                     >
                                                                         <svg class="h-1.5 w-1.5 fill-violet-800" viewBox="0 0 6 6" aria-hidden="true">
                                                                             <circle cx="3" cy="3" r="3" />
@@ -77,7 +82,7 @@
                                                                     </span>
                                                                     <span
                                                                         v-else
-                                                                        class="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200"
+                                                                        class="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-200"
                                                                     >
                                                                         <svg class="h-1.5 w-1.5 fill-yellow-500" viewBox="0 0 6 6" aria-hidden="true">
                                                                             <circle cx="3" cy="3" r="3" />
@@ -95,7 +100,7 @@
                                             </div>
                                         </div>
                                         <div
-                                            class="absolute shadow-lg hover:shadow-xl flex items-center justify-center w-8 h-8 transform -translate-x-1/2 -translate-y-4 bg-indigo-300 rounded-full left-1/2 lg:translate-y-[2px]"
+                                            class="absolute shadow-lg hover:shadow-xl flex items-center justify-center w-8 h-8 transform -translate-x-1/2 -translate-y-4 bg-violet-200 rounded-full left-1/2 lg:translate-y-[2px]"
                                         ></div>
                                     </div>
                                 </div>
@@ -111,7 +116,7 @@
 <script setup lang="ts">
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
-import { ref, onMounted, watch } from "vue"
+import { ref, onMounted } from "vue"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { MilestoneMeta } from "~/types/milestone"
 
@@ -136,7 +141,10 @@ onMounted(async () => {
 const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
 
 const createMilestone = async (newMilestone: MilestoneMeta) => {
-    console.log("New milestone: ", route.params.projectHash)
-    milestones.value.push(await repositoryStore.createMilestone(newMilestone, route.params.projectHash))
+    newMilestone.deadline = new Date(newMilestone.deadline).getTime()
+    console.log("New milestone: ", newMilestone)
+    console.log("Deadline: ", new Date(newMilestone.deadline).toLocaleString("default", { month: "long" }))
+    const createdMilestone = await repositoryStore.createMilestone(newMilestone, route.params.projectHash)
+    milestones.value.push(createdMilestone)
 }
 </script>

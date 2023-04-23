@@ -185,7 +185,19 @@ export const useRepositoryStore = defineStore("user", {
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
                     console.log("Repository contract: ", repositoryContract)
-                    return await repositoryContract.getAllMilestones()
+                    const allMilestones = await repositoryContract.getAllMilestones()
+                    return await Promise.all(
+                        allMilestones.map(async (milestone: MilestoneMeta) => {
+                            return {
+                                id: milestone.id?.toString(),
+                                title: milestone.title,
+                                description: milestone.description,
+                                deadline: milestone.deadline.toString(),
+                                requestReview: milestone.requestReview,
+                                completed: milestone.completed,
+                            }
+                        })
+                    )
                 }
             } catch (error) {
                 console.log(error)
