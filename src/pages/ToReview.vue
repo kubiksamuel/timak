@@ -163,9 +163,9 @@ import { toSvg } from "jdenticon"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
-const { repositories } = storeToRefs(repositoryStore)
+const { toReviewRepositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
-    return Object.values(repositories.value).map((repository, index) => {
+    return Object.values(toReviewRepositories.value).map((repository, index) => {
         return {
             id: repository.repositoryHash,
             title: repository.name,

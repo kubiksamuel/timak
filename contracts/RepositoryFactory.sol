@@ -22,7 +22,7 @@ contract RepositoryFactory {
         uint reviewerSkillLevel;
         string contentIdentifier;
         uint rating;
-        // bytes32 versionId;
+        uint milestoneId;
     }
 
     mapping(address => Repository) internal repositoryMapping;
@@ -45,32 +45,20 @@ contract RepositoryFactory {
         emit NewRepositorySet(_name, block.timestamp, msg.sender, repository);
     }
 
-    // function createReview(address _repository, string memory _description) public {
-    //     if(repositoryMapping[_repository].toReview() == true && repositoryMapping[_repository].numberOfReviews() > repositoryReview[_repository].length){
-    //     //TODO all parameters
-    //         if (usersData[msg.sender].id == 0) {
-    //             userCounter++;
-    //             usersData[msg.sender].id = userCounter;
-    //             users.push(msg.sender);
-    //         }
-    //         Review memory newReview = Review(_repository, msg.sender, _description);
-    //         reviews.push(newReview);
-    //         repositoryReview[_repository].push(reviews.length - 1);
-    //         reviewerReview[msg.sender].push(reviews.length - 1);
-    //     }
-    // }
-
-    function createReview(address _repository, string memory _contentIdentifier, uint _rating, uint _reviewerSkillLevel) public {
-        if (usersData[msg.sender].id == 0) {
-            userCounter++;
-            usersData[msg.sender].id = userCounter;
-            users.push(msg.sender);
+    function createReview(address _repository, string memory _contentIdentifier, uint _rating, uint _reviewerSkillLevel, uint _milestoneId) public {
+        if(repositoryMapping[_repository].toReview() == true && repositoryMapping[_repository].isMilestoneReviewable(_milestoneId)==true){
+            if (usersData[msg.sender].id == 0) {
+                userCounter++;
+                usersData[msg.sender].id = userCounter;
+                users.push(msg.sender);
+            }
+            Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating, _milestoneId);
+            reviews.push(newReview);
+            repositoryReview[_repository].push(reviews.length - 1);
+            reviewerReview[msg.sender].push(reviews.length - 1);
+            repositoryMapping[_repository].incrementReviewCount(_milestoneId);
+            emit ReviewAdded(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating);
         }
-        Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating );
-        reviews.push(newReview);
-        repositoryReview[_repository].push(reviews.length - 1);
-        reviewerReview[msg.sender].push(reviews.length - 1);
-        emit ReviewAdded(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating);
     }
 
     function getRepositoryReviews(address _repository) external view returns (Review[] memory repositoryReviews) {
@@ -84,13 +72,13 @@ contract RepositoryFactory {
     function getReviewableRepositories() external view returns(Repository[] memory reviewableRepository){
         uint counter = 0;
         for (uint i = 0; i < repositories.length; i++ ){
-            if (repositories[i].toReview() == true){
+            if (repositories[i].toReview()){
                 counter++;
             }
         }
         Repository[] memory tmpReviewableRepository = new Repository[](counter);
         for (uint i = 0; i< repositories.length; i++){
-            if (repositories[i].toReview() == true){
+            if (repositories[i].toReview()){
                 tmpReviewableRepository[i] = repositories[i];
             }
 
@@ -100,6 +88,10 @@ contract RepositoryFactory {
 
     function getUserReviewScore(address user) external view returns (uint) {
         return reviewerReview[user].length;
+    }
+
+    function getRepositoryReviewsLength(address _repository) external view returns (uint) {
+        return repositoryReview[_repository].length;
     }
 
 

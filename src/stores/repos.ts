@@ -16,12 +16,14 @@ export const useRepositoryStore = defineStore("user", {
         contributors: [],
         score: null as null | number,
         reviews: [],
+        toReviewRepositories: [],
     }),
     getters: {
         getAcccount: (state) => state.account,
         getRepositories: (state) => state.repositories,
         getContributors: (state) => state.contributors,
         getScore: (state) => state.score,
+        getToReviewRepositories: (state) => state.toReviewRepositories,
     },
     actions: {
         logoutAccount() {
@@ -53,6 +55,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
+                    const toReview = await repositoryProxy.toReview()
 
                     const repositoryData = {
                         repositoryHash: repository,
@@ -62,6 +65,11 @@ export const useRepositoryStore = defineStore("user", {
                         description: description,
                         versionHashes: [],
                         version: "",
+                        // toReviewLimit: toReviewLimit,
+                        // numOfReviews: numOfReviews,
+                    }
+                    if (toReview > 0) {
+                        this.toReviewRepositories.push(repositoryData)
                     }
                     this.repositories.push(repositoryData)
                 }
@@ -104,8 +112,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
-                    // const contri = await repositoryProxy.contributors()
-                    // console.log("REPOSITORY NAME", name)
+                    const toReview = await repositoryProxy.toReview()
 
                     const repositoryData = {
                         repositoryHash: repositoryHash,
@@ -115,6 +122,11 @@ export const useRepositoryStore = defineStore("user", {
                         description: description,
                         versionHashes: [],
                         version: "",
+                        // toReviewLimit: toReviewLimit,
+                        // numOfReviews: numOfReviews,
+                    }
+                    if (toReview > 0) {
+                        this.toReviewRepositories.push(repositoryData)
                     }
                     this.repositories.push(repositoryData)
                 } else {
@@ -156,8 +168,8 @@ export const useRepositoryStore = defineStore("user", {
 
                     // get repository
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
-
-                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.deadline, newMilestone.title, newMilestone.description, newMilestone.requestReview)
+                    // await repositoryContract.setNumberOfReviews(2)
+                    const repositoryTxn = await repositoryContract.addMilestone(newMilestone.deadline, newMilestone.title, newMilestone.description)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
@@ -169,7 +181,7 @@ export const useRepositoryStore = defineStore("user", {
             }
         },
 
-        async completeMilestone() {
+        async completeMilestone(repositoryHash: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -178,9 +190,10 @@ export const useRepositoryStore = defineStore("user", {
                     const signer = provider.getSigner()
 
                     // get repository
-                    const repositoryContract = new ethers.Contract(`0xa16E02E87b7454126E5E10d957A927A7F5B5d2be`, RepositoryABI.abi, signer)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.completeMilestone()
+                    const repositoryTxn = await repositoryContract.completeMilestone(1, 4) //index milestonu, pocet reviews ak 0 tak neni reviewable
+
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
@@ -277,7 +290,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
                     console.log("New review: ", newReview)
-                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel)
+                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel, 0) //milestoneid
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
