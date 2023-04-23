@@ -120,4 +120,13 @@ contract Repository is RoleManager{
     function getContributors() external view returns(address[] memory){
         return contributors;
     }
+
+    function getLastCompletedMilestone() external view returns(Milestone memory) {
+        for (uint i = 0; i< milestones.length; i++){
+            if(milestones[i].completed == true){
+                return milestones[i];
+            }
+        }
+        revert('Not found');
+    }
 }
