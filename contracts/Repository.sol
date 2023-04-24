@@ -34,8 +34,8 @@ contract Repository is RoleManager(){
         userId = 0;
         _grantRole(DEFAULT_ADMIN_ROLE, _user);
         grantRole(CONTRIBUTOR_ROLE, _user);
-        usersInfo[msg.sender].name = "ADMINISTRATOR";
-        usersInfo[msg.sender].id = userId;
+        usersInfo[_user].name = "Owner";
+        usersInfo[_user].id = userId;
         contributors.push(_user);
 
 

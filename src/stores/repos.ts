@@ -8,7 +8,7 @@ import {getAddress} from "ethers/lib/utils";
 
 import { isProxy, toRaw } from 'vue';
 
-const contractAddress = "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"
+const contractAddress = "0x4A679253410272dd5232B3Ff7cF5dbB88f295319"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
@@ -50,9 +50,6 @@ export const useRepositoryStore = defineStore("user", {
                 // }
 
                 const rawRepositories = await repositoryFactoryContract.getUserRepos(this.account)
-                console.log("aeuhwe: ", await repositoryFactoryContract.getUsers())
-                // const rawRepositories = await repositoryFactoryContract.getAllRepositories()
-                console.log(rawRepositories)
                 this.repositories = []
                 for (const repository of rawRepositories) {
                     console.log("Repo address: ", repository)
@@ -62,7 +59,6 @@ export const useRepositoryStore = defineStore("user", {
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
-                    // console.log("Time format: ", repoTimeFormatted)
                     const description = await repositoryProxy.description()
 
                     const repositoryData = {
@@ -79,20 +75,12 @@ export const useRepositoryStore = defineStore("user", {
                     this.repositories.push(repositoryData)
 
 
-                    await this.getVersionsOfRepository(repository).then(function(result){
-                        console.log("Raw Vers: ",toRaw(result))
-                        // versions = toRaw(result)
-                    })
+                    await this.getVersionsOfRepository(repository)
 
-                    this.getRepositoryContributors(repository).then(function(result){
-                            console.log("Con: ",toRaw(result))
-                            // contributors = toRaw(result)
-                    })
+                    await this.getRepositoryContributors(repository)
 
                     console.log("After repository data: ", this.repositories)
                 }
-                // console.log("Temp repos: ", this.getRepositories)
-                // console.log("All repositories: ", this.getRepositories)
             } catch (error) {
                 console.log(error)
             }
@@ -129,10 +117,7 @@ export const useRepositoryStore = defineStore("user", {
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
-                    // console.log("Time format: ", repoTimeFormatted)
                     const description = await repositoryProxy.description()
-                    // const contri = await repositoryProxy.contributors()
-                    // console.log("REPOSITORY NAME", name)
 
                     const repositoryData = {
                         address: repoHash,
@@ -144,6 +129,8 @@ export const useRepositoryStore = defineStore("user", {
                         latestVersion: [],
                         contributors: [],
                     }
+                    this.getRepositoryContributors(repoHash)
+
                     console.log("Repository data:", repoHash, name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
                     console.log("After repository data: ", this.repositories)
@@ -204,7 +191,12 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Mined -- ", repositoryTxn1.hash)
 
                     const contributor = await repositoryContract.getContributor(ConAddress)
-                    repo.contributors.push(contributor)
+                    const cons = {
+                        id: contributor[0],
+                        name: contributor[1],
+                        address: ConAddress
+                    }
+                    repo.contributors.push(cons)
                 }
             } catch (error) {
                 console.log(error)
@@ -221,12 +213,16 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Contributors: ", contributorsAddress)
 
                     const repo = this.repositories.find(repo => repo.address == repoAddress)
-                    console.log("--------------------------------------------------------------------------------------")
                     for (const contributorAddress of contributorsAddress) {
-                        console.log("tuu", contributorAddress)
                         let contributor = await repositoryContract.getContributor(contributorAddress)
-                        console.log(contributor)
-                        repo.contributors.push(contributor)
+
+                        const cons = {
+                            id: contributor[0],
+                            name: contributor[1],
+                            address: contributorAddress
+                        }
+
+                        repo.contributors.push(cons)
                     }
                     console.log("CONTRIBUTORS", repo.contributors)
                     return repo.contributors
@@ -258,7 +254,6 @@ export const useRepositoryStore = defineStore("user", {
                     const repo = this.repositories.find(repo => repo.address == repoAddress)
                     const latestVersion = await repositoryContract.getLatestVersion()
                     repo.versions.push(latestVersion)
-                    console.log("TUUUUUUUUU",repo.versions)
                     repo.latestVersion = latestVersion
                 }
             } catch (error) {

@@ -15,16 +15,6 @@
                 >
                     Test
                 </button>
-                <div class="mt-4 flex sm:mt-0 sm:ml-4">
-                    <button
-                        v-if="allContributorRepositories.length > 0"
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerCreateRepository(true)"
-                    >
-                        Create
-                    </button>
-                </div>
             </div>
 
             <!-- Projects table (small breakpoint and up) -->
@@ -82,26 +72,8 @@
             </div>
             <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
                 <div class="border rounded-md p-10 mb-10 border-dotted border-4">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path
-                            vector-effect="non-scaling-stroke"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-                        />
-                    </svg>
-                    <h3 class="mt-2 text-sm font-semibold text-gray-900">No repositories</h3>
-                    <p class="mt-1 text-sm text-gray-500">Get started by creating a new repository.</p>
                     <div class="mt-6">
-                        <button
-                            @click="triggerCreateRepository(true)"
-                            type="button"
-                            class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        >
-                            <PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                            New Repository
-                        </button>
+                        <span> No repositories as contributor</span>
                     </div>
                 </div>
             </div>
@@ -124,10 +96,7 @@ const repositoryStore = useRepositoryStore()
 
 const { repositories, account } = storeToRefs(repositoryStore)
 
-const ownerRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() == account.value)
-// console.log("Owner Repositories" + ownerRepositories)
 const contributorRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() != account.value)
-// console.log("Contributor Repositories" + contributorRepositories)
 
 const allContributorRepositories = computed(() => {
     return contributorRepositories.map((repository, index) => {

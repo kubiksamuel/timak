@@ -16,12 +16,19 @@
                     >
                         Add version
                     </button>
-                    <button v-if="repository[0].owner.toLowerCase() === account"
+                    <button v-if="repository?.owner.toLowerCase() === account"
                             type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="triggerAddContributor(true)"
                     >
                         Add contributor
+                    </button>
+                    <button
+                            type="button"
+                            class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                            @click="triggerShowContributor(true)"
+                    >
+                        Show contributors
                     </button>
                 </div>
             </div>
@@ -84,6 +91,7 @@
         </div>
         <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
+        <ContributorsSlideOver title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -121,7 +129,7 @@ const repository = computed(() => {
         })
     });
 
-    return [{
+    return {
             owner: r.owner,
             address: r.address,
             title: r.name,
@@ -174,4 +182,8 @@ const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
 const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
+
+const showContributor = ref(false)
+
+const triggerShowContributor = (show: boolean) => (showContributor.value = show)
 </script>
