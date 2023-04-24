@@ -37,30 +37,6 @@
                     Create new version
                 </button>
             </div>
-            <div class="px-4 py-3 text-right sm:px-6">
-                <button
-                    @click="addVersionOfRepository($route.params.projectHash, 'ipfs hash', 'add function')"
-                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                >
-                    Add versions
-                </button>
-            </div>
-            <div class="px-4 py-3 text-right sm:px-6">
-                <button
-                    @click="getVersionsOfRepository($route.params.projectHash)"
-                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                >
-                    Get versions
-                </button>
-            </div>
-            <div class="px-4 py-3 text-right sm:px-6">
-                <button
-                    @click="getLatestVersion($route.params.projectHash)"
-                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                >
-                    Get latest version
-                </button>
-            </div>
         </div>
     </SlideOver>
 </template>
@@ -71,17 +47,17 @@ import SlideOver from "./SlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
-const { addVersionOfRepository, getVersionsOfRepository, getLatestVersion } = useRepositoryStore()
+const { addVersionOfRepository } = useRepositoryStore()
 const route = useRoute()
 
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
     console.log(commitMessage, files)
     let hash: string = "blbost"
     if (commitMessage && files) {
-        hash = await addToIPFS(files, folderName)
+        hash = await addFolderToIPFS(files, folderName)
     }
-    addVersionOfRepository(route.params.projectHash, hash, commitMessage)
-    console.log(hash)
+    await addVersionOfRepository(route.params.projectHash, hash, commitMessage)
+    window.location.reload()
 }
 
 const handleFolderToUpload = (event: Event) => {

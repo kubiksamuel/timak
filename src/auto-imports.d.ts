@@ -9,7 +9,8 @@ declare global {
   const $shallowRef: typeof import('vue/macros')['$shallowRef']
   const $toRef: typeof import('vue/macros')['$toRef']
   const EffectScope: typeof import('vue')['EffectScope']
-  const addToIPFS: typeof import('./composables/ipfs')['addToIPFS']
+  const addFileToIPFS: typeof import('./composables/ipfs')['addFileToIPFS']
+  const addFolderToIPFS: typeof import('./composables/ipfs')['addFolderToIPFS']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const computed: typeof import('vue')['computed']
@@ -36,7 +37,7 @@ declare global {
   const extendRef: typeof import('@vueuse/core')['extendRef']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
-  const getFromIPFS: typeof import('./composables/ipfs')['getFromIPFS']
+  const getFolderFromIPFS: typeof import('./composables/ipfs')['getFolderFromIPFS']
   const h: typeof import('vue')['h']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
@@ -293,7 +294,8 @@ declare module 'vue' {
     readonly $shallowRef: UnwrapRef<typeof import('vue/macros')['$shallowRef']>
     readonly $toRef: UnwrapRef<typeof import('vue/macros')['$toRef']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
-    readonly addToIPFS: UnwrapRef<typeof import('./composables/ipfs')['addToIPFS']>
+    readonly addFileToIPFS: UnwrapRef<typeof import('./composables/ipfs')['addFileToIPFS']>
+    readonly addFolderToIPFS: UnwrapRef<typeof import('./composables/ipfs')['addFolderToIPFS']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
@@ -320,7 +322,7 @@ declare module 'vue' {
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
-    readonly getFromIPFS: UnwrapRef<typeof import('./composables/ipfs')['getFromIPFS']>
+    readonly getFolderFromIPFS: UnwrapRef<typeof import('./composables/ipfs')['getFolderFromIPFS']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>

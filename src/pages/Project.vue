@@ -6,7 +6,7 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository[0].title }} ({{ $route.params.projectHash }})</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ $route.params.projectHash }})</h1>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
@@ -27,6 +27,7 @@
             </div>
             <!-- Project files table (small breakpoint and up) -->
             <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+                <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -35,8 +36,6 @@
                                     <span class="lg:pl-2">File</span>
                                 </th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Updated at</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -44,7 +43,7 @@
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.fileHash" class="truncate hover:text-gray-600">
+                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
                                             <span>
                                                 {{ file.title }}
                                             </span>
@@ -52,8 +51,6 @@
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.createdAt }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.updatedAt }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -71,7 +68,7 @@
                         />
                     </svg>
                     <h3 class="mt-2 text-sm font-semibold text-gray-900">No files</h3>
-                    <p class="mt-1 text-sm text-gray-500">Get started by adding a new file.</p>
+                    <p class="mt-1 text-sm text-gray-500">Get started by adding a new version.</p>
                     <div class="mt-6">
                         <button
                             @click="triggerAddVersion(true)"
@@ -79,13 +76,13 @@
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         >
                             <PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                            New Repository
+                            New Version
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <AddVersionSlideOver title="Add new version" :folder-name=repository[0].title :open="showAddVersion" @close="triggerAddVersion(false)" />
+        <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
     </SidebarLayout>
 </template>
@@ -98,7 +95,6 @@ import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
-import { isProxy, toRaw } from 'vue';
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
 
@@ -108,7 +104,7 @@ const { repositories } = storeToRefs(repositoryStore)
 const repository = computed(() => {
     const r = Object.values(repositories.value).find(repo => repo.address == route.params.projectHash)
     if (!r) {
-        return []
+        return null
     }
 
     const versions: Array<Object> = []
@@ -121,7 +117,7 @@ const repository = computed(() => {
             commitMessage: version[2],
             commiter: version[1],
             IPFSHash: version[3],
-            commmitDate: currentTime
+            commitDate: currentTime
         })
     });
 
@@ -134,28 +130,6 @@ const repository = computed(() => {
             versions: versions,
             lastVersion: versions[versions.length-1],
             contributors: r.contributors,
-            members: [
-                {
-                    name: "Dries Vincent",
-                    handle: "driesvincent",
-                    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Lindsay Walton",
-                    handle: "lindsaywalton",
-                    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Courtney Henry",
-                    handle: "courtneyhenry",
-                    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Tom Cook",
-                    handle: "tomcook",
-                    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-            ],
             totalMembers: 12,
             createdAt: r.createdAt,
             updatedAt: r.createdAt,
@@ -164,54 +138,35 @@ const repository = computed(() => {
             // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
             bgColorClass: "bg-violet-600",
-        }]
+        }
 })
-
-// tu si gettnem priecinok z ipfs
-// const data = await getFromIPFS("QmZwTfY8xta6tsZrZZWFFURbS65vUHb8MWYPk6Sf64u4xt")
 
 const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 onMounted(async () => {
-    console.log("Contr: ", repository.value[0].contributors)
-    console.log("Versions: ",repository.value[0].versions)
-    console.log("Latest version: ",repository.value[0].lastVersion)
-    const ipfsHash = repository.value[0].lastVersion.IPFSHash
-    const res = await getFromIPFS(ipfsHash)
+    console.log("Contr: ", repository.value.contributors)
+    console.log("Versions: ",repository.value.versions)
+    console.log("Latest version: ",repository.value.lastVersion)
+    const ipfsHash = repository.value.lastVersion.IPFSHash
+    await changeVersion(ipfsHash)
+})
+
+const changeVersion = async (ipfsHash) => {
+    const res = await getFolderFromIPFS(ipfsHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
         result.push({
             id: index,
-            fileHash: item.fileHash,
+            hash: item.hash,
             title: item.name,
             size: item.size,
-            bgColorClass: "bg-violet-600",
-            createdAt: "today",
-            updatedAt: "today"
+            bgColorClass: "bg-violet-600"
         })
     });
     data.value = result
-})
-console.log('data: ', data)
+}
 
-// // chcem pouzit files ako repositories v dashboarde
-// const files = computed(() => {
-//     const result: Array<Object> = []
-//     data.forEach((item, index) => {
-//         result.push({
-//             id: index,
-//             fileHash: item.fileHash,
-//             title: item.name,
-//             size: item.size,
-//             bgColorClass: "bg-violet-600",
-//             createdAt: "today",
-//             updatedAt: "today"
-//         })
-//     });
-//     console.log("result: ", result)
-//     return result
-// })
 const showAddVersion = ref(false)
 
 const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
