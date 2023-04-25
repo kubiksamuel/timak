@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     AddReviewSlideOver: typeof import('./components/AddReviewSlideOver.vue')['default']
     AddVersionSlideOver: typeof import('./components/AddVersionSlideOver.vue')['default']
     AskReview: typeof import('./components/AskReview.vue')['default']
+    CompleteMilestone: typeof import('./components/CompleteMilestone.vue')['default']
     CreateRepositorySlideOver: typeof import('./components/CreateRepositorySlideOver.vue')['default']
     Loader: typeof import('./components/Loader.vue')['default']
     README: typeof import('./components/README.md')['default']

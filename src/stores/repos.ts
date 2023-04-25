@@ -80,8 +80,8 @@ export const useRepositoryStore = defineStore("user", {
                             description: description,
                             versionHashes: [],
                             version: "",
-                            requiredReviews: requiredReviews.numberOfRequiredReviews,
-                            committedReviews: requiredReviews.numberOfCommittedReviews,
+                            requiredReviews: requiredReviews.numberOfRequiredReviews.toString(),
+                            committedReviews: requiredReviews.numberOfCommittedReviews.toString(),
                         }
                         this.toReviewRepositories.push(repositoryReviewData)
                     }
@@ -210,8 +210,8 @@ export const useRepositoryStore = defineStore("user", {
                     return {
                         id: eventData.id,
                         completed: false,
-                        title: eventData.title,
-                        description: eventData.description,
+                        title: eventData.milestoneName,
+                        description: eventData.milestoneDescription,
                         requestReview: eventData.requestReview,
                         deadline: eventData.deadline,
                     }
@@ -231,6 +231,14 @@ export const useRepositoryStore = defineStore("user", {
                     const allMilestones = await repositoryContract.getAllMilestones()
                     return await Promise.all(
                         allMilestones.map(async (milestone: MilestoneMeta) => {
+                            console.log("Get milestone: ", {
+                                id: milestone.id?.toString(),
+                                title: milestone.title,
+                                description: milestone.description,
+                                deadline: milestone.deadline.toString(),
+                                requestReview: milestone.requestReview,
+                                completed: milestone.completed,
+                            })
                             return {
                                 id: milestone.id?.toString(),
                                 title: milestone.title,
@@ -246,7 +254,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-        async completeMilestone() {
+        async completeMilestone(repositoryHash: string, milestoneId: number, numberOfReviews: number) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -257,7 +265,7 @@ export const useRepositoryStore = defineStore("user", {
                     // get repository
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.completeMilestone(0, 1) //index milestonu, pocet reviews ak 0 tak neni reviewable
+                    const repositoryTxn = await repositoryContract.completeMilestone(milestoneId, numberOfReviews) //index milestonu, pocet reviews ak 0 tak neni reviewable
 
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
@@ -265,8 +273,10 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
 
-                    const allMilestones = await repositoryContract.getAllMilestones()
-                    console.log("allmilestones: ", allMilestones)
+                    const eventData = transaction.events.find((event) => event.event === "MilestoneCompleted").args
+                    if (eventData) {
+                        return true
+                    }
                 }
             } catch (error) {
                 console.log(error)

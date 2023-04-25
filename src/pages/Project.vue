@@ -26,13 +26,6 @@
                     <button
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerAddMilestone(true)"
-                    >
-                        Add milestone
-                    </button>
-                    <button
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="completeMilestone($route.params.projectHash)"
                     >
                         Complete next milestone
@@ -115,7 +108,6 @@
         </div>
         <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
-        <AddMilestone title="Add milestone" :open="showAddMilestone" @close="triggerAddMilestone(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">

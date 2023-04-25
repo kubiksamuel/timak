@@ -8,6 +8,7 @@ contract Repository is RoleManager{
     event VersionAdded(address committer, string versionName, uint256 timestamp);
     event MilestoneAdded(uint256 id, uint256 deadline, string milestoneName, string  milestoneDescription);
     event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
+    event MilestoneCompleted(uint256 id, uint256 numberOfReviews);
 
     string public name;
     uint256 public createdAt;
@@ -83,6 +84,7 @@ contract Repository is RoleManager{
             milestones[_milestoneId].numberOfRequiredReviews = _numberOfRequiredReviews;
             toReview = true;
         }
+        emit MilestoneCompleted(_milestoneId, _numberOfRequiredReviews);
     }
 
     function setToReview(bool _val) public {
