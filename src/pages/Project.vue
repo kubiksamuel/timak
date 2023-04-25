@@ -30,6 +30,20 @@
                     >
                         Show contributors
                     </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="triggerAddMilestone(true)"
+                    >
+                        Add milestone
+                    </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="completeMilestone($route.params.projectHash)"
+                    >
+                        Complete next milestone
+                    </button>
                 </div>
             </div>
             <!-- Project files table (small breakpoint and up) -->
@@ -91,6 +105,7 @@
         </div>
         <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
+        <AddMilestone title="Add milestone" :open="showAddMilestone" @close="triggerAddMilestone(false)" />
         <ContributorsSlideOver title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
     </SidebarLayout>
 </template>
@@ -100,17 +115,19 @@ import { storeToRefs } from "pinia"
 import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
+import AddMilestone from "~/components/AddMilestone.vue"
+import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
+
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
-
 const { account } = storeToRefs(repositoryStore)
-// const { getLatestVersion } = useRepositoryStore()
+const { completeMilestone } = repositoryStore
 const { repositories } = storeToRefs(repositoryStore)
 const repository = computed(() => {
-    const r = Object.values(repositories.value).find(repo => repo.address == route.params.projectHash)
+    const r = Object.values(repositories.value).find(repo => repo.repositoryHash == route.params.projectHash)
     if (!r) {
         return null
     }
@@ -131,7 +148,7 @@ const repository = computed(() => {
 
     return {
             owner: r.owner,
-            address: r.address,
+            address: r.repositoryHash,
             title: r.name,
             initials: r.name.slice(0, 2),
             team: r.description,
@@ -186,4 +203,8 @@ const triggerAddContributor = (show: boolean) => (showAddContributor.value = sho
 const showContributor = ref(false)
 
 const triggerShowContributor = (show: boolean) => (showContributor.value = show)
+
+const showAddMilestone = ref(false)
+
+const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
 </script>

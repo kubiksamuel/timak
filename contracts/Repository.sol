@@ -4,8 +4,9 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "./RoleManager.sol";
 
-contract Repository is RoleManager(){
+contract Repository is RoleManager{
     event VersionAdded(address committer, string versionName, uint256 timestamp);
+    event MilestoneAdded(uint256 id, uint256 deadline, string milestoneName, string  milestoneDescription);
     event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
 
     bytes32 public repoHash;
@@ -13,6 +14,7 @@ contract Repository is RoleManager(){
     uint256 public createdAt;
     address public owner;
     string public description;
+    bool public toReview;
 
     struct Version {
         uint256 timestamp;
@@ -22,10 +24,16 @@ contract Repository is RoleManager(){
     }
 
     struct Milestone {
-        uint256 timestamp;
-        address committer;
-        string name;
+        uint256 numberOfRequiredReviews;
+        uint256 numberOfCommittedReviews;
+        uint256 id;
+        uint256 deadline;
+        string title;
+        string description;
+        bool completed;
     }
+
+    Milestone[] public milestones;
 
     mapping(bytes32 => Version) public version;
     bytes32[] public versionHashes;
@@ -44,6 +52,52 @@ contract Repository is RoleManager(){
         owner = _user;
         description = _description;
         emit RepositoryCreated(_name, createdAt, owner, _description);
+    }
+
+    function isMilestoneReviewable(uint _index) external view returns(bool) {
+        return milestones[_index].numberOfRequiredReviews > milestones[_index].numberOfCommittedReviews;
+    }
+
+    function addMilestone(uint256 deadline, string memory _title, string memory _description) public
+    onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        Milestone memory newMilestone = Milestone(0, 0, milestones.length, deadline, _title, _description, false);
+        milestones.push(newMilestone);
+        emit MilestoneAdded(newMilestone.id, newMilestone.deadline, newMilestone.title, newMilestone.description);
+    }
+
+    function getAllMilestones() external view returns(Milestone[] memory){
+        return milestones;
+    }
+
+    function incrementReviewCount(uint256 _milestoneId) public{
+        milestones[_milestoneId].numberOfCommittedReviews++;
+        if(this.isRepositoryReviewable() == false){
+            this.setToReview(false);
+        }
+    }
+
+    function completeMilestone(uint256 _milestoneId, uint256 _numberOfRequiredReviews) public
+    onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        milestones[_milestoneId].completed = true;
+        if (_numberOfRequiredReviews > 0){
+            milestones[_milestoneId].numberOfRequiredReviews = _numberOfRequiredReviews;
+            toReview = true;
+        }
+    }
+
+    function setToReview(bool _val) public {
+        toReview = _val;
+    }
+
+    function isRepositoryReviewable() external view returns (bool){
+        for (uint i = 0; i< milestones.length; i++){
+            if(milestones[i].numberOfRequiredReviews != milestones[i].numberOfCommittedReviews){
+                return true;
+            }
+        }
+        return false;
     }
 
     function addVersionOfRepository(string memory _name, string memory _ipfsHash) public
@@ -68,6 +122,15 @@ contract Repository is RoleManager(){
 
     function getContributors() external view returns(address[] memory){
         return contributors;
+    }
+
+    function getLastCompletedMilestone() external view returns(Milestone memory) {
+        for (uint i = 0; i< milestones.length; i++){
+            if(milestones[i].completed == true){
+                return milestones[i];
+            }
+        }
+        revert('Not found');
     }
 
     function getContributor(address _contributor) external view returns(RoleInfo memory){
