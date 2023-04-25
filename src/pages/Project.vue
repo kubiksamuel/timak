@@ -6,7 +6,7 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Project name ({{ $route.params.projectHash }})</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ $route.params.projectHash }})</h1>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
@@ -17,11 +17,19 @@
                         Add version
                     </button>
                     <button
+                        v-if="repository?.owner.toLowerCase() === account"
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="triggerAddContributor(true)"
                     >
                         Add contributor
+                    </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="triggerShowContributor(true)"
+                    >
+                        Show contributors
                     </button>
                     <button
                         type="button"
@@ -32,9 +40,9 @@
                     </button>
                 </div>
             </div>
-
             <!-- Project files table (small breakpoint and up) -->
-            <div v-if="allRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+            <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+                <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -42,39 +50,22 @@
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
                                     <span class="lg:pl-2">File</span>
                                 </th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Contributors</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Updated at</th>
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="file in allRepositories" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
+                            <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <span>
-                                            {{ file.title }}
-                                            {{ " " }}
-                                            <span class="font-normal text-gray-500"> {{ $route.params.projectHash }}</span>
-                                        </span>
+                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
+                                            <span>
+                                                {{ file.title }}
+                                            </span>
+                                        </a>
                                     </div>
                                 </td>
-                                <td class="px-6 py-3 text-sm font-medium text-gray-500">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="flex flex-shrink-0 -space-x-1">
-                                            <img
-                                                v-for="member in file.members"
-                                                :key="member.handle"
-                                                class="h-6 w-6 max-w-none rounded-full ring-2 ring-white"
-                                                :src="member.imageUrl"
-                                                :alt="member.name"
-                                            />
-                                        </div>
-                                        <span v-if="file.totalMembers > file.members.length" class="flex-shrink-0 text-xs font-medium leading-5">+{{ file.totalMembers - file.members.length }}</span>
-                                    </div>
-                                </td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.createdAt }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.updatedAt }}</td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -92,7 +83,7 @@
                         />
                     </svg>
                     <h3 class="mt-2 text-sm font-semibold text-gray-900">No files</h3>
-                    <p class="mt-1 text-sm text-gray-500">Get started by adding a new file.</p>
+                    <p class="mt-1 text-sm text-gray-500">Get started by adding a new version.</p>
                     <div class="mt-6">
                         <button
                             @click="triggerAddVersion(true)"
@@ -100,71 +91,100 @@
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         >
                             <PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                            New Repository
+                            New Version
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <AddVersionSlideOver title="Add new version" :open="showAddVersion" @close="triggerAddVersion(false)" />
+        <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
+        <ContributorsSlideOver title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import AddMilestone from "~/components/AddMilestone.vue"
 import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
 
 import { useRepositoryStore } from "~/stores/repos"
+import { useRoute } from "vue-router"
 
+const route = useRoute()
 const repositoryStore = useRepositoryStore()
+const { account } = storeToRefs(repositoryStore)
 const { completeMilestone } = repositoryStore
 const { repositories } = storeToRefs(repositoryStore)
-const allRepositories = computed(() => {
-    return Object.values(repositories.value).map((repository, index) => {
-        console.log("Repository in map: ", repository)
-        return {
-            id: index,
-            title: repository.name,
-            // initials: repository.name.slice(0, 2),
-            team: repository.description,
-            members: [
-                {
-                    name: "Dries Vincent",
-                    handle: "driesvincent",
-                    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Lindsay Walton",
-                    handle: "lindsaywalton",
-                    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Courtney Henry",
-                    handle: "courtneyhenry",
-                    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Tom Cook",
-                    handle: "tomcook",
-                    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-            ],
-            totalMembers: 12,
-            createdAt: repository.createdAt,
-            updatedAt: repository.createdAt,
-            // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            // // TODO: change created at to date related to last version
-            // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            pinned: true,
-            bgColorClass: "bg-violet-600",
-        }
+const repository = computed(() => {
+    const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == route.params.projectHash)
+    if (!r) {
+        return null
+    }
+
+    const versions: Array<Object> = []
+    r.versions.forEach((version, index) => {
+        const timeInSeconds = parseInt(version[0].hex, 16)
+        const timeInMiliseconds = timeInSeconds * 1000
+        const currentTime = new Date(timeInMiliseconds)
+        versions.push({
+            id: ++index,
+            commitMessage: version[2],
+            commiter: version[1],
+            IPFSHash: version[3],
+            commitDate: currentTime,
+        })
     })
+
+    return {
+        owner: r.owner,
+        address: r.repositoryHash,
+        title: r.name,
+        initials: r.name.slice(0, 2),
+        team: r.description,
+        versions: versions,
+        lastVersion: versions[versions.length - 1],
+        contributors: r.contributors,
+        totalMembers: 12,
+        createdAt: r.createdAt,
+        updatedAt: r.createdAt,
+        // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
+        // // TODO: change created at to date related to last version
+        // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
+        pinned: true,
+        bgColorClass: "bg-violet-600",
+    }
 })
+
+const { getLatestVersion } = useRepositoryStore()
+const { latestVersion } = storeToRefs(repositoryStore)
+const data = ref()
+onMounted(async () => {
+    console.log("Contr: ", repository.value.contributors)
+    console.log("Versions: ", repository.value.versions)
+    console.log("Latest version: ", repository.value.lastVersion)
+    const ipfsHash = repository.value.lastVersion.IPFSHash
+    await changeVersion(ipfsHash)
+})
+
+const changeVersion = async (ipfsHash) => {
+    const res = await getFolderFromIPFS(ipfsHash)
+    const result: Array<Object> = []
+    res.forEach((item, index) => {
+        result.push({
+            id: index,
+            hash: item.hash,
+            title: item.name,
+            size: item.size,
+            bgColorClass: "bg-violet-600",
+        })
+    })
+    data.value = result
+}
+
 const showAddVersion = ref(false)
 
 const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
@@ -172,6 +192,10 @@ const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
 const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
+
+const showContributor = ref(false)
+
+const triggerShowContributor = (show: boolean) => (showContributor.value = show)
 
 const showAddMilestone = ref(false)
 

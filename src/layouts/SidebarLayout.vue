@@ -91,11 +91,10 @@ const repositoryStore = useRepositoryStore()
 
 const { account } = storeToRefs(repositoryStore)
 const svgString = toSvg(account, 25)
-
 const navigation = ref([
     { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
     { name: "Team", href: "#", icon: UsersIcon },
-    { name: "Projects", href: "#", icon: FolderIcon },
+    { name: "Contributor projects", href: "/contributor_projects", icon: FolderIcon, current: false },
     { name: "To review", href: "/toReview", icon: DocumentDuplicateIcon },
     { name: "My reviews", href: "#", icon: ChartPieIcon },
 ])

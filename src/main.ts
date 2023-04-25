@@ -12,6 +12,9 @@ import Dashboard from "~/pages/Dashboard.vue"
 import Project from "~/pages/Project.vue"
 import ToReview from "~/pages/ToReview.vue"
 import MilestoneTimeline from "~/pages/MilestoneTimeline.vue"
+import HomeLayout from "./layouts/home.vue"
+import SidebarLayout from "./layouts/SidebarLayout.vue"
+import ContributorProjects from "~/pages/ContributorProjects.vue";
 
 const routes = [
     { path: "/", component: index },
@@ -19,6 +22,8 @@ const routes = [
     { path: "/toReview", component: ToReview },
     { path: "/dashboard/project/:projectHash", component: Project },
     { path: "/dashboard/project/:projectHash/milestones", component: MilestoneTimeline },
+    { path: "/contributor_projects", component: ContributorProjects },
+    { path: "/contributor_projects/project/:projectHash", component: Project },
 ]
 // const routes = setupLayouts(generatedRoutes)
 

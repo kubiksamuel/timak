@@ -10,6 +10,7 @@ contract Repository is RoleManager{
     event RepositoryCreated(string name, uint256 createdAt, address owner, string description);
     event MilestoneCompleted(uint256 id, uint256 numberOfReviews);
 
+    bytes32 public repoHash;
     string public name;
     uint256 public createdAt;
     address public owner;
@@ -20,6 +21,7 @@ contract Repository is RoleManager{
         uint256 timestamp;
         address committer;
         string commitName;
+        string ipfsHash;
     }
 
     struct Milestone {
@@ -41,8 +43,8 @@ contract Repository is RoleManager{
         userId = 0;
         _grantRole(DEFAULT_ADMIN_ROLE, _user);
         grantRole(CONTRIBUTOR_ROLE, _user);
-        usersInfo[msg.sender].name = "ADMINISTRATOR";
-        usersInfo[msg.sender].id = userId;
+        usersInfo[_user].name = "Owner";
+        usersInfo[_user].id = userId;
         contributors.push(_user);
 
 
@@ -100,7 +102,7 @@ contract Repository is RoleManager{
         return false;
     }
 
-    function addVersionOfRepository(string memory _name) public
+    function addVersionOfRepository(string memory _name, string memory _ipfsHash) public
     onlyRole(CONTRIBUTOR_ROLE)
     {
         bytes32 versionHash;
@@ -109,6 +111,7 @@ contract Repository is RoleManager{
         newVersion.timestamp = block.timestamp;
         newVersion.committer = msg.sender;
         newVersion.commitName = _name;
+        newVersion.ipfsHash = _ipfsHash;
         versionHashes.push(versionHash);
         emit VersionAdded(msg.sender, _name, block.timestamp);
     }
@@ -130,5 +133,21 @@ contract Repository is RoleManager{
             }
         }
         revert('Not found');
+    }
+
+    function getContributor(address _contributor) external view returns(RoleInfo memory){
+        return usersInfo[_contributor];
+    }
+
+    function getVersionsHashes() external view returns(bytes32[] memory){
+        return versionHashes;
+    }
+
+    function getVersion(bytes32 hash) external view returns(Version memory){
+        return version[hash];
+    }
+
+    function getLatestVersion() external view returns(Version memory){
+        return version[versionHashes[versionHashes.length-1]];
     }
 }
