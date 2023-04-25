@@ -1,27 +1,27 @@
-import { ethers } from "ethers"
-import { acceptHMRUpdate, defineStore } from "pinia"
+import {ethers} from "ethers"
+import {defineStore} from "pinia"
 import contractABI from "../artifacts/contracts/RepositoryFactory.sol/RepositoryFactory.json"
 import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json"
 
 import { RepositoryMeta } from "~/types/repository"
 import { MilestoneMeta } from "~/types/milestone"
 import { Review, SkillLevel } from "~/types/review"
+import {getAddress} from "ethers/lib/utils";
 
+import { isProxy, toRaw } from 'vue';
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export const useRepositoryStore = defineStore("user", {
     state: () => ({
         account: null as null | string,
         repositories: [],
-        contributors: [],
-        score: null as null | number,
-        reviews: [],
         toReviewRepositories: [],
+        reviews: [],
+        score: null as null | number,
     }),
     getters: {
         getAcccount: (state) => state.account,
         getRepositories: (state) => state.repositories,
-        getContributors: (state) => state.contributors,
         getScore: (state) => state.score,
         getToReviewRepositories: (state) => state.toReviewRepositories,
     },
@@ -36,6 +36,7 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Must connect to MetaMask!")
                     return
                 }
+
                 const myAccounts = await ethereum.request({ method: "eth_requestAccounts" })
                 this.account = myAccounts[0]
                 const provider = new ethers.providers.Web3Provider(ethereum)
@@ -64,10 +65,9 @@ export const useRepositoryStore = defineStore("user", {
                         createdAt: repoTimeFormatted,
                         owner: owner,
                         description: description,
-                        versionHashes: [],
-                        version: "",
-                        // toReviewLimit: toReviewLimit,
-                        // numOfReviews: numOfReviews,
+                        versions: [],
+                        latestVersion: [],
+                        contributors: [],
                     }
                     if (toReview > 0) {
                         const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
@@ -86,6 +86,13 @@ export const useRepositoryStore = defineStore("user", {
                         this.toReviewRepositories.push(repositoryReviewData)
                     }
                     this.repositories.push(repositoryData)
+
+
+                    await this.getVersionsOfRepository(repository)
+
+                    await this.getRepositoryContributors(repository)
+
+                    console.log("After repository data: ", this.repositories)
                 }
                 console.log(this.toReviewRepositories)
             } catch (error) {
@@ -137,11 +144,13 @@ export const useRepositoryStore = defineStore("user", {
                         createdAt: repoTimeFormatted,
                         owner: owner,
                         description: description,
-                        versionHashes: [],
-                        version: "",
-                        // toReviewLimit: toReviewLimit,
-                        // numOfReviews: numOfReviews,
+                        versions: [],
+                        latestVersion: [],
+                        contributors: [],
                     }
+                    this.getRepositoryContributors(repositoryHash)
+
+                    console.log("Repository data:", repositoryHash, name, owner, repoTime, description)
                     if (toReview > 0) {
                         const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
                         console.log("aa: ", requiredReviews)
@@ -166,7 +175,7 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
-        async addContributor(RepoAddress: string, ConAddress: string) {
+        async addContributor(repoAddress: string, ConAddress: string, ConName: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
@@ -174,15 +183,54 @@ export const useRepositoryStore = defineStore("user", {
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const signer = provider.getSigner()
 
-                    // get repository
-                    const repositoryContract = new ethers.Contract(RepoAddress, RepositoryABI.abi, signer)
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.addContributor(ConAddress, "Fero")
+                    let isAlreadyUser = await repositoryFactoryContract.isAlreadyUser(ConAddress)
+                    console.log(isAlreadyUser)
+                    if (isAlreadyUser){
+                    }else {
+                        const a = await repositoryFactoryContract.addUser(ConAddress)
+                        console.log("Mining...", a.hash)
+                        const transaction = await a.wait()
+                        console.log("Event: ", transaction.logs)
+                        console.log("Transaction reciept: ", transaction)
+                        console.log("Mined -- ", a.hash)
+                    }
+
+                    // check if user is already contributor
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
+                    if(repo.contributors.find(repo => repo.contributors == ConAddress)){
+                        console.log("User is already contributor")
+                        return
+                    }
+                    console.log("Add user as contributor")
+
+
+                    // get repository
+                    const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
+
+                    const repositoryTxn = await repositoryContract.addContributor(ConAddress, ConName)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
                     console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
+
+                    console.log(repositoryContract)
+                    const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address)
+                    console.log("Mining...", repositoryTxn1.hash)
+                    const transaction1 = await repositoryTxn1.wait()
+                    console.log("Event: ", transaction1.logs)
+                    console.log("Transaction reciept: ", transaction1)
+                    console.log("Mined -- ", repositoryTxn1.hash)
+
+                    const contributor = await repositoryContract.getContributor(ConAddress)
+                    const cons = {
+                        id: contributor[0],
+                        name: contributor[1],
+                        address: ConAddress
+                    }
+                    repo.contributors.push(cons)
                 }
             } catch (error) {
                 console.log(error)
@@ -273,15 +321,30 @@ export const useRepositoryStore = defineStore("user", {
             }
         },
 
-        async getRepositoryContributors(RepoAddress: string) {
+        async getRepositoryContributors(repoAddress: string) {
             try {
                 const { ethereum } = window
                 if (ethereum) {
                     // create provider object from ethers library, using ethereum object injected by metamask
                     const provider = new ethers.providers.Web3Provider(ethereum)
-                    const repositoryContract = new ethers.Contract(RepoAddress, RepositoryABI.abi, provider)
-                    this.contributors = await repositoryContract.getContributors()
-                    console.log("Contributors: ", this.contributors)
+                    const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+                    const contributorsAddress = await repositoryContract.getContributors()
+                    console.log("Contributors: ", contributorsAddress)
+
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
+                    for (const contributorAddress of contributorsAddress) {
+                        let contributor = await repositoryContract.getContributor(contributorAddress)
+
+                        const cons = {
+                            id: contributor[0],
+                            name: contributor[1],
+                            address: contributorAddress
+                        }
+
+                        repo.contributors.push(cons)
+                    }
+                    console.log("CONTRIBUTORS", repo.contributors)
+                    return repo.contributors
                 }
             } catch (error) {
                 console.log(error)
@@ -375,6 +438,58 @@ export const useRepositoryStore = defineStore("user", {
             } catch (error) {
                 console.log(error)
                 throw new error()
+            }
+        },
+
+        async addVersionOfRepository(repoAddress: string, ipfsHash: string, commitName: string){
+            console.log("add version")
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    // get repository
+                    let repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
+
+                    const repositoryTxn = await repositoryContract.addVersionOfRepository(commitName, ipfsHash)
+                    console.log("Mining...", repositoryTxn.hash)
+                    const transaction = await repositoryTxn.wait()
+                    console.log("Event: ", transaction.logs)
+                    console.log("Transaction reciept: ", transaction)
+                    console.log("Mined -- ", repositoryTxn.hash)
+
+                    repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
+                    const latestVersion = await repositoryContract.getLatestVersion()
+                    repo.versions.push(latestVersion)
+                    repo.latestVersion = latestVersion
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async getVersionsOfRepository(repoAddress: string): Promise<any>{
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
+                    const versionsHashes = await repositoryContract.getVersionsHashes()
+
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
+                    for (const versionHash of versionsHashes) {
+                        const version = await repositoryContract.getVersion(versionHash)
+                        repo.versions.push(version)
+                    }
+
+                    repo.latestVersion = repo.versions[repo.versions.length-1]
+                    return repo.versions
+                }
+            } catch (error) {
+                console.log(error)
             }
         },
     },

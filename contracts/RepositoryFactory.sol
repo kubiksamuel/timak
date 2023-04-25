@@ -101,6 +101,17 @@ contract RepositoryFactory {
     }
 
 
+    function addUser(address user)public
+    {
+        userCounter++;
+        usersData[user].id = userCounter;
+        users.push(user);
+    }
+
+    function addRepositoryToUser(address user, Repository repository)public{
+        usersData[user].listOfRepositories.push(repository);
+    }
+
     function getUserRepos(address user) external view returns (Repository[] memory) {
         return usersData[user].listOfRepositories;
     }
@@ -112,4 +123,12 @@ contract RepositoryFactory {
     function getUsers() external view returns (address[] memory) {
         return users;
     }
+
+    function isAlreadyUser(address user) external view returns (bool){
+        if (usersData[user].id == 0) {
+            return false;
+        }
+        return true;
+    }
+
 }
