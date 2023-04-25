@@ -40,7 +40,7 @@ const route = useRoute()
 const repositoryStore = useRepositoryStore()
 const { repositories } = storeToRefs(repositoryStore)
 const repositoryCon = computed(() => {
-    const r = Object.values(repositories.value).find(repo => repo.address == route.params.projectHash)
+    const r = Object.values(repositories.value).find(repo => repo.repositoryHash == route.params.projectHash)
     if (!r) {
         return null
     }

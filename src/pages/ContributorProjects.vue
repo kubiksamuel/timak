@@ -102,7 +102,7 @@ const allContributorRepositories = computed(() => {
     return contributorRepositories.map((repository, index) => {
         return {
             id: index,
-            address: repository.address,
+            address: repository.repositoryHash,
             title: repository.name,
             initials: repository.name.slice(0, 2),
             team: repository.description,

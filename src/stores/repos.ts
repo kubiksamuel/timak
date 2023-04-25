@@ -148,9 +148,9 @@ export const useRepositoryStore = defineStore("user", {
                         latestVersion: [],
                         contributors: [],
                     }
-                    this.getRepositoryContributors(repoHash)
+                    this.getRepositoryContributors(repositoryHash)
 
-                    console.log("Repository data:", repoHash, name, owner, repoTime, description)
+                    console.log("Repository data:", repositoryHash, name, owner, repoTime, description)
                     if (toReview > 0) {
                         const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
                         console.log("aa: ", requiredReviews)
@@ -198,7 +198,7 @@ export const useRepositoryStore = defineStore("user", {
                     }
 
                     // check if user is already contributor
-                    const repo = this.repositories.find(repo => repo.address == repoAddress)
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
                     if(repo.contributors.find(repo => repo.contributors == ConAddress)){
                         console.log("User is already contributor")
                         return
@@ -331,7 +331,7 @@ export const useRepositoryStore = defineStore("user", {
                     const contributorsAddress = await repositoryContract.getContributors()
                     console.log("Contributors: ", contributorsAddress)
 
-                    const repo = this.repositories.find(repo => repo.address == repoAddress)
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
                     for (const contributorAddress of contributorsAddress) {
                         let contributor = await repositoryContract.getContributor(contributorAddress)
 
@@ -460,7 +460,7 @@ export const useRepositoryStore = defineStore("user", {
                     console.log("Mined -- ", repositoryTxn.hash)
 
                     repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
-                    const repo = this.repositories.find(repo => repo.address == repoAddress)
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
                     const latestVersion = await repositoryContract.getLatestVersion()
                     repo.versions.push(latestVersion)
                     repo.latestVersion = latestVersion
@@ -479,7 +479,7 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
                     const versionsHashes = await repositoryContract.getVersionsHashes()
 
-                    const repo = this.repositories.find(repo => repo.address == repoAddress)
+                    const repo = this.repositories.find(repo => repo.repositoryHash == repoAddress)
                     for (const versionHash of versionsHashes) {
                         const version = await repositoryContract.getVersion(versionHash)
                         repo.versions.push(version)
