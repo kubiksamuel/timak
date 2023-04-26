@@ -31,13 +31,6 @@
                     >
                         Show contributors
                     </button>
-                    <button
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="completeMilestone($route.params.projectHash)"
-                    >
-                        Complete next milestone
-                    </button>
                 </div>
             </div>
             <!-- Project files table (small breakpoint and up) -->
@@ -117,7 +110,6 @@ import { useRoute } from "vue-router"
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
 const { account } = storeToRefs(repositoryStore)
-const { completeMilestone } = repositoryStore
 const { repositories } = storeToRefs(repositoryStore)
 const repository = computed(() => {
     const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == route.params.projectHash)

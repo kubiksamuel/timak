@@ -30,35 +30,10 @@
                                 </li>
                             </ul>
                         </li>
-                        <li>
-                            <div class="text-xs font-semibold leading-6 text-violet-200">Your teams</div>
-                            <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                <li v-for="team in teams" :key="team.name">
-                                    <a
-                                        :href="team.href"
-                                        :class="[
-                                            team.current ? 'bg-violet-700 text-white' : 'text-violet-200 hover:text-white hover:bg-violet-700',
-                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                                        ]"
-                                    >
-                                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-violet-400 bg-violet-500 text-[0.625rem] font-medium text-white">{{
-                                            team.initial
-                                        }}</span>
-                                        <span class="truncate">{{ team.name }}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
                         <li class="mx-auto mt-auto w-full">
                             <div class="flex items-center w-full py-3 gap-x-2 text-sm font-semibold justify-between leading-6 text-white">
                                 <div class="bg-white rounded-full p-1" v-html="svgString"></div>
 
-                                <!--                                    <img-->
-                                <!--                                        class="h-8 w-8 rounded-full bg-violet-700"-->
-                                <!--                                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"-->
-                                <!--                                        alt=""-->
-                                <!--                                    />-->
-                                <!--                                    <Identicon :size="128" :theme="'polkadot'" :value="'5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'"></Identicon>-->
                                 <span class="truncate">{{ account }}</span>
                                 <div class="">
                                     <button @click="logout" class="px-6 py-1 font-medium hover:bg-violet-700 rounded-md">Logout</button>

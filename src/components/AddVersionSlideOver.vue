@@ -1,5 +1,5 @@
 <template>
-    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title" :folderName="folderName">
+    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title" :folder-name="folderName">
         <div class="flex flex-col space-y-2">
             <div>
                 <label for="commitMessage" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Commit message</label>
@@ -18,13 +18,14 @@
                 <label for="Folder" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Folder</label>
                 <div class="mt-1">
                     <input
-                        v-on:change="handleFolderToUpload($event)"
+                        @change="handleFolderToUpload($event)"
                         type="file"
                         name="Folder"
                         class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         placeholder="Folder"
                         ref="files"
-                        webkitdirectory multiple
+                        webkitdirectory
+                        multiple
                     />
                 </div>
             </div>
@@ -46,13 +47,14 @@ import { ref, Ref } from "vue"
 import SlideOver from "./SlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
+import { addFolderToIPFS } from "~/composables/ipfs"
 
 const { addVersionOfRepository } = useRepositoryStore()
 const route = useRoute()
 
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
     console.log(commitMessage, files)
-    let hash: string = "blbost"
+    let hash = "blbost"
     if (commitMessage && files) {
         hash = await addFolderToIPFS(files, folderName)
     }
@@ -86,6 +88,6 @@ const emit = defineEmits<{
     (e: "close"): void
 }>()
 
-let files: Ref<FileList | undefined> = ref()
+const files: Ref<FileList | undefined> = ref()
 const commitMessage: Ref<string | undefined> = ref()
 </script>
