@@ -10,15 +10,6 @@
                     <div class="mt-4 flex sm:mt-0 sm:ml-4">
                         <button
                             type="button"
-                            class="order-0 inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                            @click="triggerAddMilestone(true)"
-                        >
-                            Complete Milestone
-                        </button>
-                    </div>
-                    <div class="mt-4 flex sm:mt-0 sm:ml-4">
-                        <button
-                            type="button"
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                             @click="triggerAddMilestone(true)"
                         >
@@ -28,7 +19,7 @@
                 </div>
                 <div class="pt-3 font-poppins">
                     <div class="flex flex-col items-center pt-2">
-                        <h1 class="text-5xl font-bold leading-tight">Company <span class="text-violet-500"> Timeline </span></h1>
+                        <h1 class="text-5xl font-bold leading-tight">Milestone <span class="text-violet-500"> Timeline </span></h1>
                         <div class="flex w-24 mt-1 mb-6 overflow-hidden rounded">
                             <div class="flex-1 h-2 bg-violet-200"></div>
                             <div class="flex-1 h-2 bg-violet-400"></div>
@@ -62,9 +53,9 @@
                                                         <div class="relative z-20">
                                                             <div class="flex items-center">
                                                                 <div class="p-4 md:w-1/4">
-                                                                    <span class="text-lg font-medium text-gray-500">{{
-                                                                        new Date(parseFloat(milestone.deadline)).toLocaleString("default", { month: "long" })
-                                                                    }}</span>
+                                                                    <span class="text-lg font-medium text-gray-500"
+                                                                        >{{ new Date(parseFloat(milestone.deadline)).toLocaleString("default", { month: "long" }) }}
+                                                                    </span>
                                                                     <p class="text-xl font-bold text-gray-700 text-bold">
                                                                         {{ new Date(parseFloat(milestone.deadline)).toLocaleString("default", { day: "numeric" }) }}
                                                                     </p>
@@ -146,13 +137,6 @@ import { ref, onMounted } from "vue"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { MilestoneMeta } from "~/types/milestone"
 import CompleteMilestone from "~/components/CompleteMilestone.vue"
-
-const props = defineProps({
-    repositoryHash: {
-        type: String,
-        required: true,
-    },
-})
 
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
