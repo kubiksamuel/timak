@@ -5,7 +5,7 @@
                 <div class="flex flex-col space-y-3">
                     <div>
                         <RadioGroup v-model="selectedSkillLevel">
-                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Select a mailing list</RadioGroupLabel>
+                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Evaluate your skills</RadioGroupLabel>
 
                             <div class="mt-1 grid grid-cols-2 gap-2">
                                 <RadioGroupOption as="template" v-for="skillLevel in skillLevels" :key="skillLevel.title" :value="skillLevel" v-slot="{ checked, active }">
@@ -34,7 +34,7 @@
                     </div>
                     <div>
                         <RadioGroup v-model="selectedRating">
-                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Choose a label color</RadioGroupLabel>
+                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Rate a review</RadioGroupLabel>
                             <div class="mt-1 flex items-center space-x-3">
                                 <RadioGroupOption as="template" v-for="rating in [0, 1, 2, 3, 4]" :key="rating" :value="rating + 1" v-slot="{ active, checked }">
                                     <div class="flex items-center">
