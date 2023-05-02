@@ -126,13 +126,20 @@ contract Repository is RoleManager{
         return contributors;
     }
 
-    function getLastCompletedMilestone() external view returns(Milestone memory) {
+    function getLastCompletedMilestone() external view returns(Milestone[] memory) {
+        uint counter = 0;
         for (uint i = 0; i< milestones.length; i++){
-            if(milestones[i].completed == true){
-                return milestones[i];
+            if (milestones[i].numberOfCommittedReviews < milestones[i].numberOfRequiredReviews){
+                counter++;
             }
         }
-        revert('Not found');
+        Milestone[] memory tmp = new Milestone[](counter);
+        for (uint i = 0; i< milestones.length; i++){
+            if(milestones[i].numberOfCommittedReviews < milestones[i].numberOfRequiredReviews){
+                tmp[i] = milestones[i];
+            }
+        }
+        return tmp;
     }
 
     function getContributor(address _contributor) external view returns(RoleInfo memory){
