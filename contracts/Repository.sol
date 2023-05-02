@@ -126,7 +126,7 @@ contract Repository is RoleManager{
         return contributors;
     }
 
-    function getLastCompletedMilestone() external view returns(Milestone[] memory) {
+    function getAllReviewableMilestones() external view returns(Milestone[] memory) {
         uint counter = 0;
         for (uint i = 0; i< milestones.length; i++){
             if (milestones[i].numberOfCommittedReviews < milestones[i].numberOfRequiredReviews){
@@ -134,9 +134,11 @@ contract Repository is RoleManager{
             }
         }
         Milestone[] memory tmp = new Milestone[](counter);
+        uint j = 0;
         for (uint i = 0; i< milestones.length; i++){
             if(milestones[i].numberOfCommittedReviews < milestones[i].numberOfRequiredReviews){
-                tmp[i] = milestones[i];
+                tmp[j] = milestones[i];
+                j++;
             }
         }
         return tmp;

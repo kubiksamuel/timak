@@ -70,7 +70,7 @@ export const useRepositoryStore = defineStore("user", {
                         contributors: [],
                     }
                     if (toReview > 0) {
-                        const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
+                        const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
                         console.log("aa: ", requiredReviews)
                         for (const repoMilestone of requiredReviews) {
                             const repositoryReviewData = {
@@ -83,6 +83,7 @@ export const useRepositoryStore = defineStore("user", {
                                 version: "",
                                 requiredReviews: repoMilestone.numberOfRequiredReviews.toString(),
                                 committedReviews: repoMilestone.numberOfCommittedReviews.toString(),
+                                milestoneId: repoMilestone.id,
                             }
                             this.toReviewRepositories.push(repositoryReviewData)
                         }
