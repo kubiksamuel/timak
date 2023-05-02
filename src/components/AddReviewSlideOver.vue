@@ -5,7 +5,7 @@
                 <div class="flex flex-col space-y-3">
                     <div>
                         <RadioGroup v-model="selectedSkillLevel">
-                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Select a mailing list</RadioGroupLabel>
+                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Evaluate your skills</RadioGroupLabel>
 
                             <div class="mt-1 grid grid-cols-2 gap-2">
                                 <RadioGroupOption as="template" v-for="skillLevel in skillLevels" :key="skillLevel.title" :value="skillLevel" v-slot="{ checked, active }">
@@ -34,7 +34,7 @@
                     </div>
                     <div>
                         <RadioGroup v-model="selectedRating">
-                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Choose a label color</RadioGroupLabel>
+                            <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Rate a review</RadioGroupLabel>
                             <div class="mt-1 flex items-center space-x-3">
                                 <RadioGroupOption as="template" v-for="rating in [0, 1, 2, 3, 4]" :key="rating" :value="rating + 1" v-slot="{ active, checked }">
                                     <div class="flex items-center">
@@ -43,31 +43,38 @@
                                 </RadioGroupOption>
                             </div>
                         </RadioGroup>
-                        <!--                <label for="description" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Rating</label>-->
-                        <!--                <div class="mt-1">-->
-                        <!--                    <input-->
-                        <!--                        v-model="newReview.rating"-->
-                        <!--                        type="text"-->
-                        <!--                        name="description"-->
-                        <!--                        class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"-->
-                        <!--                        placeholder="Description"-->
-                        <!--                    />-->
-                        <!--                </div>-->
                     </div>
                     <div>
-                        <label for="description" class="ml-px block text-sm font-medium leading-6 text-gray-900">CID(temporary)</label>
-                        <div class="mt-1">
-                            <input
-                                v-model="contentIdentifier"
-                                type="text"
-                                name="description"
-                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
-                                placeholder="Description"
-                            />
-                        </div>
+                        <div class="ml-px block text-sm font-medium leading-10 text-gray-900">Review Document</div>
+                        <label
+                            for="dropzone-file"
+                            class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed hover:border-violet-500 rounded-lg cursor-pointer bg-white"
+                            :class="{ 'border-violet-400': file }"
+                        >
+                            <div v-if="file" class="flex space-x-2 justify-center items-center">
+                                <div>
+                                    {{ file.name }}
+                                </div>
+                                <CheckCircleIcon class="h-5 w-5 text-violet-600" aria-hidden="true" />
+                            </div>
+                            <div v-else class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                    ></path>
+                                </svg>
+                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Your review will be uploaded to ipfs.</p>
+                            </div>
+                            <input @change="handleFileToUpload($event)" id="dropzone-file" type="file" class="hidden" />
+                        </label>
                     </div>
                 </div>
             </div>
+            <hr class="-mx-6" />
 
             <div class="px-4 py-3 text-right sm:px-6">
                 <button
@@ -89,6 +96,7 @@ import { Review, SkillLevel } from "~/types/review"
 import { RadioGroup, RadioGroupDescription, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue"
 import { CheckCircleIcon } from "@heroicons/vue/20/solid"
 import { StarIcon } from "@heroicons/vue/20/solid"
+import { addFileToIPFS } from "~/composables/ipfs"
 
 const repository = useRepositoryStore()
 const skillLevels = [
@@ -124,11 +132,19 @@ const emit = defineEmits<{
     (e: "create", newReview: Omit<Review, "reviewer">): void
 }>()
 
-const contentIdentifier = ref()
-const addReview = () => {
+const file = ref()
+
+const handleFileToUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement
+    if (target && target.files) {
+        file.value = target.files[0]
+    }
+}
+const addReview = async () => {
+    const contentIdentifier = await addFileToIPFS(file.value)
     const newReview: Omit<Review, "reviewer"> = {
         repositoryHash: props.repositoryHash,
-        contentIdentifier: contentIdentifier.value,
+        contentIdentifier,
         rating: selectedRating.value,
         reviewerSkillLevel: SkillLevel[selectedSkillLevel.value.title],
     }

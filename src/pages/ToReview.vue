@@ -59,7 +59,7 @@
                                 </td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500 flex justify-center">
                                     <div class="flex transform items-center space-x-1.5 rounded-3xl py-1 px-3 w-fit duration-500 bg-violet-50 text-indigo-700 shadow-sm">
-                                        <span class="rounded-3xl text-gray-600 text-sm">2/3</span>
+                                        <span class="rounded-3xl text-gray-600 text-sm">{{ repository.committedReviews }}/{{ repository.requiredReviews }}</span>
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
@@ -104,45 +104,17 @@
                             </div>
                         </div>
                         <div class="absolute bottom-0 flex h-11 w-full items-center border-t px-6">
-                            <button
-                                @click="downloadReview(review.contentIdentifier)"
-                                type="button"
+                            <a
+                                :href="'https://gateway.pinata.cloud/ipfs/' + review.contentIdentifier"
                                 class="focus:ring-none w-full group inline-flex flex-shrink-0 h-full items-center text-sm font-medium text-violet-500 hover:text-violet-800 focus:outline-none"
                             >
                                 Download review
                                 <DownloadIcon class="ml-1 w-4" />
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!--            <ReviewGrid v-else-if="allRepositories.length > 0 && selectedRepository" :repository-hash="selectedRepository" />-->
-            <!--            <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">-->
-            <!--                <div class="border rounded-md p-10 mb-10 border-dotted border-4">-->
-            <!--                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">-->
-            <!--                        <path-->
-            <!--                            vector-effect="non-scaling-stroke"-->
-            <!--                            stroke-linecap="round"-->
-            <!--                            stroke-linejoin="round"-->
-            <!--                            stroke-width="2"-->
-            <!--                            d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"-->
-            <!--                        />-->
-            <!--                    </svg>-->
-            <!--                    <h3 class="mt-2 text-sm font-semibold text-gray-900">No repositories</h3>-->
-            <!--                    <p class="mt-1 text-sm text-gray-500">Get started by creating a new repository.</p>-->
-            <!--                    <div class="mt-6">-->
-            <!--                        <button-->
-            <!--                            @click="triggerCreateRepository(true)"-->
-            <!--                            type="button"-->
-            <!--                            class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"-->
-            <!--                        >-->
-            <!--                            <PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />-->
-            <!--                            New Repository-->
-            <!--                        </button>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
         </div>
         <AddReviewSlideOver :repository-hash="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" @create="createNewReview" />
     </SidebarLayout>
@@ -153,7 +125,6 @@ import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, computed, Ref } from "vue"
 import AddReviewSlideOver from "~/components/AddReviewSlideOver.vue"
-import ReviewGrid from "./ReviewGrid.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
 import { ArrowDownTrayIcon as DownloadIcon } from "@heroicons/vue/24/outline"
@@ -163,13 +134,14 @@ import { toSvg } from "jdenticon"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
-const { repositories } = storeToRefs(repositoryStore)
+const { toReviewRepositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
-    return Object.values(repositories.value).map((repository, index) => {
+    return Object.values(toReviewRepositories.value).map((repository, index) => {
         return {
             id: repository.repositoryHash,
             title: repository.name,
-            // initials: repository.name.slice(0, 2),
+            requiredReviews: repository.requiredReviews,
+            committedReviews: repository.committedReviews,
             team: repository.description,
             members: [
                 {
@@ -197,7 +169,7 @@ const allRepositories = computed(() => {
             createdAt: repository.createdAt,
             updatedAt: repository.createdAt,
             // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            // // TODO: change created at to date related to last version
+            // TODO: change created at to date related to last version
             // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
             bgColorClass: "bg-violet-600",
@@ -228,16 +200,9 @@ const showRepoReviews = async (repositoryHash: string) => {
         )
         console.log("Reviews: ", reviews.value)
     }
-
-    // console.log("Hash : ", repositoryHash)
-    // selectedRepository.value = repositoryHash
 }
 
 const createNewReview = async (newReview: Omit<Review, "reviewer">) => {
     reviews.value.push(await repositoryStore.createReview(newReview))
-}
-
-const downloadReview = (contentIdentifier: string) => {
-    console.log("Ipfs hash: ", contentIdentifier)
 }
 </script>

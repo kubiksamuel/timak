@@ -1,37 +1,43 @@
 <template>
-    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title">
-        <div class="flex flex-col space-y-2">
-            <div>
-                <label for="commitMessage" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Commit message</label>
-                <div class="mt-1">
-                    <input
-                        v-model="commitMessage"
-                        type="text"
-                        name="commitMessage"
-                        id="commitMessage"
-                        class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Commit message"
-                    />
+    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title" :folder-name="folderName">
+        <div class="flex h-full flex-col pt-1">
+            <div class="h-full flex-1">
+                <div class="flex flex-col space-y-3">
+                    <div>
+                        <label for="commitMessage" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Commit message</label>
+                        <div class="mt-1">
+                            <input
+                                v-model="commitMessage"
+                                type="text"
+                                name="commitMessage"
+                                id="commitMessage"
+                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                placeholder="Commit message"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="Folder" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Folder</label>
+                        <div class="mt-1">
+                            <input
+                                @change="handleFolderToUpload($event)"
+                                type="file"
+                                name="Folder"
+                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                placeholder="Folder"
+                                ref="files"
+                                webkitdirectory
+                                multiple
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div>
-                <label for="Folder" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Folder</label>
-                <div class="mt-1">
-                    <input
-                        v-on:change="handleFolderToUpload($event)"
-                        type="file"
-                        name="Folder"
-                        class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Folder"
-                        ref="files"
-                        webkitdirectory multiple
-                    />
-                </div>
-            </div>
+            <hr class="-mx-6" />
 
             <div class="px-4 py-3 text-right sm:px-6">
                 <button
-                    @click="createVersion(commitMessage, files)"
+                    @click="createVersion(commitMessage, files, folderName)"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 >
                     Create new version
@@ -44,10 +50,21 @@
 <script setup lang="ts">
 import { ref, Ref } from "vue"
 import SlideOver from "./SlideOver.vue"
+import { useRepositoryStore } from "~/stores/repos"
+import { useRoute } from "vue-router"
+import { addFolderToIPFS } from "~/composables/ipfs"
 
+const { addVersionOfRepository } = useRepositoryStore()
+const route = useRoute()
 
-const createVersion = (commitMessage: string | undefined, files: FileList | undefined) => {
+const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
     console.log(commitMessage, files)
+    let hash = "blbost"
+    if (commitMessage && files) {
+        hash = await addFolderToIPFS(files, folderName)
+    }
+    await addVersionOfRepository(route.params.projectHash, hash, commitMessage)
+    window.location.reload()
 }
 
 const handleFolderToUpload = (event: Event) => {
@@ -66,12 +83,16 @@ defineProps({
         type: String,
         required: true,
     },
+    folderName: {
+        type: String,
+        required: true,
+    },
 })
 
 const emit = defineEmits<{
     (e: "close"): void
 }>()
 
-let files: Ref<FileList | undefined> = ref()
+const files: Ref<FileList | undefined> = ref()
 const commitMessage: Ref<string | undefined> = ref()
 </script>
