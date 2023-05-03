@@ -4,7 +4,7 @@
             <div class="h-full flex-1">
                 <div class="flex flex-col space-y-3">
                     <div>
-                        <label for="address" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Address</label>
+                        <label for="address" class="ml-px block text-sm font-medium leading-6 text-gray-900">Address</label>
                         <div class="mt-1">
                             <input
                                 v-model="newRepository.address"
@@ -17,7 +17,7 @@
                         </div>
                     </div>
                     <div>
-                        <label for="address" class="ml-px block pl-4 text-sm font-medium leading-6 text-gray-900">Name of contributor</label>
+                        <label for="address" class="ml-px block text-sm font-medium leading-6 text-gray-900">Name of contributor</label>
                         <div class="mt-1">
                             <input
                                 v-model="newRepository.nameOfContributor"

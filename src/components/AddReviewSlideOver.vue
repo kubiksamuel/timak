@@ -51,7 +51,7 @@
                             class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed hover:border-violet-500 rounded-lg cursor-pointer bg-white"
                             :class="{ 'border-violet-400': file }"
                         >
-                            <div v-if="file" class="flex space-x-2 justify-center items-center">
+                            <div v-if="file" class="flex space-x-2 text-gray-500 justify-center items-center">
                                 <div>
                                     {{ file.name }}
                                 </div>
