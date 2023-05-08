@@ -60,3 +60,45 @@ describe("Repository Factory", function () {
         expect((await repositoryfactory.isAlreadyUser(random_addr))).to.equal(false);
     });
 });
+
+describe("Role Manager", function () {
+    let repository;
+    let admin;
+    //let addr = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
+
+    before(async () => {
+        [admin, contributor, testUser] = await ethers.getSigners();
+        const Repository = await ethers.getContractFactory("Repository");
+        repository = await Repository.deploy("meno","description",admin.address);
+        await repository.deployed();
+    });
+
+    it("Set contributor privilege to address as admin", async function () {
+        const conName = "contributor"
+        const setConTx = await repository.connect(admin).setPrivillegeContributor(contributor.address, conName);
+        const resultCon = await setConTx.wait();
+        const conAddedEvent = resultCon.events[0];
+
+        expect(conAddedEvent.args[0]).to.equal(await(repository.CONTRIBUTOR_ROLE()));
+        expect(conAddedEvent.args[1]).to.equal(contributor.address);
+        expect(conAddedEvent.args[2]).to.equal(admin.address);
+
+        expect(await repository.hasRole(repository.CONTRIBUTOR_ROLE(), contributor.address)).to.equal(true);
+        expect((await repository.usersInfo(contributor.address)).name).to.equal(conName);
+        expect((await repository.usersInfo(contributor.address)).id).to.equal(1);
+    });
+
+    it("Fail set contributor privilege to address as contributor", async function () {
+        const conName2 = "contributor2"
+
+        await expect(repository.connect(contributor).setPrivillegeContributor(testUser.address, conName2)).to.be.reverted;
+    });
+
+    it("Fail set contributor privilege to address as random user", async function () {
+        const conName3 = "contributor3"
+        let random_user = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
+
+        await expect(repository.connect(testUser).setPrivillegeContributor(random_user, conName3)).to.be.reverted;
+    });
+
+});
