@@ -70,20 +70,23 @@ export const useRepositoryStore = defineStore("user", {
                         contributors: [],
                     }
                     if (toReview > 0) {
-                        const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
+                        const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
                         console.log("aa: ", requiredReviews)
-                        const repositoryReviewData = {
-                            repositoryHash: repository,
-                            name: name,
-                            createdAt: repoTimeFormatted,
-                            owner: owner,
-                            description: description,
-                            versionHashes: [],
-                            version: "",
-                            requiredReviews: requiredReviews.numberOfRequiredReviews.toString(),
-                            committedReviews: requiredReviews.numberOfCommittedReviews.toString(),
+                        for (const repoMilestone of requiredReviews) {
+                            const repositoryReviewData = {
+                                repositoryHash: repository,
+                                name: name,
+                                createdAt: repoTimeFormatted,
+                                owner: owner,
+                                description: description,
+                                versionHashes: [],
+                                version: "",
+                                requiredReviews: repoMilestone.numberOfRequiredReviews.toString(),
+                                committedReviews: repoMilestone.numberOfCommittedReviews.toString(),
+                                milestoneId: repoMilestone.id,
+                            }
+                            this.toReviewRepositories.push(repositoryReviewData)
                         }
-                        this.toReviewRepositories.push(repositoryReviewData)
                     }
                     this.repositories.push(repositoryData)
 
@@ -150,22 +153,6 @@ export const useRepositoryStore = defineStore("user", {
                     this.getRepositoryContributors(repositoryHash)
 
                     console.log("Repository data:", repositoryHash, name, owner, repoTime, description)
-                    if (toReview > 0) {
-                        const requiredReviews = await repositoryProxy.getLastCompletedMilestone()
-                        console.log("aa: ", requiredReviews)
-                        const repositoryReviewData = {
-                            repositoryHash: repository,
-                            name: name,
-                            createdAt: repoTimeFormatted,
-                            owner: owner,
-                            description: description,
-                            versionHashes: [],
-                            version: "",
-                            requiredReviews: requiredReviews.numberOfRequiredReviews,
-                            committedReviews: requiredReviews.numberOfCommittedReviews,
-                        }
-                        this.toReviewRepositories.push(repositoryReviewData)
-                    }
                     this.repositories.push(repositoryData)
                 } else {
                     console.log("Ethereum object doesn't exist!")
