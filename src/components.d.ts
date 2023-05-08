@@ -14,6 +14,7 @@ declare module '@vue/runtime-core' {
     AskReview: typeof import("./components/AskReview.vue")["default"]
     CompleteMilestone: typeof import('./components/CompleteMilestone.vue')['default']
     ContributorsSlideOver: typeof import('./components/ContributorsSlideOver.vue')['default']
+    ContributorsTable: typeof import('./components/ContributorsTable.vue')['default']
     CreateRepositorySlideOver: typeof import('./components/CreateRepositorySlideOver.vue')['default']
     Loader: typeof import('./components/Loader.vue')['default']
     README: typeof import('./components/README.md')['default']

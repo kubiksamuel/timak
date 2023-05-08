@@ -6,15 +6,12 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Dashboard</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Owner project</h1>
+                    <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                        Welcome to your dashboard section! Here, you'll find all the repositories that you own so you have owner-level permissions, giving you complete control to manage your
+                        repositories with ease.
+                    </p>
                 </div>
-                <button
-                            type="button"
-                            class="sm:order-0 order-1 ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-0"
-                            @click="testAddFileToIPFS()"
-                            >
-                            Test
-                        </button>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
                         v-if="allOwnerRepositories.length > 0"
@@ -44,7 +41,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="repository in allOwnerRepositories" @click="redirectToRepo(repository.id)" :key="repository.id" class="hover:bg-violet-100 cursor-pointer w-full h-full relative">
+                            <tr
+                                v-for="repository in allOwnerRepositories"
+                                @click="redirectToRepo(repository.id)"
+                                :key="repository.id"
+                                class="hover:bg-violet-100 cursor-pointer w-full h-full relative"
+                            >
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <div :class="[repository.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
@@ -116,16 +118,16 @@ import { PlusIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { Buffer } from "buffer"
-import { toSvg } from "jdenticon";
+import { toSvg } from "jdenticon"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
 
 const { repositories, account } = storeToRefs(repositoryStore)
 
-const ownerRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() == account.value)
+const ownerRepositories = Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() == account.value)
 // console.log("Owner Repositories" + ownerRepositories)
-const contributorRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() != account.value)
+const contributorRepositories = Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() != account.value)
 // console.log("Contributor Repositories" + contributorRepositories)
 
 const allOwnerRepositories = computed(() => {
@@ -182,7 +184,7 @@ const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
 
 const testAddFileToIPFS = async () => {
     // const buff = readFileSync('./README.md')
-    const buff = Buffer.from([1,2])
+    const buff = Buffer.from([1, 2])
     const blob = new Blob([buff])
     // const data = await getFromIPFS("QmcJaPLCrnHfKC6zZmdskkF6tdTqSfE7RnbwBN9UMhuEXj", "file")
     // const data = await addToIPFS(blob)

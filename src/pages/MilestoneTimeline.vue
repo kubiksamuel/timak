@@ -6,6 +6,10 @@
                 <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                     <div class="min-w-0 flex-1">
                         <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Milestones</h1>
+                        <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                            Stay up-to-date with your project's progress by checking out dynamic timeline section, where you can view all the significant milestones and achievements in chronological
+                            order.
+                        </p>
                     </div>
                     <div class="mt-4 flex sm:mt-0 sm:ml-4">
                         <router-link :to="'/dashboard/project/' + route.params.projectHash">
@@ -34,15 +38,7 @@
                             <div class="flex-1 h-2 bg-violet-600"></div>
                         </div>
                     </div>
-                    <div class="max-w-xl mx-auto">
-                        <div class="text-center">
-                            <p class="mb-14 text-base text-center text-gray-500">
-                                Stay up-to-date with your project's progress by checking out dynamic timeline section, where you can view all the significant milestones and achievements in
-                                chronological order.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col justify-center pb-8">
+                    <div class="flex flex-col justify-center py-8">
                         <div class="w-full mx-auto lg:max-w-5xl">
                             <div class="relative">
                                 <div class="absolute hidden w-1 h-full transform -translate-x-1/2 bg-[#c9e2f5] dark:bg-gray-700 lg:block left-1/2"></div>

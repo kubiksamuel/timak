@@ -7,6 +7,9 @@
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ $route.params.projectHash }})</h1>
+                    <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                        The repository section is a place for managing all aspects of a project, including adding new versions, managing contributors, and creating milestones to track progress.
+                    </p>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <div class="inline-flex items-center space-x-4 self-center text-right">
@@ -58,17 +61,7 @@
                                                 @click="redirectToMilestone"
                                             >
                                                 <MilestoneIcon class="mr-2 h-4 w-4 text-gray-700" />
-                                                Show Milestones
-                                            </button>
-                                        </MenuItem>
-                                        <MenuItem class="p-1.5 hover:bg-violet-50" :disabled="placingWidget">
-                                            <button
-                                                type="button"
-                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
-                                                @click="triggerShowContributor(true)"
-                                            >
-                                                <ContributorIcon class="mr-2 h-4 w-4 text-gray-700" />
-                                                Show contributors
+                                                Milestones
                                             </button>
                                         </MenuItem>
                                     </MenuItems>
@@ -79,48 +72,83 @@
                 </div>
             </div>
             <!-- Project files table (small breakpoint and up) -->
-            <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
-                <div v-if="currentMilestone" class="pointer-events-non sm:flex sm:justify-center sm:px-6 lg:px-8">
-                    <div class="pointer-events-auto flex items-center justify-between gap-x-6 bg-violet-100 px-6 py-2.5 sm:rounded-xl sm:py-3 sm:pl-4 sm:pr-3.5">
-                        <div class="flex justify-between items-center space-x-2">
-                            <div class="text-sm text-gray-600">
-                                {{ new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { day: "numeric" }) }}.{{
-                                    new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { month: "numeric" })
-                                }}.{{ new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { year: "numeric" }) }}
-                            </div>
-                            <div class="text-sm font-semibold text-gray-700">
-                                {{ currentMilestone.title }}
-                            </div>
+            <div v-if="data" class="flex-1 mt-8 w-full pb-4 mx-auto hidden sm:block">
+                <div class="flex justify-between px-4 divide-x-2 divide-gray-200">
+                    <div class="w-full px-4">
+                        <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
+                        <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-t border-gray-200">
+                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
+                                            <span class="lg:pl-2">File</span>
+                                        </th>
+                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 bg-white">
+                                    <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
+                                        <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
+                                            <div class="flex items-center space-x-3 lg:pl-2">
+                                                <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
+                                                <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
+                                                    <span>
+                                                        {{ file.title }}
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
-                <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
-                <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
-                    <table class="min-w-full">
-                        <thead>
-                            <tr class="border-t border-gray-200">
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
-                                    <span class="lg:pl-2">File</span>
-                                </th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
-                                <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center space-x-3 lg:pl-2">
-                                        <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
-                                            <span>
-                                                {{ file.title }}
-                                            </span>
-                                        </a>
+                    <div class="flex flex-col w-1/3 space-y-10 px-4">
+                        <div>
+                            <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Repository description</div>
+                            <div class="text-sm text-gray-700">{{ repository.description }}</div>
+                        </div>
+                        <div>
+                            <div class="font-medium leading-6 text-sm text-gray-900 mb-1">Current milestone</div>
+                            <div>
+                                <div class="relative overflow-hidden rounded-lg bg-white pb-12 pt-5 shadow px-4 sm:pt-6">
+                                    <div class="flex justify-between items-center px-2 pb-4 space-x-20">
+                                        <div>
+                                            <div>
+                                                <div class="truncate text-sm font-medium text-gray-500">
+                                                    {{ new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { day: "numeric" }) }}.{{
+                                                        new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { month: "numeric" })
+                                                    }}.{{ new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { year: "numeric" }) }}
+                                                </div>
+                                            </div>
+                                            <div class="flex items-baseline">
+                                                <div class="text-lg font-semibold text-gray-900">{{ currentMilestone.title }}</div>
+                                                <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-1">
+                                                    <button
+                                                        @click="redirectToMilestone"
+                                                        class="px-4 py-4 text-sm text-left cursor-pointer h-full w-full font-medium text-violet-700 hover:text-indigo-500"
+                                                    >
+                                                        View all milestones
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="inline-flex h-fit items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-200">
+                                            <svg class="h-1.5 w-1.5 fill-violet-800" viewBox="0 0 6 6" aria-hidden="true">
+                                                <circle cx="3" cy="3" r="3" />
+                                            </svg>
+                                            In progress
+                                        </div>
                                     </div>
-                                </td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Contributors</div>
+                            <ContributorsTable title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
@@ -169,6 +197,11 @@ import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 import { useRouter } from "vue-router"
 
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/vue/20/solid"
+import { CursorArrowRaysIcon, EnvelopeOpenIcon, UsersIcon } from "@heroicons/vue/24/outline"
+
+const stats = [{ id: 1, name: "Total Subscribers", stat: "71,897", icon: UsersIcon, change: "122", changeType: "increase" }]
+
 const route = useRoute()
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
@@ -199,7 +232,7 @@ const repository = computed(() => {
         address: r.repositoryHash,
         title: r.name,
         initials: r.name.slice(0, 2),
-        team: r.description,
+        description: r.description,
         versions: versions,
         lastVersion: versions[versions.length - 1],
         contributors: r.contributors,
