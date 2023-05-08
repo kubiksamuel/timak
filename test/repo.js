@@ -102,3 +102,96 @@ describe("Role Manager", function () {
     });
 
 });
+describe("Repository", function () {
+    let repository;
+    let admin, con1, testUser;
+
+    let ipfs_hash = "ipfs_hash"
+    let version_name = "my_version_name"
+
+    let ipfs_hash_2 = "ipfs_hash_2"
+    let version_name_2 = "my_version_name_2"
+
+    let ipfs_hash_3 = "ipfs_hash_3"
+    let version_name_3 = "my_version_name_3"
+
+    let ipfs_hash_4 = "ipfs_hash_4"
+    let version_name_4 = "my_version_name_4"
+
+    before(async () => {
+        [admin, con1, testUser] = await ethers.getSigners();
+        const Repository = await ethers.getContractFactory("Repository");
+        repository = await Repository.deploy("meno", "description", admin.address);
+        await repository.deployed();
+    });
+
+    it("Add version", async function() {
+        const setVersionTx = await repository.connect(admin).addVersionOfRepository(version_name, ipfs_hash);
+        const result = await setVersionTx.wait();
+        const versionAddedEvent = result.events[0];
+
+        expect(versionAddedEvent.args[0]).to.equal(admin.address);
+        expect(versionAddedEvent.args[1]).to.equal(version_name);
+
+        expect((await repository.getLatestVersion()).committer).to.equal(admin.address);
+        expect((await repository.getLatestVersion()).commitName).to.equal(version_name);
+        expect((await repository.getLatestVersion()).ipfsHash).to.equal(ipfs_hash);
+    });
+
+    it("Add second version", async function() {
+        const setVersionTx = await repository.connect(admin).addVersionOfRepository(version_name_2, ipfs_hash_2);
+        const result = await setVersionTx.wait();
+        const versionAddedEvent = result.events[0];
+
+        expect(versionAddedEvent.args[0]).to.equal(admin.address);
+        expect(versionAddedEvent.args[1]).to.equal(version_name_2);
+
+        expect((await repository.getLatestVersion()).committer).to.equal(admin.address);
+        expect((await repository.getLatestVersion()).commitName).to.equal(version_name_2);
+        expect((await repository.getLatestVersion()).ipfsHash).to.equal(ipfs_hash_2);
+        expect((await repository.getVersionsHashes()).length).to.equal(2);
+    });
+
+    it("Add third version by contributor", async function() {
+        const conName = "contributor"
+        const setConTx = await repository.connect(admin).setPrivillegeContributor(con1.address, conName);
+        await setConTx.wait();
+
+        const setVersionTx = await repository.connect(con1).addVersionOfRepository(version_name_3, ipfs_hash_3);
+        const result = await setVersionTx.wait();
+        const versionAddedEvent = result.events[0];
+
+        expect(versionAddedEvent.args[0]).to.equal(con1.address);
+        expect(versionAddedEvent.args[1]).to.equal(version_name_3);
+
+        expect((await repository.getLatestVersion()).committer).to.equal(con1.address);
+        expect((await repository.getLatestVersion()).commitName).to.equal(version_name_3);
+        expect((await repository.getLatestVersion()).ipfsHash).to.equal(ipfs_hash_3);
+        expect((await repository.getVersionsHashes()).length).to.equal(3);
+    });
+
+    it("Fail add version by random user", async function () {
+        await expect(repository.connect(testUser).addVersionOfRepository(version_name_4, ipfs_hash_4)).to.be.reverted;
+    });
+
+    it("Get previous versions", async function () {
+        let hashes = await repository.getVersionsHashes()
+        let version1 = await repository.getVersion(hashes[0])
+        let version2 = await repository.getVersion(hashes[1])
+        let version3 = await repository.getVersion(hashes[2])
+
+        expect(version1.committer).to.equal(admin.address);
+        expect(version1.commitName).to.equal(version_name);
+        expect(version1.ipfsHash).to.equal(ipfs_hash);
+
+        expect(version2.committer).to.equal(admin.address);
+        expect(version2.commitName).to.equal(version_name_2);
+        expect(version2.ipfsHash).to.equal(ipfs_hash_2);
+
+        expect(version3.committer).to.equal(con1.address);
+        expect(version3.commitName).to.equal(version_name_3);
+        expect(version3.ipfsHash).to.equal(ipfs_hash_3);
+
+    });
+
+});
