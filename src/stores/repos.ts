@@ -81,9 +81,16 @@ export const useRepositoryStore = defineStore("user", {
                                 description: description,
                                 versionHashes: [],
                                 version: "",
-                                requiredReviews: repoMilestone.numberOfRequiredReviews.toString(),
-                                committedReviews: repoMilestone.numberOfCommittedReviews.toString(),
-                                milestoneId: repoMilestone.id,
+                                milestone: {
+                                    requiredReviews: repoMilestone.numberOfRequiredReviews.toNumber(),
+                                    committedReviews: repoMilestone.numberOfCommittedReviews.toNumber(),
+                                    id: repoMilestone.id.toNumber(),
+                                    versionName: repoMilestone.versionName,
+                                    deadline: parseFloat(repoMilestone.deadline.toString()),
+                                    title: repoMilestone.title,
+                                    description: repoMilestone.description,
+                                    completed: repoMilestone.completed,
+                                },
                             }
                             this.toReviewRepositories.push(repositoryReviewData)
                         }
@@ -246,7 +253,7 @@ export const useRepositoryStore = defineStore("user", {
                         title: eventData.milestoneName,
                         description: eventData.milestoneDescription,
                         requestReview: eventData.requestReview,
-                        deadline: eventData.deadline,
+                        deadline: parseFloat(eventData.deadline.toString()),
                     }
                 }
             } catch (error) {
@@ -268,7 +275,7 @@ export const useRepositoryStore = defineStore("user", {
                                 id: milestone.id,
                                 title: milestone.title,
                                 description: milestone.description,
-                                deadline: milestone.deadline,
+                                deadline: parseFloat(milestone.deadline.toString()),
                                 requestReview: milestone.requestReview,
                                 completed: milestone.completed,
                             })
@@ -413,7 +420,13 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
                     console.log("New review: ", newReview)
-                    const repositoryTxn = await repositoryFactoryContract.createReview(newReview.repositoryHash, newReview.contentIdentifier, newReview.rating, newReview.reviewerSkillLevel, 0) //milestoneid
+                    const repositoryTxn = await repositoryFactoryContract.createReview(
+                        newReview.repositoryHash,
+                        newReview.contentIdentifier,
+                        newReview.rating,
+                        newReview.reviewerSkillLevel,
+                        newReview.milestoneId
+                    )
                     console.log("Mining...", repositoryTxn)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
@@ -426,6 +439,7 @@ export const useRepositoryStore = defineStore("user", {
                         reviewerSkillLevel: eventData.reviewerSkillLevel,
                         rating: eventData.rating,
                         contentIdentifier: eventData.contentIdentifier,
+                        milestoneId: eventData.milestoneId,
                     }
                 } else {
                     throw new "Ethereum object doesn't exist!"()
