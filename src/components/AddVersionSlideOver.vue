@@ -79,7 +79,9 @@ const commitMessage: Ref<string | undefined> = ref()
 
 const hasUploaded = computed(() => files.value && Object.values(files.value).length)
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
-    console.log(commitMessage, files)
+    console.log("Commit message: ", commitMessage)
+    console.log("Committed files: ", files)
+    console.log("Folder name: ", folderName)
     let hash = "blbost"
     if (commitMessage && files) {
         hash = await addFolderToIPFS(files, folderName)

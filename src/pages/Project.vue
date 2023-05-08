@@ -219,14 +219,13 @@ const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 const currentMilestone = ref()
 onMounted(async () => {
-    console.log("Contr: ", repository.value.contributors)
-    console.log("Versions: ", repository.value.versions)
-    console.log("Latest version: ", repository.value.lastVersion)
-    const ipfsHash = repository.value.lastVersion.IPFSHash
-    await changeVersion(ipfsHash)
+    if (repository.value) {
+        const ipfsHash = repository.value.lastVersion.IPFSHash
+        await changeVersion(ipfsHash)
 
-    const milestones = await repositoryStore.getMilestones(route.params.projectHash)
-    currentMilestone.value = milestones.find((milestone) => !milestone.completed)
+        const milestones = await repositoryStore.getMilestones(route.params.projectHash)
+        currentMilestone.value = milestones.find((milestone) => !milestone.completed)
+    }
 })
 
 const changeVersion = async (ipfsHash) => {
