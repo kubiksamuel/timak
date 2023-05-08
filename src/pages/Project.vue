@@ -17,11 +17,26 @@
                         Add version
                     </button>
                     <button
+                        v-if="repository?.owner.toLowerCase() === account"
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="triggerAddContributor(true)"
                     >
                         Add contributor
+                    </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="triggerShowContributor(true)"
+                    >
+                        Show contributors
+                    </button>
+                    <button
+                        type="button"
+                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                        @click="completeMilestone($route.params.projectHash)"
+                    >
+                        Complete next milestone
                     </button>
                 </div>
             </div>
@@ -84,6 +99,7 @@
         </div>
         <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
+        <ContributorsSlideOver title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -92,50 +108,55 @@ import { storeToRefs } from "pinia"
 import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
+import AddMilestone from "~/components/AddMilestone.vue"
+import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
+
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
-// const { getLatestVersion } = useRepositoryStore()
+const { account } = storeToRefs(repositoryStore)
+const { completeMilestone } = repositoryStore
 const { repositories } = storeToRefs(repositoryStore)
 const repository = computed(() => {
-    const r = Object.values(repositories.value).find(repo => repo.address == route.params.projectHash)
+    const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == route.params.projectHash)
     if (!r) {
         return null
     }
 
     const versions: Array<Object> = []
     r.versions.forEach((version, index) => {
-        const timeInSeconds=parseInt(version[0].hex,16)
-        const timeInMiliseconds=timeInSeconds*1000
-        const currentTime=new Date(timeInMiliseconds)
+        const timeInSeconds = parseInt(version[0].hex, 16)
+        const timeInMiliseconds = timeInSeconds * 1000
+        const currentTime = new Date(timeInMiliseconds)
         versions.push({
             id: ++index,
             commitMessage: version[2],
             commiter: version[1],
             IPFSHash: version[3],
-            commitDate: currentTime
+            commitDate: currentTime,
         })
-    });
+    })
 
     return {
-            address: r.address,
-            title: r.name,
-            initials: r.name.slice(0, 2),
-            team: r.description,
-            versions: versions,
-            lastVersion: versions[versions.length-1],
-            contributors: r.contributors,
-            totalMembers: 12,
-            createdAt: r.createdAt,
-            updatedAt: r.createdAt,
-            // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            // // TODO: change created at to date related to last version
-            // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            pinned: true,
-            bgColorClass: "bg-violet-600",
-        }
+        owner: r.owner,
+        address: r.repositoryHash,
+        title: r.name,
+        initials: r.name.slice(0, 2),
+        team: r.description,
+        versions: versions,
+        lastVersion: versions[versions.length - 1],
+        contributors: r.contributors,
+        totalMembers: 12,
+        createdAt: r.createdAt,
+        updatedAt: r.createdAt,
+        // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
+        // // TODO: change created at to date related to last version
+        // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
+        pinned: true,
+        bgColorClass: "bg-violet-600",
+    }
 })
 
 const { getLatestVersion } = useRepositoryStore()
@@ -143,8 +164,8 @@ const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 onMounted(async () => {
     console.log("Contr: ", repository.value.contributors)
-    console.log("Versions: ",repository.value.versions)
-    console.log("Latest version: ",repository.value.lastVersion)
+    console.log("Versions: ", repository.value.versions)
+    console.log("Latest version: ", repository.value.lastVersion)
     const ipfsHash = repository.value.lastVersion.IPFSHash
     await changeVersion(ipfsHash)
 })
@@ -158,9 +179,9 @@ const changeVersion = async (ipfsHash) => {
             hash: item.hash,
             title: item.name,
             size: item.size,
-            bgColorClass: "bg-violet-600"
+            bgColorClass: "bg-violet-600",
         })
-    });
+    })
     data.value = result
 }
 
@@ -171,4 +192,12 @@ const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
 const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
+
+const showContributor = ref(false)
+
+const triggerShowContributor = (show: boolean) => (showContributor.value = show)
+
+const showAddMilestone = ref(false)
+
+const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
 </script>

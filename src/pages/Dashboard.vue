@@ -17,7 +17,7 @@
                         </button>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
-                        v-if="allRepositories.length > 0"
+                        v-if="allOwnerRepositories.length > 0"
                         type="button"
                         class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                         @click="triggerCreateRepository(true)"
@@ -28,13 +28,13 @@
             </div>
 
             <!-- Projects table (small breakpoint and up) -->
-            <div v-if="allRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+            <div v-if="allOwnerRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
                             <tr class="border-t border-gray-200">
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
-                                    <span class="lg:pl-2">Project</span>
+                                    <span class="lg:pl-2">repository</span>
                                 </th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Members</th>
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
@@ -44,37 +44,35 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="project in allRepositories" :key="project.id" class="hover:bg-violet-100 cursor-pointer">
+                            <tr v-for="repository in allOwnerRepositories" @click="redirectToRepo(repository.id)" :key="repository.id" class="hover:bg-violet-100 cursor-pointer w-full h-full relative">
                                 <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
-                                        <div :class="[project.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'/dashboard/project/'+ project.address" class="truncate hover:text-gray-600">
-                                            <span>
-                                                {{ project.title }}
-                                                {{ " " }}
-                                                <span class="font-normal text-gray-500"> {{ project.team }}</span>
-                                            </span>
-                                        </a>
+                                        <div :class="[repository.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
+                                        <span>
+                                            {{ repository.title }}
+                                            {{ " " }}
+                                            <span class="font-normal text-gray-500"> {{ repository.team }}</span>
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500">
                                     <div class="flex items-center space-x-2">
                                         <div class="flex flex-shrink-0 -space-x-1">
                                             <img
-                                                v-for="member in project.members"
+                                                v-for="member in repository.members"
                                                 :key="member.handle"
                                                 class="h-6 w-6 max-w-none rounded-full ring-2 ring-white"
                                                 :src="member.imageUrl"
                                                 :alt="member.name"
                                             />
                                         </div>
-                                        <span v-if="project.totalMembers > project.members.length" class="flex-shrink-0 text-xs font-medium leading-5"
-                                            >+{{ project.totalMembers - project.members.length }}</span
+                                        <span v-if="repository.totalMembers > repository.members.length" class="flex-shrink-0 text-xs font-medium leading-5"
+                                            >+{{ repository.totalMembers - repository.members.length }}</span
                                         >
                                     </div>
                                 </td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ project.createdAt }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ project.updatedAt }}</td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.updatedAt }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -112,21 +110,30 @@
 <script setup lang="ts">
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
+import { useRouter } from "vue-router"
 import { ref, computed } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { Buffer } from "buffer"
+import { toSvg } from "jdenticon";
 
+const router = useRouter()
 const repositoryStore = useRepositoryStore()
-const { repositories } = storeToRefs(repositoryStore)
-const allRepositories = computed(() => {
-    return Object.values(repositories.value).map((repository, index) => {
+
+const { repositories, account } = storeToRefs(repositoryStore)
+
+const ownerRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() == account.value)
+// console.log("Owner Repositories" + ownerRepositories)
+const contributorRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() != account.value)
+// console.log("Contributor Repositories" + contributorRepositories)
+
+const allOwnerRepositories = computed(() => {
+    return ownerRepositories.map((repository, index) => {
         return {
-            id: index,
-            address: repository.address,
+            id: repository.repositoryHash,
             title: repository.name,
-            initials: repository.name.slice(0, 2),
+            // initials: repository.name.slice(0, 2),
             team: repository.description,
             members: [
                 {
@@ -164,6 +171,14 @@ const allRepositories = computed(() => {
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
+const redirectToRepo = (repositoryHash: string) => {
+    router.push({
+        path: "/dashboard/project/" + repositoryHash,
+    })
+}
+const showCreateReview = ref(false)
+
+const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
 
 const testAddFileToIPFS = async () => {
     // const buff = readFileSync('./README.md')
