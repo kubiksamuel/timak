@@ -1,17 +1,10 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-<<<<<<< HEAD
-    "C:\\Users\\xsefc\\WebstormProjects\\timoos\\contracts\\GrantController.sol": {
-      "lastModificationDate": 1680438358257,
-      "contentHash": "f10e5f256f2bd7fcc9f9f7bd92ebe956",
-      "sourceName": "contracts/GrantController.sol",
-=======
     "C:\\Users\\Krupa\\Projects\\timak\\contracts\\Repository.sol": {
       "lastModificationDate": 1682167329187,
       "contentHash": "ccc30eff65e910c3346109b810094056",
       "sourceName": "contracts/Repository.sol",
->>>>>>> main
       "solcConfig": {
         "version": "0.8.4",
         "settings": {
@@ -50,17 +43,10 @@
         "MyGovernor"
       ]
     },
-<<<<<<< HEAD
-    "C:\\Users\\xsefc\\WebstormProjects\\timoos\\node_modules\\.pnpm\\@openzeppelin+contracts@4.8.2\\node_modules\\@openzeppelin\\contracts\\governance\\Governor.sol": {
-      "lastModificationDate": 1680438664890,
-      "contentHash": "bbb046a0e771ab9863343dadde1072ae",
-      "sourceName": "@openzeppelin/contracts/governance/Governor.sol",
-=======
     "C:\\Users\\Krupa\\Projects\\timak\\contracts\\RoleManager.sol": {
       "lastModificationDate": 1681812102980,
       "contentHash": "a1d2c3280735a3ba8fe7c53fb836568e",
       "sourceName": "contracts/RoleManager.sol",
->>>>>>> main
       "solcConfig": {
         "version": "0.8.4",
         "settings": {
