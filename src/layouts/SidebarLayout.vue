@@ -1,16 +1,6 @@
 <template>
-    <!--
-      This example requires updating your template:
-
-      ```
-      <html class="h-full bg-white">
-      <body class="h-full">
-      ```
-    -->
     <div class="min-h-screen w-full">
-        <!-- Static sidebar for desktop -->
         <div class="lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-            <!-- Sidebar component, swap this element with another sidebar if you like -->
             <div class="flex grow flex-col gap-y-1 overflow-y-auto bg-violet-600 px-6">
                 <div class="flex h-16 text-violet-100 text-lg font-bold shrink-0 items-center justify-center">
                     <div>VersionVault</div>
@@ -54,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon } from "@heroicons/vue/24/outline"
+import { ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon } from "@heroicons/vue/24/outline"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
 import { toSvg } from "jdenticon"
@@ -69,16 +59,10 @@ console.log("SVG account: ", account.value)
 const svgString = toSvg(account.value, 25)
 const navigation = ref([
     { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-    { name: "Team", href: "#", icon: UsersIcon },
     { name: "Contributor projects", href: "/contributor_projects", icon: FolderIcon, current: false },
     { name: "To review", href: "/toReview", icon: DocumentDuplicateIcon },
     { name: "My reviews", href: "#", icon: ChartPieIcon },
 ])
-const teams = [
-    { id: 1, name: "Heroicons", href: "#", initial: "H" },
-    { id: 2, name: "Tailwind Labs", href: "#", initial: "T" },
-    { id: 3, name: "Workcation", href: "#", initial: "W" },
-]
 
 const redirect = (_path: string) => {
     router.push({
