@@ -107,13 +107,13 @@
                     <div class="flex flex-col w-1/3 space-y-10 px-4">
                         <div>
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Repository description</div>
-                            <div class="text-sm text-gray-700">{{ repository.description }}</div>
+                            <div class="text-sm text-gray-500">{{ repository.description }}</div>
                         </div>
                         <div>
                             <div class="font-medium leading-6 text-sm text-gray-900 mb-1">Current milestone</div>
-                            <div>
-                                <div class="relative overflow-hidden rounded-lg bg-white pb-12 pt-5 shadow px-4 sm:pt-6">
-                                    <div class="flex justify-between items-center px-2 pb-4 space-x-20">
+                            <div v-if="currentMilestone">
+                                <div class="relative min-w-80 overflow-hidden rounded-lg bg-white pb-12 pt-5 shadow px-4 sm:pt-6">
+                                    <div class="flex justify-between items-center px-2 pb-4 space-x-10">
                                         <div>
                                             <div>
                                                 <div class="truncate text-sm font-medium text-gray-500">
@@ -142,6 +142,11 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">
+                                No milestone in progress.
+                                <button class="underline text-violet-500" @click="redirectToMilestone">Set your milestone</button>
+                                to track the progress
                             </div>
                         </div>
                         <div>

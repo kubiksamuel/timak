@@ -29,7 +29,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="pt-3 font-poppins">
+                <div v-if="milestones?.length" class="pt-3 font-poppins">
                     <div class="flex flex-col items-center pt-2">
                         <h1 class="text-5xl font-bold leading-tight">Milestone <span class="text-violet-500"> Timeline </span></h1>
                         <div class="flex w-24 mt-1 mb-6 overflow-hidden rounded">
@@ -128,6 +128,22 @@
                         </div>
                     </div>
                 </div>
+                <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
+                    <div class="border rounded-md p-10 mb-10 border-dotted border-4">
+                        <h3 class="mt-2 text-sm font-semibold text-gray-900">No milestones</h3>
+                        <p class="mt-1 text-sm text-gray-500">Set the first milestone to track the progress!</p>
+                        <div class="mt-6">
+                            <button
+                                @click="triggerAddMilestone(true)"
+                                type="button"
+                                class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                            >
+                                <PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+                                Add milestone
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </SidebarLayout>
         <AddMilestone title="Add milestone" :open="showAddMilestone" @create="createMilestone" @close="triggerAddMilestone(false)" />
@@ -142,6 +158,8 @@ import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { MilestoneMeta } from "~/types/milestone"
 import CompleteMilestone from "~/components/CompleteMilestone.vue"
 import { ArrowUturnLeftIcon as BackIcon } from "@heroicons/vue/20/solid"
+import { PlusIcon } from "@heroicons/vue/20/solid"
+import { FaceFrownIcon } from "@heroicons/vue/20/solid"
 
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
