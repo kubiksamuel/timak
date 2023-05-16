@@ -89,11 +89,10 @@ describe("Repository Factory", function () {
 
 describe("Role Manager", function () {
     let repository;
-    let admin;
-    //let addr = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
+    let admin, contributor, testUser, randomUser;
 
     before(async () => {
-        [admin, contributor, testUser] = await ethers.getSigners();
+        [admin, contributor, testUser, randomUser] = await ethers.getSigners();
         const Repository = await ethers.getContractFactory("Repository");
         repository = await Repository.deploy("meno","description",admin.address);
         await repository.deployed();
@@ -120,11 +119,11 @@ describe("Role Manager", function () {
         await expect(repository.connect(contributor).setPrivillegeContributor(testUser.address, conName2)).to.be.reverted;
     });
 
-    it("Fail set contributor privilege to address as random user", async function () {
+    it("Fail set contributor privilege by different user as admin", async function () {
         const conName3 = "contributor3"
-        let random_user = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
 
-        await expect(repository.connect(testUser).setPrivillegeContributor(random_user, conName3)).to.be.reverted;
+        await expect(repository.connect(contributor).setPrivillegeContributor(randomUser.address, conName3)).to.be.reverted;
+        await expect(repository.connect(testUser).setPrivillegeContributor(randomUser.address, conName3)).to.be.reverted;
     });
 
 });
@@ -178,11 +177,27 @@ describe("Repository", function () {
         expect((await repository.getVersionsHashes()).length).to.equal(2);
     });
 
-    it("Add third version by contributor", async function() {
-        const conName = "contributor"
+    it("Add contributor to repo", async function() {
+        const conName = "contributor";
         const setConTx = await repository.connect(admin).setPrivillegeContributor(con1.address, conName);
         await setConTx.wait();
 
+        const allContributors = await repository.getContributors();
+
+        expect(allContributors.length).to.equal(2);
+        expect(allContributors[0]).to.equal(admin.address);
+        expect(allContributors[1]).to.equal(con1.address);
+
+        expect(await repository.hasRole(repository.DEFAULT_ADMIN_ROLE(), admin.address)).to.equal(true);
+        expect((await repository.usersInfo(admin.address)).name).to.equal("Owner");
+        expect((await repository.usersInfo(admin.address)).id).to.equal(0);
+
+        expect(await repository.hasRole(repository.CONTRIBUTOR_ROLE(), con1.address)).to.equal(true);
+        expect((await repository.usersInfo(con1.address)).name).to.equal(conName);
+        expect((await repository.usersInfo(con1.address)).id).to.equal(1);
+    });
+
+    it("Add third version by contributor", async function() {
         const setVersionTx = await repository.connect(con1).addVersionOfRepository(version_name_3, ipfs_hash_3);
         const result = await setVersionTx.wait();
         const versionAddedEvent = result.events[0];
@@ -217,7 +232,6 @@ describe("Repository", function () {
         expect(version3.committer).to.equal(con1.address);
         expect(version3.commitName).to.equal(version_name_3);
         expect(version3.ipfsHash).to.equal(ipfs_hash_3);
-
     });
 
 });
