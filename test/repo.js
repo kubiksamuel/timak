@@ -3,10 +3,10 @@ const { ethers, waffle } = require("hardhat");
 
 describe("Repository Factory", function () {
     let repositoryfactory;
-    let admin;
+    let admin, testUser, randomUser;
 
     before(async () => {
-        [admin] = await ethers.getSigners();
+        [admin, testUser, randomUser] = await ethers.getSigners();
         const RepositoryFactory = await ethers.getContractFactory("RepositoryFactory");
         repositoryfactory = await RepositoryFactory.deploy();
         await repositoryfactory.deployed();
@@ -25,39 +25,65 @@ describe("Repository Factory", function () {
         const event = await repo.wait();
         const addNewRepositorySet = event.events[4];
 
+        expect(admin.address).to.equal(addNewRepositorySet.args.owner);
+
         expect(addNewRepositorySet.args.name).to.equal("repo1");
         expect((await repositoryfactory.getAllRepositories()).length).to.equal(1);
         expect((await repositoryfactory.getUsers()).length).to.equal(1);
         account = event.events[4].args.owner;
-        expect((await repositoryfactory.getUserRepos(account)).length).to.equal(1);
+
+        const userRepos = await repositoryfactory.getUserRepos(account)
+        expect(userRepos.length).to.equal(1);
+        expect(addNewRepositorySet.args.repository).to.equal(userRepos[0]);
     });
 
-    it("Create 2 repos by one user", async function () {
+    it("Create second repository by same user", async function () {
         const repo = await repositoryfactory.createRepositoryContract("repo2","descript2");
         const event = await repo.wait();
         const addNewRepositorySet = event.events[4];
 
+        expect(admin.address).to.equal(addNewRepositorySet.args.owner);
+
         expect(addNewRepositorySet.args.name).to.equal("repo2");
-        expect((await repositoryfactory.getAllRepositories()).length).to.equal(2);
+        const allRepos = await repositoryfactory.getAllRepositories()
+        expect(allRepos.length).to.equal(2);
         expect((await repositoryfactory.getUsers()).length).to.equal(1);
         account = event.events[4].args.owner;
-        expect((await repositoryfactory.getUserRepos(account)).length).to.equal(2);
+
+        const userRepos = await repositoryfactory.getUserRepos(account)
+        expect(userRepos.length).to.equal(2);
+        expect(userRepos[0]).to.equal(allRepos[0]);
+        expect(userRepos[1]).to.equal(allRepos[1]);
+        expect(addNewRepositorySet.args.repository).to.equal(userRepos[1]);
     });
 
-    it("Add 2 user", async function () {
-        const user2 = "0x90F79bf6EB2c4f870365E785982E1f101E93b906";
-        const repo = await repositoryfactory.addUser(user2);
+    it("Add second user", async function () {
+        const repo = await repositoryfactory.addUser(testUser.address);
         await repo.wait();
 
-        expect((await repositoryfactory.getUsers()).length).to.equal(2);
-        expect((await repositoryfactory.getUserRepos(user2)).length).to.equal(0);
+        const allUsers = await repositoryfactory.getUsers();
+        expect(allUsers.length).to.equal(2);
+        expect(allUsers[0]).to.equal(admin.address);
+        expect(allUsers[1]).to.equal(testUser.address);
+        expect((await repositoryfactory.getUserRepos(testUser.address)).length).to.equal(0);
+        expect((await repositoryfactory.getUserRepos(admin.address)).length).to.equal(2);
     });
 
-    it("Check if user is user", async function () {
-        const user2 = "0x90F79bf6EB2c4f870365E785982E1f101E93b906";
-        const random_addr = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc";
-        expect((await repositoryfactory.isAlreadyUser(user2))).to.equal(true);
-        expect((await repositoryfactory.isAlreadyUser(random_addr))).to.equal(false);
+    it("Check if user exists", async function () {
+        expect((await repositoryfactory.isAlreadyUser(testUser.address))).to.equal(true);
+        expect((await repositoryfactory.isAlreadyUser(admin.address))).to.equal(true);
+        expect((await repositoryfactory.isAlreadyUser(randomUser.address))).to.equal(false);
+    });
+
+    it("Add repository to other user", async function () {
+        const allRepos = await repositoryfactory.getAllRepositories()
+
+        const addRepo = await repositoryfactory.addRepositoryToUser(testUser.address, allRepos[1]);
+        await addRepo.wait();
+
+        const userRepos = await repositoryfactory.getUserRepos(testUser.address);
+        expect(userRepos.length).to.equal(1);
+        expect(userRepos[0]).to.equal(allRepos[1]);
     });
 });
 
