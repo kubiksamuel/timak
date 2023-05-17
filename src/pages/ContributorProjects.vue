@@ -66,7 +66,7 @@
             <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
                 <div class="border rounded-md p-10 mb-10 border-dotted border-4">
                     <div class="flex flex-col items-center justify-center space-y-2">
-                        <FaceFrownIcon class="h-6 w-6 text-gray-800" />
+                        <NoSymbolIcon class="h-6 w-6 text-gray-800" />
                         <span> No repositories as contributor</span>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, computed } from "vue"
-import { FaceFrownIcon } from "@heroicons/vue/20/solid"
+import { NoSymbolIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { Buffer } from "buffer"
@@ -135,13 +135,4 @@ const allContributorRepositories = computed(() => {
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
-
-const testAddFileToIPFS = async () => {
-    // const buff = readFileSync('./README.md')
-    const buff = Buffer.from([1, 2])
-    const blob = new Blob([buff])
-    // const data = await getFromIPFS("QmcJaPLCrnHfKC6zZmdskkF6tdTqSfE7RnbwBN9UMhuEXj", "file")
-    // const data = await addToIPFS(blob)
-    // console.log(data)
-}
 </script>
