@@ -48,7 +48,7 @@
                         </label>
                     </div>
                 </div>
-                <div v-if="currentLoaderStep >= -1" class="items-center flex justify-center py-20">
+                <div v-if="currentLoaderStep >= 0" class="items-center flex justify-center py-20">
                     <ul class="max-w-md space-y-2 text-gray-500 list-inside">
                         <li class="flex items-center">
                             <div v-if="currentLoaderStep === 0">
