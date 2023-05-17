@@ -97,34 +97,30 @@
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { useRouter } from "vue-router"
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
-import { Buffer } from "buffer"
-import { toSvg } from "jdenticon"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
 
+onMounted(async () => {
+    await repositoryStore.fetchRepositories()
+})
+
 const { repositories, account } = storeToRefs(repositoryStore)
 
-const ownerRepositories = Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() == account.value)
-// console.log("Owner Repositories" + ownerRepositories)
-const contributorRepositories = Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() != account.value)
-// console.log("Contributor Repositories" + contributorRepositories)
+const ownerRepositories = computed(() => Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() == account.value))
 
 const allOwnerRepositories = computed(() => {
-    return ownerRepositories.map((repository, index) => {
+    return ownerRepositories.value.map((repository) => {
         return {
             id: repository.repositoryHash,
             title: repository.name,
             description: repository.description,
             createdAt: repository.createdAt,
             updatedAt: repository.createdAt,
-            // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            // // TODO: change created at to date related to last version
-            // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
         }
     })
@@ -136,17 +132,5 @@ const redirectToRepo = (repositoryHash: string) => {
     router.push({
         path: "/dashboard/project/" + repositoryHash,
     })
-}
-const showCreateReview = ref(false)
-
-const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
-
-const testAddFileToIPFS = async () => {
-    // const buff = readFileSync('./README.md')
-    const buff = Buffer.from([1, 2])
-    const blob = new Blob([buff])
-    // const data = await getFromIPFS("QmcJaPLCrnHfKC6zZmdskkF6tdTqSfE7RnbwBN9UMhuEXj", "file")
-    // const data = await addToIPFS(blob)
-    // console.log(data)
 }
 </script>
