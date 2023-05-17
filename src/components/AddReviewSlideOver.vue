@@ -51,7 +51,7 @@
                             class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed hover:border-violet-500 rounded-lg cursor-pointer bg-white"
                             :class="{ 'border-violet-400': file }"
                         >
-                            <div v-if="file" class="flex space-x-2 justify-center items-center">
+                            <div v-if="file" class="flex space-x-2 text-gray-500 justify-center items-center">
                                 <div>
                                     {{ file.name }}
                                 </div>
@@ -89,16 +89,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { ref } from "vue"
 import SlideOver from "./SlideOver.vue"
-import { useRepositoryStore } from "~/stores/repos"
 import { Review, SkillLevel } from "~/types/review"
 import { RadioGroup, RadioGroupDescription, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue"
 import { CheckCircleIcon } from "@heroicons/vue/20/solid"
 import { StarIcon } from "@heroicons/vue/20/solid"
 import { addFileToIPFS } from "~/composables/ipfs"
 
-const repository = useRepositoryStore()
 const skillLevels = [
     { title: "Beginner", description: "Limited knowledge, new to the field." },
     { title: "Competent", description: "Good understanding, some experience in the area." },
@@ -121,8 +119,8 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    repositoryHash: {
-        type: String,
+    repository: {
+        type: Object,
         required: true,
     },
 })
@@ -143,10 +141,11 @@ const handleFileToUpload = (event: Event) => {
 const addReview = async () => {
     const contentIdentifier = await addFileToIPFS(file.value)
     const newReview: Omit<Review, "reviewer"> = {
-        repositoryHash: props.repositoryHash,
+        repositoryHash: props.repository.id,
         contentIdentifier,
         rating: selectedRating.value,
         reviewerSkillLevel: SkillLevel[selectedSkillLevel.value.title],
+        milestoneId: props.repository.milestone.id,
     }
     emit("create", newReview)
 }

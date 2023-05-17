@@ -6,7 +6,7 @@ import "./Repository.sol";
 
 contract RepositoryFactory {
     event NewRepositorySet(string name, uint256 createdAt, address owner, Repository repository);
-    event ReviewAdded(address indexed repository, address indexed reviewer, uint reviewerSkillLevel, string contentIdentifier, uint rating);
+    event ReviewAdded(address indexed repository, address indexed reviewer, uint reviewerSkillLevel, string contentIdentifier, uint rating, uint milestoneId);
     // error NotReviewable(string contentIdentifier);
 
     Repository[] public repositories;
@@ -58,7 +58,7 @@ contract RepositoryFactory {
             repositoryReview[_repository].push(reviews.length - 1);
             reviewerReview[msg.sender].push(reviews.length - 1);
             repositoryMapping[_repository].incrementReviewCount(_milestoneId);
-            emit ReviewAdded(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating);
+            emit ReviewAdded(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating, _milestoneId);
         }
         else{
             revert ();

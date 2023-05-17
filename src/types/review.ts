@@ -5,6 +5,7 @@ export type Review = {
     rating: number
     contentIdentifier: string
     reviewerScore?: number
+    milestoneId: number
     // versionId: string
 }
 

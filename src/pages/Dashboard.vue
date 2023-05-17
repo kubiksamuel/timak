@@ -6,15 +6,12 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Dashboard</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Owner project</h1>
+                    <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                        Welcome to your dashboard section! Here, you'll find all the repositories that you own so you have owner-level permissions, giving you complete control to manage your
+                        repositories with ease.
+                    </p>
                 </div>
-                <button
-                            type="button"
-                            class="sm:order-0 order-1 ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-0"
-                            @click="testAddFileToIPFS()"
-                            >
-                            Test
-                        </button>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
                     <button
                         v-if="allOwnerRepositories.length > 0"
@@ -34,45 +31,34 @@
                         <thead>
                             <tr class="border-t border-gray-200">
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
-                                    <span class="lg:pl-2">repository</span>
+                                    <span class="lg:pl-2">Name</span>
                                 </th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Members</th>
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Description</th>
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Updated at</th>
 
                                 <!--                                    <th class="border-b border-gray-200 bg-gray-50 py-3 pr-6 text-right text-sm font-semibold text-gray-900" scope="col" />-->
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="repository in allOwnerRepositories" @click="redirectToRepo(repository.id)" :key="repository.id" class="hover:bg-violet-100 cursor-pointer w-full h-full relative">
-                                <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
+                            <tr
+                                v-for="repository in allOwnerRepositories"
+                                @click="redirectToRepo(repository.id)"
+                                :key="repository.id"
+                                class="hover:bg-violet-100 cursor-pointer w-full h-full relative"
+                            >
+                                <td class="whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
-                                        <div :class="[repository.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
                                         <span>
                                             {{ repository.title }}
                                             {{ " " }}
-                                            <span class="font-normal text-gray-500"> {{ repository.team }}</span>
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-3 text-sm font-medium text-gray-500">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="flex flex-shrink-0 -space-x-1">
-                                            <img
-                                                v-for="member in repository.members"
-                                                :key="member.handle"
-                                                class="h-6 w-6 max-w-none rounded-full ring-2 ring-white"
-                                                :src="member.imageUrl"
-                                                :alt="member.name"
-                                            />
-                                        </div>
-                                        <span v-if="repository.totalMembers > repository.members.length" class="flex-shrink-0 text-xs font-medium leading-5"
-                                            >+{{ repository.totalMembers - repository.members.length }}</span
-                                        >
-                                    </div>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">
+                                    {{ repository.description }}
                                 </td>
+
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.updatedAt }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -116,16 +102,16 @@ import { PlusIcon } from "@heroicons/vue/20/solid"
 import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { Buffer } from "buffer"
-import { toSvg } from "jdenticon";
+import { toSvg } from "jdenticon"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
 
 const { repositories, account } = storeToRefs(repositoryStore)
 
-const ownerRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() == account.value)
+const ownerRepositories = Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() == account.value)
 // console.log("Owner Repositories" + ownerRepositories)
-const contributorRepositories = Object.values(repositories.value).filter(repo => repo.owner.toLowerCase() != account.value)
+const contributorRepositories = Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() != account.value)
 // console.log("Contributor Repositories" + contributorRepositories)
 
 const allOwnerRepositories = computed(() => {
@@ -133,38 +119,13 @@ const allOwnerRepositories = computed(() => {
         return {
             id: repository.repositoryHash,
             title: repository.name,
-            // initials: repository.name.slice(0, 2),
-            team: repository.description,
-            members: [
-                {
-                    name: "Dries Vincent",
-                    handle: "driesvincent",
-                    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Lindsay Walton",
-                    handle: "lindsaywalton",
-                    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Courtney Henry",
-                    handle: "courtneyhenry",
-                    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-                {
-                    name: "Tom Cook",
-                    handle: "tomcook",
-                    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-                },
-            ],
-            totalMembers: 12,
+            description: repository.description,
             createdAt: repository.createdAt,
             updatedAt: repository.createdAt,
             // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             // // TODO: change created at to date related to last version
             // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
-            bgColorClass: "bg-violet-600",
         }
     })
 })
@@ -182,7 +143,7 @@ const triggerCreateReview = (show: boolean) => (showCreateReview.value = show)
 
 const testAddFileToIPFS = async () => {
     // const buff = readFileSync('./README.md')
-    const buff = Buffer.from([1,2])
+    const buff = Buffer.from([1, 2])
     const blob = new Blob([buff])
     // const data = await getFromIPFS("QmcJaPLCrnHfKC6zZmdskkF6tdTqSfE7RnbwBN9UMhuEXj", "file")
     // const data = await addToIPFS(blob)

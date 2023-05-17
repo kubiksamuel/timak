@@ -28,6 +28,7 @@ contract Repository is RoleManager{
         uint256 numberOfRequiredReviews;
         uint256 numberOfCommittedReviews;
         uint256 id;
+        string versionName;
         uint256 deadline;
         string title;
         string description;
@@ -62,7 +63,7 @@ contract Repository is RoleManager{
     function addMilestone(uint256 deadline, string memory _title, string memory _description) public
     onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        Milestone memory newMilestone = Milestone(0, 0, milestones.length, deadline, _title, _description, false);
+        Milestone memory newMilestone = Milestone(0, 0, milestones.length, "", deadline, _title, _description, false);
         milestones.push(newMilestone);
         emit MilestoneAdded(newMilestone.id, newMilestone.deadline, newMilestone.title, newMilestone.description);
     }
@@ -82,6 +83,7 @@ contract Repository is RoleManager{
     onlyRole(DEFAULT_ADMIN_ROLE)
     {
         milestones[_milestoneId].completed = true;
+        milestones[_milestoneId].versionName = version[versionHashes[versionHashes.length-1]].commitName;
         if (_numberOfRequiredReviews > 0){
             milestones[_milestoneId].numberOfRequiredReviews = _numberOfRequiredReviews;
             toReview = true;

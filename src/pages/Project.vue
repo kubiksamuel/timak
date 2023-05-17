@@ -7,61 +7,153 @@
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ $route.params.projectHash }})</h1>
+                    <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                        The repository section is a place for managing all aspects of a project, including adding new versions, managing contributors, and creating milestones to track progress.
+                    </p>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
-                    <button
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerAddVersion(true)"
-                    >
-                        Add version
-                    </button>
-                    <button
-                        v-if="repository?.owner.toLowerCase() === account"
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerAddContributor(true)"
-                    >
-                        Add contributor
-                    </button>
-                    <button
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerShowContributor(true)"
-                    >
-                        Show contributors
-                    </button>
+                    <div class="inline-flex items-center space-x-4 self-center text-right">
+                        <div class="inline-flex rounded-md shadow-sm">
+                            <button
+                                type="button"
+                                class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-violet-700 px-4 py-2 text-sm font-medium text-white shadow-sm outline-none hover:bg-violet-500"
+                                @click="triggerAddVersion(true)"
+                            >
+                                Add version
+                            </button>
+                            <Menu as="div" class="relative -ml-px block">
+                                <MenuButton class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-violet-700 px-2 py-2 text-sm font-medium text-white hover:bg-violet-500">
+                                    <ChevronDownIcon class="h-5 w-5" />
+                                </MenuButton>
+                                <transition
+                                    enter-active-class="transition ease-out duration-100"
+                                    enter-from-class="transform opacity-0 scale-95"
+                                    enter-to-class="transform opacity-100 scale-100"
+                                    leave-active-class="transition ease-in duration-75"
+                                    leave-from-class="transform opacity-100 scale-100"
+                                    leave-to-class="transform opacity-0 scale-95"
+                                >
+                                    <MenuItems class="absolute right-0 z-10 w-40 origin-top-right rounded-md bg-white px-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        <MenuItem class="flex p-1.5 hover:bg-violet-50">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-sm font-medium text-gray-700"
+                                                @click="triggerAddVersion(true)"
+                                            >
+                                                <AddVersionIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Add version
+                                            </button>
+                                        </MenuItem>
+                                        <MenuItem class="p-1.5 hover:bg-violet-50" :disabled="placingWidget">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
+                                                @click="triggerAddContributor(true)"
+                                            >
+                                                <AddContributorIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Add contributor
+                                            </button>
+                                        </MenuItem>
+                                        <MenuItem class="p-1.5 hover:bg-violet-50" :disabled="placingWidget">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
+                                                @click="redirectToMilestone"
+                                            >
+                                                <MilestoneIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Milestones
+                                            </button>
+                                        </MenuItem>
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- Project files table (small breakpoint and up) -->
-            <div v-if="data" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
-                <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
-                <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
-                    <table class="min-w-full">
-                        <thead>
-                            <tr class="border-t border-gray-200">
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
-                                    <span class="lg:pl-2">File</span>
-                                </th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
-                                <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center space-x-3 lg:pl-2">
-                                        <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
-                                        <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
-                                            <span>
-                                                {{ file.title }}
-                                            </span>
-                                        </a>
+            <div v-if="data" class="flex-1 mt-8 w-full pb-4 mx-auto hidden sm:block">
+                <div class="flex justify-between px-4 divide-x-2 divide-gray-200">
+                    <div class="w-full px-4">
+                        <VersionHistoryDropdown :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
+                        <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-t border-gray-200">
+                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
+                                            <span class="lg:pl-2">File</span>
+                                        </th>
+                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 bg-white">
+                                    <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
+                                        <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
+                                            <div class="flex items-center space-x-3 lg:pl-2">
+                                                <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
+                                                <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
+                                                    <span>
+                                                        {{ file.title }}
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="flex flex-col w-1/3 space-y-10 px-4">
+                        <div>
+                            <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Repository description</div>
+                            <div class="text-sm text-gray-500">{{ repository.description }}</div>
+                        </div>
+                        <div>
+                            <div class="font-medium leading-6 text-sm text-gray-900 mb-1">Current milestone</div>
+                            <div v-if="currentMilestone">
+                                <div class="relative min-w-80 overflow-hidden rounded-lg bg-white pb-12 pt-5 shadow px-4 sm:pt-6">
+                                    <div class="flex justify-between items-center px-2 pb-4 space-x-10">
+                                        <div>
+                                            <div>
+                                                <div class="truncate text-sm font-medium text-gray-500">
+                                                    {{ new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { day: "numeric" }) }}.{{
+                                                        new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { month: "numeric" })
+                                                    }}.{{ new Date(parseFloat(currentMilestone.deadline)).toLocaleString("default", { year: "numeric" }) }}
+                                                </div>
+                                            </div>
+                                            <div class="flex items-baseline">
+                                                <div class="text-lg font-semibold text-gray-900">{{ currentMilestone.title }}</div>
+                                                <div class="absolute inset-x-0 bottom-0 bg-gray-50 px-1">
+                                                    <button
+                                                        @click="redirectToMilestone"
+                                                        class="px-4 py-4 text-sm text-left cursor-pointer h-full w-full font-medium text-violet-700 hover:text-indigo-500"
+                                                    >
+                                                        View all milestones
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="inline-flex h-fit items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-200">
+                                            <svg class="h-1.5 w-1.5 fill-violet-800" viewBox="0 0 6 6" aria-hidden="true">
+                                                <circle cx="3" cy="3" r="3" />
+                                            </svg>
+                                            In progress
+                                        </div>
                                     </div>
-                                </td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">
+                                No milestone in progress.
+                                <button class="underline text-violet-500" @click="redirectToMilestone">Set your milestone</button>
+                                to track the progress
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Contributors</div>
+                            <ContributorsTable title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
@@ -103,11 +195,20 @@ import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import AddMilestone from "~/components/AddMilestone.vue"
 import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
+import { ChevronDownIcon, UserPlusIcon as AddContributorIcon, FolderPlusIcon as AddVersionIcon, UserIcon as ContributorIcon, CheckBadgeIcon as MilestoneIcon } from "@heroicons/vue/20/solid"
 
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
+import { useRouter } from "vue-router"
+
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/vue/20/solid"
+import { CursorArrowRaysIcon, EnvelopeOpenIcon, UsersIcon } from "@heroicons/vue/24/outline"
+
+const stats = [{ id: 1, name: "Total Subscribers", stat: "71,897", icon: UsersIcon, change: "122", changeType: "increase" }]
 
 const route = useRoute()
+const router = useRouter()
 const repositoryStore = useRepositoryStore()
 const { account } = storeToRefs(repositoryStore)
 const { repositories } = storeToRefs(repositoryStore)
@@ -136,7 +237,7 @@ const repository = computed(() => {
         address: r.repositoryHash,
         title: r.name,
         initials: r.name.slice(0, 2),
-        team: r.description,
+        description: r.description,
         versions: versions,
         lastVersion: versions[versions.length - 1],
         contributors: r.contributors,
@@ -154,12 +255,15 @@ const repository = computed(() => {
 const { getLatestVersion } = useRepositoryStore()
 const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
+const currentMilestone = ref()
 onMounted(async () => {
-    console.log("Contr: ", repository.value.contributors)
-    console.log("Versions: ", repository.value.versions)
-    console.log("Latest version: ", repository.value.lastVersion)
-    const ipfsHash = repository.value.lastVersion.IPFSHash
-    await changeVersion(ipfsHash)
+    if (repository.value) {
+        const ipfsHash = repository.value.lastVersion.IPFSHash
+        await changeVersion(ipfsHash)
+
+        const milestones = await repositoryStore.getMilestones(route.params.projectHash)
+        currentMilestone.value = milestones.find((milestone) => !milestone.completed)
+    }
 })
 
 const changeVersion = async (ipfsHash) => {
@@ -192,4 +296,6 @@ const triggerShowContributor = (show: boolean) => (showContributor.value = show)
 const showAddMilestone = ref(false)
 
 const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
+
+const redirectToMilestone = async () => await router.push({ path: route.params.projectHash + "/milestones" })
 </script>
