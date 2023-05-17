@@ -44,7 +44,7 @@
                                                 Add version
                                             </button>
                                         </MenuItem>
-                                        <MenuItem class="p-1.5 hover:bg-violet-50" :disabled="placingWidget">
+                                        <MenuItem class="p-1.5 hover:bg-violet-50">
                                             <button
                                                 type="button"
                                                 class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
@@ -54,7 +54,7 @@
                                                 Add contributor
                                             </button>
                                         </MenuItem>
-                                        <MenuItem class="p-1.5 hover:bg-violet-50" :disabled="placingWidget">
+                                        <MenuItem class="p-1.5 hover:bg-violet-50">
                                             <button
                                                 type="button"
                                                 class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
@@ -90,7 +90,7 @@
                                     <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
                                         <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                             <div class="flex items-center space-x-3 lg:pl-2">
-                                                <div :class="[file.bgColorClass, 'h-2.5 w-2.5 flex-shrink-0 rounded-full']" aria-hidden="true" />
+                                                {{ file.hash }}
                                                 <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
                                                     <span>
                                                         {{ file.title }}
@@ -191,21 +191,14 @@
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, computed, onMounted } from "vue"
-import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
-import AddMilestone from "~/components/AddMilestone.vue"
 import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
-import { ChevronDownIcon, UserPlusIcon as AddContributorIcon, FolderPlusIcon as AddVersionIcon, UserIcon as ContributorIcon, CheckBadgeIcon as MilestoneIcon } from "@heroicons/vue/20/solid"
+import { PlusIcon, ChevronDownIcon, UserPlusIcon as AddContributorIcon, FolderPlusIcon as AddVersionIcon, UserIcon as ContributorIcon, CheckBadgeIcon as MilestoneIcon } from "@heroicons/vue/20/solid"
 
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 import { useRouter } from "vue-router"
-
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/vue/20/solid"
-import { CursorArrowRaysIcon, EnvelopeOpenIcon, UsersIcon } from "@heroicons/vue/24/outline"
-
-const stats = [{ id: 1, name: "Total Subscribers", stat: "71,897", icon: UsersIcon, change: "122", changeType: "increase" }]
 
 const route = useRoute()
 const router = useRouter()
@@ -244,16 +237,11 @@ const repository = computed(() => {
         totalMembers: 12,
         createdAt: r.createdAt,
         updatedAt: r.createdAt,
-        // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-        // // TODO: change created at to date related to last version
-        // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
         pinned: true,
-        bgColorClass: "bg-violet-600",
     }
 })
 
 const { getLatestVersion } = useRepositoryStore()
-const { latestVersion } = storeToRefs(repositoryStore)
 const data = ref()
 const currentMilestone = ref()
 onMounted(async () => {
@@ -275,7 +263,6 @@ const changeVersion = async (ipfsHash) => {
             hash: item.hash,
             title: item.name,
             size: item.size,
-            bgColorClass: "bg-violet-600",
         })
     })
     data.value = result
@@ -292,10 +279,6 @@ const triggerAddContributor = (show: boolean) => (showAddContributor.value = sho
 const showContributor = ref(false)
 
 const triggerShowContributor = (show: boolean) => (showContributor.value = show)
-
-const showAddMilestone = ref(false)
-
-const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
 
 const redirectToMilestone = async () => await router.push({ path: route.params.projectHash + "/milestones" })
 </script>

@@ -28,7 +28,7 @@ contract Repository is RoleManager{
         uint256 numberOfRequiredReviews;
         uint256 numberOfCommittedReviews;
         uint256 id;
-        string versionName;
+        bytes32 versionHash;
         uint256 deadline;
         string title;
         string description;
@@ -83,7 +83,7 @@ contract Repository is RoleManager{
     onlyRole(DEFAULT_ADMIN_ROLE)
     {
         milestones[_milestoneId].completed = true;
-        milestones[_milestoneId].versionName = version[versionHashes[versionHashes.length-1]].commitName;
+        milestones[_milestoneId].versionHash = versionHashes[versionHashes.length-1];
         if (_numberOfRequiredReviews > 0){
             milestones[_milestoneId].numberOfRequiredReviews = _numberOfRequiredReviews;
             toReview = true;

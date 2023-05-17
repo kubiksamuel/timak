@@ -8,27 +8,67 @@
                 <div class="min-w-0 flex-1">
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repository to review</h1>
                 </div>
-                <div class="mt-4 space-x-3 items-center flex sm:mt-0 sm:ml-4">
-                    <button
-                        v-if="selectedRepository"
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="selectedRepository = null"
-                    >
-                        <BackIcon class="w-4 h-4 mr-2" />
-                        Show repositories
-                    </button>
-                    <button
-                        v-if="selectedRepository"
-                        type="button"
-                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
-                        @click="triggerCreateReview(true)"
-                    >
-                        Add my review
-                    </button>
+                <div v-if="selectedRepository" class="mt-4 flex space-x-4 items-center sm:mt-0 sm:ml-4">
+                    <div>
+                        <button
+                            type="button"
+                            class="order-0 inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                            @click="selectedRepository = null"
+                        >
+                            <BackIcon class="w-4 h-4 mr-2" />
+                            Show repositories
+                        </button>
+                    </div>
+                    <div class="inline-flex items-center space-x-4 text-right">
+                        <div class="inline-flex rounded-md shadow-sm">
+                            <button
+                                type="button"
+                                class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-violet-700 px-4 py-2 text-sm font-medium text-white shadow-sm outline-none hover:bg-violet-500"
+                                @click="triggerCreateReview(true)"
+                            >
+                                Add review
+                            </button>
+                            <Menu as="div" class="relative -ml-px block">
+                                <MenuButton class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-violet-700 px-2 py-2 text-sm font-medium text-white hover:bg-violet-500">
+                                    <ChevronDownIcon class="h-5 w-5" />
+                                </MenuButton>
+                                <transition
+                                    enter-active-class="transition ease-out duration-100"
+                                    enter-from-class="transform opacity-0 scale-95"
+                                    enter-to-class="transform opacity-100 scale-100"
+                                    leave-active-class="transition ease-in duration-75"
+                                    leave-from-class="transform opacity-100 scale-100"
+                                    leave-to-class="transform opacity-0 scale-95"
+                                >
+                                    <MenuItems class="absolute right-0 z-10 w-56 origin-top-right rounded-md bg-white px-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        <MenuItem class="flex p-1.5 hover:bg-violet-50">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-sm font-medium text-gray-700"
+                                                @click="triggerCreateReview(true)"
+                                            >
+                                                <PencilSquareIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Add review
+                                            </button>
+                                        </MenuItem>
+                                        <!--TODO: download whole repository-->
+                                        <MenuItem class="p-1.5 hover:bg-violet-50">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
+                                                @click="triggerCreateReview(true)"
+                                            >
+                                                <DownloadRepositoryIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Download repository
+                                            </button>
+                                        </MenuItem>
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+                        </div>
+                    </div>
                 </div>
             </div>
-
             <!-- Projects table (small breakpoint and up) -->
             <div v-if="allRepositories.length > 0 && !selectedRepository" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
@@ -42,8 +82,6 @@
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Version</th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-center text-sm font-semibold text-gray-900" scope="col">Number of reviews</th>
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-
-                                <!--                                    <th class="border-b border-gray-200 bg-gray-50 py-3 pr-6 text-right text-sm font-semibold text-gray-900" scope="col" />-->
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -57,19 +95,27 @@
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.title }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.versionName }}</td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.version.commitName }}</td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500 flex justify-center">
                                     <div class="flex transform items-center space-x-1.5 rounded-3xl py-1 px-3 w-fit duration-500 bg-violet-50 text-indigo-700 shadow-sm">
                                         <span class="rounded-3xl text-gray-600 text-sm">{{ repository.milestone.committedReviews }}/{{ repository.milestone.requiredReviews }}</span>
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
-                                <!--                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.updatedAt }}</td>-->
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <div v-else-if="allRepositories.length === 0" class="flex-1 items-center justify-center h-full text-center flex flex-col">
+                <div class="border rounded-md p-10 mb-10 border-dotted border-4">
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <NoSymbolIcon class="h-6 w-6 text-gray-800" />
+                        <span> No repositories to review</span>
+                    </div>
+                </div>
+            </div>
+
             <div v-else-if="allRepositories.length > 0 && selectedRepository" class="pt-10">
                 <div class="xlg:grid-cols-3 grid grid-cols-1 gap-6 pb-6 sm:grid-cols-2 md:grid-cols-3 2xl:lg:grid-cols-5 3xl:lg:grid-cols-6">
                     <div v-for="review in reviews" :key="review.contentIdentifier" class="group relative rounded-lg bg-white shadow hover:shadow-lg">
@@ -110,43 +156,42 @@
                                 class="focus:ring-none w-full group inline-flex flex-shrink-0 h-full items-center text-sm font-medium text-violet-500 hover:text-violet-800 focus:outline-none"
                             >
                                 Download review
-                                <DownloadIcon class="ml-1 w-4" />
+                                <DownloadReviewIcon class="ml-1 w-4" />
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <AddReviewSlideOver :repository="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" @create="createNewReview" />
+        <AddReviewSlideOver v-if="selectedRepository" :repository="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" @create="createNewReview" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
 import { ArrowUturnLeftIcon as BackIcon } from "@heroicons/vue/20/solid"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
-import { ref, computed, Ref } from "vue"
+import { ref, computed, Ref, onMounted } from "vue"
 import AddReviewSlideOver from "~/components/AddReviewSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
-import { ArrowDownTrayIcon as DownloadIcon } from "@heroicons/vue/24/outline"
-import { StarIcon } from "@heroicons/vue/20/solid"
 import { Review, SkillLevel } from "~/types/review"
 import { toSvg } from "jdenticon"
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
+import { PencilSquareIcon, ArrowDownTrayIcon as DownloadReviewIcon, StarIcon, ChevronDownIcon, NoSymbolIcon, FolderArrowDownIcon as DownloadRepositoryIcon } from "@heroicons/vue/20/solid"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
+
+onMounted(async () => await repositoryStore.fetchReviewableRepositories())
+
 const { toReviewRepositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
     return Object.values(toReviewRepositories.value).map((repository) => {
-        console.log("Loaded repo: ", repository)
         return {
             id: repository.repositoryHash,
             title: repository.name,
             description: repository.description,
             createdAt: repository.createdAt,
-            // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            // TODO: change created at to date related to last version
-            // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
             milestone: repository.milestone,
         }
