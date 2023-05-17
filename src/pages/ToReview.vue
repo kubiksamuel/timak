@@ -28,7 +28,6 @@
                     </button>
                 </div>
             </div>
-
             <!-- Projects table (small breakpoint and up) -->
             <div v-if="allRepositories.length > 0 && !selectedRepository" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
@@ -42,8 +41,6 @@
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Version</th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-center text-sm font-semibold text-gray-900" scope="col">Number of reviews</th>
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-
-                                <!--                                    <th class="border-b border-gray-200 bg-gray-50 py-3 pr-6 text-right text-sm font-semibold text-gray-900" scope="col" />-->
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -57,19 +54,27 @@
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.title }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.versionName }}</td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.version.commitName }}</td>
                                 <td class="px-6 py-3 text-sm font-medium text-gray-500 flex justify-center">
                                     <div class="flex transform items-center space-x-1.5 rounded-3xl py-1 px-3 w-fit duration-500 bg-violet-50 text-indigo-700 shadow-sm">
                                         <span class="rounded-3xl text-gray-600 text-sm">{{ repository.milestone.committedReviews }}/{{ repository.milestone.requiredReviews }}</span>
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
-                                <!--                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.updatedAt }}</td>-->
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            <div v-else-if="allRepositories.length === 0" class="flex-1 items-center justify-center h-full text-center flex flex-col">
+                <div class="border rounded-md p-10 mb-10 border-dotted border-4">
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <NoSymbolIcon class="h-6 w-6 text-gray-800" />
+                        <span> No repositories to review</span>
+                    </div>
+                </div>
+            </div>
+
             <div v-else-if="allRepositories.length > 0 && selectedRepository" class="pt-10">
                 <div class="xlg:grid-cols-3 grid grid-cols-1 gap-6 pb-6 sm:grid-cols-2 md:grid-cols-3 2xl:lg:grid-cols-5 3xl:lg:grid-cols-6">
                     <div v-for="review in reviews" :key="review.contentIdentifier" class="group relative rounded-lg bg-white shadow hover:shadow-lg">
@@ -117,14 +122,14 @@
                 </div>
             </div>
         </div>
-        <AddReviewSlideOver :repository="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" @create="createNewReview" />
+        <AddReviewSlideOver v-if="selectedRepository" :repository="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" @create="createNewReview" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
 import { ArrowUturnLeftIcon as BackIcon } from "@heroicons/vue/20/solid"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
-import { ref, computed, Ref } from "vue"
+import { ref, computed, Ref, onMounted } from "vue"
 import AddReviewSlideOver from "~/components/AddReviewSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
@@ -132,21 +137,21 @@ import { ArrowDownTrayIcon as DownloadIcon } from "@heroicons/vue/24/outline"
 import { StarIcon } from "@heroicons/vue/20/solid"
 import { Review, SkillLevel } from "~/types/review"
 import { toSvg } from "jdenticon"
+import { NoSymbolIcon } from "@heroicons/vue/20/solid"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
+
+onMounted(async () => await repositoryStore.fetchReviewableRepositories())
+
 const { toReviewRepositories } = storeToRefs(repositoryStore)
 const allRepositories = computed(() => {
     return Object.values(toReviewRepositories.value).map((repository) => {
-        console.log("Loaded repo: ", repository)
         return {
             id: repository.repositoryHash,
             title: repository.name,
             description: repository.description,
             createdAt: repository.createdAt,
-            // createdAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
-            // TODO: change created at to date related to last version
-            // updatedAt: new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "long", timeZone: "Europe/Bratislava" }).format(repository.createdAt) as any,
             pinned: true,
             milestone: repository.milestone,
         }
