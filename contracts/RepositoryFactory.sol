@@ -24,6 +24,8 @@ contract RepositoryFactory {
         string contentIdentifier;
         uint rating;
         uint milestoneId;
+        uint reward;
+        uint id;
     }
 
     mapping(address => Repository) internal repositoryMapping;
@@ -32,6 +34,11 @@ contract RepositoryFactory {
     mapping(address => User) internal usersData;
     address[] public users;
     Review[] public reviews;
+
+    function payReviewer(address reviewer, uint _id, uint amount) external payable {
+        payable(reviewer).transfer(amount);
+        reviews[_id].reward += amount;
+    }
 
     function createRepositoryContract(string memory _name, string memory _description) public {
         if (usersData[msg.sender].id == 0) {
@@ -53,7 +60,7 @@ contract RepositoryFactory {
                 usersData[msg.sender].id = userCounter;
                 users.push(msg.sender);
             }
-            Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating, _milestoneId);
+            Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating, _milestoneId, 0, reviews.length);
             reviews.push(newReview);
             repositoryReview[_repository].push(reviews.length - 1);
             reviewerReview[msg.sender].push(reviews.length - 1);
