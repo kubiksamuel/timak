@@ -71,7 +71,6 @@ export const useRepositoryStore = defineStore("user", {
                     }
                     if (toReview > 0) {
                         const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
-                        console.log("aa: ", requiredReviews)
                         for (const repoMilestone of requiredReviews) {
                             const repositoryReviewData = {
                                 repositoryHash: repository,
@@ -98,17 +97,13 @@ export const useRepositoryStore = defineStore("user", {
                     this.repositories.push(repositoryData)
 
                     await this.getVersionsOfRepository(repository)
-
                     await this.getRepositoryContributors(repository)
-
-                    console.log("After repository data: ", this.repositories)
                 }
                 console.log(this.toReviewRepositories)
             } catch (error) {
                 console.log(error)
             }
         },
-
         async createRepository(newRepository: RepositoryMeta) {
             try {
                 const { ethereum } = window
@@ -116,35 +111,26 @@ export const useRepositoryStore = defineStore("user", {
                     // create provider object from ethers library, using ethereum object injected by metamask
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const signer = provider.getSigner()
-                    console.log("provider:", provider)
-                    console.log("signer:", signer)
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
                     /*
                      * Execute the actual wave from your smart contract
                      */
-                    console.log("New repository creation data: ", newRepository)
                     const repositoryTxn = await repositoryFactoryContract.createRepositoryContract(newRepository.name, newRepository.description)
                     console.log("Mining...", repositoryTxn.hash)
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
                     const event = transaction.events.find((event) => event.event === "NewRepositorySet")
                     const repositoryHash = event.args.repository
-                    // console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
 
-                    // console.log("Repo address: ", transaction.logs[0].address)
-
-                    console.log("Repositories: ", await repositoryFactoryContract.getUserRepos(this.account))
                     const repositoryProxy = new ethers.Contract(transaction.logs[0].address, RepositoryABI.abi, provider)
-                    console.log("Proxy: ", await repositoryProxy)
-                    // const repositoryhash = await repositoryProxy.repository()
+
                     const name = await repositoryProxy.name()
                     const owner = await repositoryProxy.owner()
                     const createdAt = await repositoryProxy.createdAt()
                     const repoTime = new Date(createdAt * 1000)
                     const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                     const description = await repositoryProxy.description()
-                    const toReview = await repositoryProxy.toReview()
                     this.toReviewRepositories = []
 
                     const repositoryData = {
@@ -159,7 +145,6 @@ export const useRepositoryStore = defineStore("user", {
                     }
                     this.getRepositoryContributors(repositoryHash)
 
-                    console.log("Repository data:", repositoryHash, name, owner, repoTime, description)
                     this.repositories.push(repositoryData)
                 } else {
                     console.log("Ethereum object doesn't exist!")
@@ -179,7 +164,6 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
                     const isAlreadyUser = await repositoryFactoryContract.isAlreadyUser(ConAddress)
-                    console.log(isAlreadyUser)
                     if (isAlreadyUser) {
                     } else {
                         const a = await repositoryFactoryContract.addUser(ConAddress)
@@ -196,7 +180,6 @@ export const useRepositoryStore = defineStore("user", {
                         console.log("User is already contributor")
                         return
                     }
-                    console.log("Add user as contributor")
 
                     // get repository
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
@@ -267,18 +250,10 @@ export const useRepositoryStore = defineStore("user", {
                     // create provider object from ethers library, using ethereum object injected by metamask
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
-                    console.log("Repository contract: ", repositoryContract)
+
                     const allMilestones = await repositoryContract.getAllMilestones()
                     return await Promise.all(
                         allMilestones.map(async (milestone: MilestoneMeta) => {
-                            console.log("Get milestone: ", {
-                                id: milestone.id,
-                                title: milestone.title,
-                                description: milestone.description,
-                                deadline: parseFloat(milestone.deadline.toString()),
-                                requestReview: milestone.requestReview,
-                                completed: milestone.completed,
-                            })
                             return {
                                 id: milestone.id,
                                 title: milestone.title,
@@ -331,8 +306,6 @@ export const useRepositoryStore = defineStore("user", {
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, provider)
                     const contributorsAddress = await repositoryContract.getContributors()
-                    console.log("Contributors: ", contributorsAddress)
-
                     const repo = this.repositories.find((repo) => repo.repositoryHash == repoAddress)
                     for (const contributorAddress of contributorsAddress) {
                         const contributor = await repositoryContract.getContributor(contributorAddress)
@@ -345,7 +318,6 @@ export const useRepositoryStore = defineStore("user", {
 
                         repo.contributors.push(cons)
                     }
-                    console.log("CONTRIBUTORS", repo.contributors)
                     return repo.contributors
                 }
             } catch (error) {
@@ -389,13 +361,6 @@ export const useRepositoryStore = defineStore("user", {
                     const filter = repositoryFactoryContract.filters.ReviewAdded(repository, null)
                     // eslint-disable-next-line no-use-before-define
                     repositoryFactoryContract.on(filter, (...event) => {
-                        console.log("Review: ", {
-                            repositoryHash: event[5].args.repository,
-                            reviewer: event[5].args.reviewer,
-                            reviewerSkillLevel: event[5].args.reviewerSkillLevel.toString(),
-                            rating: event[5].args.rating.toString(),
-                            contentIdentifier: event[5].args.contentIdentifier,
-                        })
                         return {
                             repositoryHash: event[5].args.repository,
                             reviewer: event[5].args.reviewer,
@@ -418,8 +383,6 @@ export const useRepositoryStore = defineStore("user", {
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const signer = provider.getSigner()
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
-
-                    console.log("New review: ", newReview)
                     const repositoryTxn = await repositoryFactoryContract.createReview(
                         newReview.repositoryHash,
                         newReview.contentIdentifier,
@@ -431,7 +394,6 @@ export const useRepositoryStore = defineStore("user", {
                     const transaction = await repositoryTxn.wait()
                     console.log("Event: ", transaction.logs)
                     const eventData = transaction.events.find((event) => event.event === "ReviewAdded").args
-                    // console.log("Transaction reciept: ", transaction)
                     console.log("Mined -- ", repositoryTxn.hash)
                     return {
                         reviewer: eventData.reviewer,
@@ -451,7 +413,6 @@ export const useRepositoryStore = defineStore("user", {
         },
 
         async addVersionOfRepository(repoAddress: string, ipfsHash: string, commitName: string) {
-            console.log("add version")
             try {
                 const { ethereum } = window
                 if (ethereum) {
