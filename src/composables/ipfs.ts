@@ -48,7 +48,6 @@ export const downloadFolderFromIPFS = async (hash: string, folderName: string) =
 
     const zip = new JSZip();
     output.forEach(item => {
-        console.log(item.header.type, item.header.name)
         if (item.header.type === 'file') {
             zip.file(item.header.name.replace(hash, ""), item.body, {binary: true})
         }
@@ -69,8 +68,6 @@ export const addFolderToIPFS = async (files: FileList, repositoryAddress: string
 
     let hash = ""
     for await (const result of ipfs.addAll(filesToAdd)) {
-        console.log(result)
-        console.log(result.cid.toString())
         if (result.path == repositoryAddress) {
             hash = result.cid.toString()
         }
