@@ -93,18 +93,16 @@
                                         <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
                                             <span class="lg:pl-2">File</span>
                                         </th>
-                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size</th>
+                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size (B)</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 bg-white">
                                     <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
                                         <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                             <div class="flex items-center space-x-3 lg:pl-2">
-                                                <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
-                                                    <span>
-                                                        {{ file.title }}
-                                                    </span>
-                                                </a>
+                                                <span @click="downloadFile(file.hash)" class="truncate hover:text-gray-600">
+                                                    {{ file.title }}
+                                                </span>
                                             </div>
                                         </td>
                                         <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ file.size }}</td>
@@ -280,7 +278,13 @@ const changeVersion = async (ipfsHash) => {
 }
 
 const download = (ipfsHash: string, folderName: string) => {
-    downloadFromIPFS(ipfsHash, folderName)
+    downloadFolderFromIPFS(ipfsHash, folderName)
+}
+
+const downloadFile = (ipfsHash: string) => {
+    const index = ipfsHash.lastIndexOf('/')
+    const extractedName = ipfsHash.slice(index + 1, ipfsHash.length)
+    downloadFileFromIPFS(ipfsHash, extractedName)
 }
 
 const showAddVersion = ref(false)

@@ -190,7 +190,7 @@ const createVersion = async (commitMessage: string | undefined, files: FileList 
     let hash = "invalid"
     setTimeout(() => (currentLoaderStep.value = 1), 1200)
     if (commitMessage && files) {
-        hash = await addFolderToIPFS(files, folderName, repositoryAddress)
+        hash = await addFolderToIPFS(files, repositoryAddress)
         await sleep(1200)
         currentLoaderStep.value = 2
         await sleep(1200)

@@ -1,4 +1,3 @@
-import axios from "axios"
 import * as IPFS from 'ipfs-core'
 import { pipe } from 'it-pipe'
 import all from 'it-all'
@@ -9,16 +8,11 @@ import Pako from 'pako'
 import JSZip from 'jszip';
 import FileSaver from 'file-saver';
 
-const api_endpoint_pinata_post = "https://api.pinata.cloud/pinning/pinFileToIPFS"
-const api_endpoint_pinata_get = "https://gateway.pinata.cloud/ipfs/"
-const access_token = import.meta.env.VITE_PINATA_ACCESS_TOKEN
-const authorization = "Bearer " + access_token
-
-const node = await IPFS.create()
+const ipfs = await IPFS.create()
 
 export const getFolderFromIPFS = async (hash: string) => {
     const output = await pipe(
-        node.get(hash, {
+        ipfs.get(hash, {
             archive: true,
             compress: true,
             compressionLevel: 5
@@ -31,7 +25,7 @@ export const getFolderFromIPFS = async (hash: string) => {
     output.forEach((item) => {
         if (item.header.type === "file") {
             data.push({
-                hash: item.header.name.replace(hash, ""),
+                hash: item.header.name,
                 name: item.header.name.replace(hash, ""),
                 size: item.header.size,
             })
@@ -40,9 +34,9 @@ export const getFolderFromIPFS = async (hash: string) => {
     return data
 }
 
-export const downloadFromIPFS = async (hash: string, folderName: string) => {
+export const downloadFolderFromIPFS = async (hash: string, folderName: string) => {
     const output = await pipe(
-        node.get(hash, {
+        ipfs.get(hash, {
             archive: true,
             compress: true,
             compressionLevel: 5
@@ -64,7 +58,7 @@ export const downloadFromIPFS = async (hash: string, folderName: string) => {
     });
 }
 
-export const addFolderToIPFS = async (files: FileList, folderName: string, repositoryAddress: string) => {
+export const addFolderToIPFS = async (files: FileList, repositoryAddress: string) => {
     const filesToAdd = []
     Array.from(files).forEach(file => {
         filesToAdd.push({
@@ -74,7 +68,7 @@ export const addFolderToIPFS = async (files: FileList, folderName: string, repos
     });
 
     let hash = ""
-    for await (const result of node.addAll(filesToAdd)) {
+    for await (const result of ipfs.addAll(filesToAdd)) {
         console.log(result)
         console.log(result.cid.toString())
         if (result.path == repositoryAddress) {
@@ -86,28 +80,27 @@ export const addFolderToIPFS = async (files: FileList, folderName: string, repos
 }
 
 export const addFileToIPFS = async (file: File) => {
-    const formData = new FormData()
+    const result = await ipfs.add(file)
+    return result.cid.toString()
+}
 
-    formData.append("file", file)
+export const downloadFileFromIPFS = async (hash: string, fileName: string) => {
+    const output = await pipe(
+        ipfs.get(hash, {
+            archive: true,
+            compress: true,
+            compressionLevel: 5
+        }),
+        gzipped,
+        tarballed,
+        source => all(source)
+    )
 
-    const metadata = JSON.stringify({
-        name: file.name,
-    })
-    formData.append("pinataMetadata", metadata)
-
-    const options = JSON.stringify({
-        cidVersion: 0,
-    })
-    formData.append("pinataOptions", options)
-
-    const res = await axios.post(api_endpoint_pinata_post, formData, {
-        maxBodyLength: Infinity,
-        headers: {
-            "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
-            Authorization: authorization,
-        },
-    })
-    return res.data.IpfsHash
+    if (output[0].header.type == "file") {
+        FileSaver.saveAs(new Blob([output[0].body]), fileName)
+    } else {
+        console.error("Not a file")
+    }
 }
 
 // source: https://github.com/ipfs/js-ipfs/blob/master/packages/interface-ipfs-core/src/get.js
