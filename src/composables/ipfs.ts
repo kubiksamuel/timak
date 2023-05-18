@@ -29,11 +29,13 @@ export const getFolderFromIPFS = async (hash: string) => {
     )
     const data: Array<Object> = []
     output.forEach((item) => {
-        data.push({
-            hash: item.header.name,
-            name: item.header.name,
-            size: item.header.size,
-        })
+        if (item.header.type === "file") {
+            data.push({
+                hash: item.header.name.replace(hash, ""),
+                name: item.header.name.replace(hash, ""),
+                size: item.header.size,
+            })
+        }
     })
     return data
 }
@@ -54,7 +56,7 @@ export const downloadFromIPFS = async (hash: string, folderName: string) => {
     output.forEach(item => {
         console.log(item.header.type, item.header.name)
         if (item.header.type === 'file') {
-            zip.file(item.header.name, item.body, {binary: true})
+            zip.file(item.header.name.replace(hash, ""), item.body, {binary: true})
         }
     });
     zip.generateAsync({ type: 'blob' }).then(function (content) {
