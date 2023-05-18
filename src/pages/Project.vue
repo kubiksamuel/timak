@@ -64,6 +64,16 @@
                                                 Milestones
                                             </button>
                                         </MenuItem>
+                                        <MenuItem class="p-1.5 hover:bg-violet-50">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
+                                                @click="download(currentVersionHash, repository?.title)"
+                                            >
+                                                <DownloadIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Download
+                                            </button>
+                                        </MenuItem>
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -182,7 +192,7 @@
                 </div>
             </div>
         </div>
-        <AddVersionSlideOver title="Add new version" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
+        <AddVersionSlideOver title="Add new version" :repository-address="repository?.address" :folder-name="repository?.title" :open="showAddVersion" @close="triggerAddVersion(false)" @change-version="$forceUpdate()" />
         <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
         <ContributorsSlideOver title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
     </SidebarLayout>
@@ -194,7 +204,7 @@ import { ref, computed, onMounted } from "vue"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
-import { PlusIcon, ChevronDownIcon, UserPlusIcon as AddContributorIcon, FolderPlusIcon as AddVersionIcon, UserIcon as ContributorIcon, CheckBadgeIcon as MilestoneIcon } from "@heroicons/vue/20/solid"
+import { PlusIcon, ChevronDownIcon, UserPlusIcon as AddContributorIcon, FolderPlusIcon as AddVersionIcon, UserIcon as ContributorIcon, CheckBadgeIcon as MilestoneIcon, FolderArrowDownIcon as DownloadIcon } from "@heroicons/vue/20/solid"
 
 import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
@@ -244,6 +254,7 @@ const repository = computed(() => {
 const { getLatestVersion } = useRepositoryStore()
 const data = ref()
 const currentMilestone = ref()
+const currentVersionHash = ref()
 onMounted(async () => {
     if (repository.value) {
         const ipfsHash = repository.value.lastVersion.IPFSHash
@@ -266,6 +277,11 @@ const changeVersion = async (ipfsHash) => {
         })
     })
     data.value = result
+    currentVersionHash.value = ipfsHash
+}
+
+const download = (ipfsHash: string, folderName: string) => {
+    downloadFromIPFS(ipfsHash, folderName)
 }
 
 const showAddVersion = ref(false)
