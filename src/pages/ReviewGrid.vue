@@ -101,13 +101,13 @@
                                 <div class="flex h-11 justify-end items-center w-full px-6">
                                     <!--                                        class="focus:ring-none w-full group flex h-full items-center text-sm font-medium text-violet-500 hover:text-violet-800 focus:outline-none"-->
 
-                                    <a
-                                        :href="'https://gateway.pinata.cloud/ipfs/' + review.contentIdentifier"
+                                    <span
+                                        @click="downloadFile(review.contentIdentifier)"
                                         class="text-sm group flex items space-x-2 medium text-violet-500 hover:text-violet-800 focus:outline-none"
                                     >
                                         Download review
                                         <DownloadReviewIcon class="ml-1 w-4" />
-                                    </a>
+                                    </span>
                                 </div>
                             </div>
 
@@ -178,5 +178,9 @@ const triggerCreateReview = (show: boolean) => {
 
 const createNewReview = async (newReview: Omit<Review, "reviewer">) => {
     reviews.value.push(await repositoryStore.createReview(newReview))
+}
+
+const downloadFile = (ipfsHash: string) => {
+    downloadFileFromIPFS(ipfsHash, "review")
 }
 </script>
