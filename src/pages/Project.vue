@@ -100,7 +100,6 @@
                                     <tr v-for="file in data" :key="file.id" class="hover:bg-violet-100 cursor-pointer">
                                         <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                             <div class="flex items-center space-x-3 lg:pl-2">
-                                                {{ file.hash }}
                                                 <a :href="'https://gateway.pinata.cloud/ipfs/' + file.hash" class="truncate hover:text-gray-600">
                                                     <span>
                                                         {{ file.title }}

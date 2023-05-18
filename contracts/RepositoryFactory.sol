@@ -108,7 +108,11 @@ contract RepositoryFactory {
         users.push(user);
     }
 
-    function addRepositoryToUser(address user, Repository repository)public{
+    function addRepositoryToUser(address user, Repository repository, string memory _name)public{
+        if(!this.isAlreadyUser(user)){
+            this.addUser(user);
+        }
+        repository.addContributor(user, _name);
         usersData[user].listOfRepositories.push(repository);
     }
 

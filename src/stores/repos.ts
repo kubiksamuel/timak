@@ -197,18 +197,6 @@ export const useRepositoryStore = defineStore("user", {
 
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
-                    const isAlreadyUser = await repositoryFactoryContract.isAlreadyUser(ConAddress)
-                    if (isAlreadyUser) {
-                    } else {
-                        const a = await repositoryFactoryContract.addUser(ConAddress)
-                        console.log("Mining...", a.hash)
-                        const transaction = await a.wait()
-                        console.log("Event: ", transaction.logs)
-                        console.log("Transaction reciept: ", transaction)
-                        console.log("Mined -- ", a.hash)
-                    }
-
-                    // check if user is already contributor
                     const repo = this.repositories.find((repo) => repo.repositoryHash == repoAddress)
                     if (repo.contributors.find((repo) => repo.contributors == ConAddress)) {
                         console.log("User is already contributor")
@@ -218,15 +206,8 @@ export const useRepositoryStore = defineStore("user", {
                     // get repository
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.addContributor(ConAddress, ConName)
-                    console.log("Mining...", repositoryTxn.hash)
-                    const transaction = await repositoryTxn.wait()
-                    console.log("Event: ", transaction.logs)
-                    console.log("Transaction reciept: ", transaction)
-                    console.log("Mined -- ", repositoryTxn.hash)
-
                     console.log(repositoryContract)
-                    const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address)
+                    const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address, ConName)
                     console.log("Mining...", repositoryTxn1.hash)
                     const transaction1 = await repositoryTxn1.wait()
                     console.log("Event: ", transaction1.logs)
