@@ -1,5 +1,5 @@
 <template>
-    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title" :folder-name="folderName">
+    <SlideOver v-bind="{ open }" @close="emit('close')" :title="title" :folder-name="folderName" :repository-address="repositoryAddress">
         <div class="flex h-full flex-col pt-1">
             <div class="h-full flex-1">
                 <div class="flex flex-col space-y-3">
@@ -17,7 +17,7 @@
                         </div>
                     </div>
                     <div>
-                        <div class="ml-px block text-sm font-medium leading-10 text-gray-900">Review Document</div>
+                        <div class="ml-px block text-sm font-medium leading-10 text-gray-900">Files</div>
                         <label
                             for="dropzone-file"
                             class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed hover:border-violet-500 rounded-lg cursor-pointer bg-white"
@@ -42,7 +42,7 @@
                                     ></path>
                                 </svg>
                                 <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Your review will be uploaded to ipfs.</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Files will be uploaded to ipfs.</p>
                             </div>
                             <input @change="handleFolderToUpload($event)" webkitdirectory multiple id="dropzone-file" type="file" class="hidden" />
                         </label>
@@ -154,7 +154,7 @@
 
             <div class="px-4 py-3 flex justify-end sm:px-6">
                 <button
-                    @click="createVersion(commitMessage, files, folderName)"
+                    @click="createVersion(commitMessage, files, folderName, repositoryAddress)"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                 >
                     Create new version
@@ -185,12 +185,12 @@ const hasUploaded = computed(() => files.value && Object.values(files.value).len
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
-const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string) => {
+const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string, repositoryAddress: string) => {
     currentLoaderStep.value = 0
-    let hash = "blbost"
+    let hash = "invalid"
     setTimeout(() => (currentLoaderStep.value = 1), 1200)
     if (commitMessage && files) {
-        hash = await addFolderToIPFS(files, folderName)
+        hash = await addFolderToIPFS(files, repositoryAddress)
         await sleep(1200)
         currentLoaderStep.value = 2
         await sleep(1200)
@@ -220,6 +220,10 @@ defineProps({
         required: true,
     },
     folderName: {
+        type: String,
+        required: true,
+    },
+    repositoryAddress: {
         type: String,
         required: true,
     },
