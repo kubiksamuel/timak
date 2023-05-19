@@ -188,7 +188,8 @@ function sleep(ms) {
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string, repositoryAddress: string) => {
     currentLoaderStep.value = 0
     let hash = "invalid"
-    setTimeout(() => (currentLoaderStep.value = 1), 1200)
+    await sleep(1200)
+    currentLoaderStep.value = 1
     if (commitMessage && files) {
         hash = await addFolderToIPFS(files, repositoryAddress)
         await sleep(1200)
