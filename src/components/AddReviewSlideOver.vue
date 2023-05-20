@@ -243,7 +243,7 @@ import { addFileToIPFS } from "~/composables/ipfs"
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue"
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid"
 import { useVuelidate } from "@vuelidate/core"
-import { required, helpers, minValue } from "@vuelidate/validators"
+import { required, helpers } from "@vuelidate/validators"
 
 const skillLevels = [
     { title: "Beginner", description: "Limited knowledge, new to the field." },

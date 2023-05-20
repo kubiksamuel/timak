@@ -215,10 +215,11 @@
                                                 </div>
                                                 <input
                                                     v-model="reviewToReward.ethersAmount"
-                                                    min="0"
+                                                    min="0.1"
                                                     type="number"
                                                     name="price"
                                                     id="price"
+                                                    :class="[invalidEthersAmount ? 'ring-red-400' : 'ring-gray-300']"
                                                     class="block w-full rounded-md border-0 py-1.5 pl-10 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
                                                     placeholder="0.00"
                                                     aria-describedby="price-currency"
@@ -227,6 +228,7 @@
                                                     <span class="text-gray-500 sm:text-sm" id="price-currency">Ethers</span>
                                                 </div>
                                             </div>
+                                            <div v-if="invalidEthersAmount" class="text-sm text-red-500 py-1 ml-2">The minimum amount of ethers to send as reward is 0.01 Ethers.</div>
                                         </div>
                                     </div>
 
@@ -277,7 +279,6 @@ const route = useRoute()
 const repositoryHash = route.params.projectHash
 
 const repositoryWithMilestones = ref()
-const rawRepositoryReviews = ref()
 const reviews = ref()
 const repositoryReviewableVersions = ref()
 const loaderStep = ref(-1)
@@ -353,6 +354,8 @@ const reviewToReward = reactive({
     ethersAmount: 0.0,
 })
 
+const invalidEthersAmount = ref(false)
+
 const setReward = (reviewer: string, reviewId: number) => {
     reviewToReward.reviewer = reviewer
     reviewToReward.reviewId = reviewId
@@ -360,6 +363,11 @@ const setReward = (reviewer: string, reviewId: number) => {
 }
 
 const rewardReview = async () => {
+    if (reviewToReward.ethersAmount < 0.01) {
+        invalidEthersAmount.value = true
+        return
+    }
+    invalidEthersAmount.value = false
     showEthersModal.value = false
     const reward = await repositoryStore.rewardReview(reviewToReward.reviewer, reviewToReward.reviewId, reviewToReward.ethersAmount)
     reviews.value[reviewToReward.reviewId].reward += reward
