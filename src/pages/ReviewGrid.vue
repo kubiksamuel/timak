@@ -4,56 +4,6 @@
             <div class="min-w-0 flex-1">
                 <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repository to review</h1>
             </div>
-            <!--            <div class="mt-4 flex space-x-4 items-center sm:mt-0 sm:ml-4">-->
-            <!--                <div class="inline-flex items-center space-x-4 text-right">-->
-            <!--                    <div class="inline-flex rounded-md shadow-sm">-->
-            <!--                        <button-->
-            <!--                            type="button"-->
-            <!--                            class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-violet-700 px-4 py-2 text-sm font-medium text-white shadow-sm outline-none hover:bg-violet-500"-->
-            <!--                            @click="triggerCreateReview(true)"-->
-            <!--                        >-->
-            <!--                            Add review-->
-            <!--                        </button>-->
-            <!--                        <Menu as="div" class="relative -ml-px block">-->
-            <!--                            <MenuButton class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-violet-700 px-2 py-2 text-sm font-medium text-white hover:bg-violet-500">-->
-            <!--                                <ChevronDownIcon class="h-5 w-5" />-->
-            <!--                            </MenuButton>-->
-            <!--                            <transition-->
-            <!--                                enter-active-class="transition ease-out duration-100"-->
-            <!--                                enter-from-class="transform opacity-0 scale-95"-->
-            <!--                                enter-to-class="transform opacity-100 scale-100"-->
-            <!--                                leave-active-class="transition ease-in duration-75"-->
-            <!--                                leave-from-class="transform opacity-100 scale-100"-->
-            <!--                                leave-to-class="transform opacity-0 scale-95"-->
-            <!--                            >-->
-            <!--                                <MenuItems class="absolute right-0 z-10 w-56 origin-top-right rounded-md bg-white px-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">-->
-            <!--                                    <MenuItem class="flex p-1.5 hover:bg-violet-50">-->
-            <!--                                        <button-->
-            <!--                                            type="button"-->
-            <!--                                            class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-sm font-medium text-gray-700"-->
-            <!--                                            @click="triggerCreateReview(true)"-->
-            <!--                                        >-->
-            <!--                                            <PencilSquareIcon class="mr-2 h-4 w-4 text-gray-700" />-->
-            <!--                                            Add review-->
-            <!--                                        </button>-->
-            <!--                                    </MenuItem>-->
-            <!--                                    &lt;!&ndash;TODO: download whole repository&ndash;&gt;-->
-            <!--                                    <MenuItem class="p-1.5 hover:bg-violet-50">-->
-            <!--                                        <button-->
-            <!--                                            type="button"-->
-            <!--                                            class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"-->
-            <!--                                            @click="triggerCreateReview(true)"-->
-            <!--                                        >-->
-            <!--                                            &lt;!&ndash;                                            <DownloadRepositoryIcon class="mr-2 h-4 w-4 text-gray-700" />&ndash;&gt;-->
-            <!--                                            Download repository-->
-            <!--                                        </button>-->
-            <!--                                    </MenuItem>-->
-            <!--                                </MenuItems>-->
-            <!--                            </transition>-->
-            <!--                        </Menu>-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
         </div>
         <div class="bg-white px-8 2xl:px-40">
             <div class="mx-auto py-10 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">

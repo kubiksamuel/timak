@@ -45,6 +45,8 @@
                         </RadioGroup>
                     </div>
                     <Listbox as="div" v-model="selectedMilestone">
+                        <div class="font-medium text-sm text-gray-900">Versions</div>
+
                         <div class="relative my-2 w-full">
                             <ListboxButton
                                 class="relative w-full cursor-pointer rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 sm:text-sm sm:leading-6"
@@ -109,9 +111,12 @@
                             </div>
                             <input @change="handleFileToUpload($event)" id="dropzone-file" type="file" class="hidden" />
                         </label>
+                        <div v-if="v$.file.$error" class="text-sm text-red-500 py-1 ml-2">
+                            {{ v$.file.$errors[0]?.$message.toString() }}
+                        </div>
                     </div>
                 </div>
-                <div v-if="currentLoaderStep >= 0" class="items-center flex justify-center pt-5">
+                <div v-if="currentLoaderStep >= 0" class="items-center py-5 flex justify-center">
                     <ul class="max-w-md space-y-2 text-gray-500 list-inside">
                         <li class="flex items-center">
                             <div v-if="currentLoaderStep === 0">
@@ -212,6 +217,7 @@
                     </ul>
                 </div>
             </div>
+
             <hr class="-mx-6" />
 
             <div class="px-4 py-3 text-right sm:px-6">
@@ -236,6 +242,8 @@ import { StarIcon } from "@heroicons/vue/20/solid"
 import { addFileToIPFS } from "~/composables/ipfs"
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue"
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid"
+import { useVuelidate } from "@vuelidate/core"
+import { required, helpers, minValue } from "@vuelidate/validators"
 
 const skillLevels = [
     { title: "Beginner", description: "Limited knowledge, new to the field." },
@@ -265,7 +273,7 @@ const props = defineProps({
 console.log("Props rep: ", props.repository)
 
 const selectedSkillLevel = ref(skillLevels[0])
-const selectedRating = ref(0)
+const selectedRating = ref(1)
 const selectedMilestone = ref(props.repository.milestones[props.repository.milestones.length - 1])
 
 const emit = defineEmits<{
@@ -287,12 +295,21 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// const change = (ipfsHash: string) => {
-//     console.log("Changing version: ", ipfsHash)
-//     selectedVersionIpfs.value = ipfsHash
-// }
+const rules = {
+    file: {
+        required: helpers.withMessage("Hold on! This field can't be left empty. Please fill it out so we can proceed.", required),
+    },
+}
+
+const v$ = useVuelidate(rules, {
+    file: file.value,
+})
 
 const addReview = async () => {
+    const isFormCorrect = await v$.value.$validate()
+    if (!isFormCorrect) {
+        return
+    }
     currentLoaderStep.value = 0
     await sleep(1200)
     currentLoaderStep.value = 1
