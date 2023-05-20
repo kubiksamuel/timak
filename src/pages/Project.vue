@@ -121,7 +121,7 @@
                                         <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
                                             <span class="lg:pl-2">File</span>
                                         </th>
-                                        <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size (B)</th>
+                                        <th class="border-b border-gray-200 bg-gray-50 whitespace-nowrap px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Size (B)</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 bg-white">
@@ -188,7 +188,7 @@
                         </div>
                         <div>
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Contributors</div>
-                            <ContributorsTable title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
+                            <ContributorsTable title="Show contributors" />
                         </div>
                     </div>
                 </div>
@@ -227,8 +227,7 @@
             @close="triggerAddVersion(false)"
             @change-version="$forceUpdate()"
         />
-        <AddcontributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
-        <ContributorsSlideOver title="Show contributors" :open="showContributor" @close="triggerShowContributor(false)" />
+        <AddContributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -236,7 +235,7 @@ import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, onMounted } from "vue"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
-import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
+import AddContributorSlideOver from "~/components/AddContributorSlideOver.vue"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import {
     PlusIcon,
@@ -279,7 +278,6 @@ onMounted(async () => {
                 commitDate: timeInMiliseconds,
             })
         })
-        console.log("Account: ", account.value.toLowerCase() === r.owner.toLowerCase())
         isOwner.value = account.value.toLowerCase() === r.owner.toLowerCase()
         repository.value = {
             owner: r.owner,
@@ -295,8 +293,9 @@ onMounted(async () => {
             updatedAt: r.createdAt,
             pinned: true,
         }
-        const ipfsHash = repository.value.lastVersion.IPFSHash
-        await changeVersion(ipfsHash)
+        if (repository.value.lastVersion) {
+            await changeVersion(repository.value.lastVersion?.IPFSHash)
+        }
 
         const milestones = await repositoryStore.getMilestones(route.params.projectHash)
         currentMilestone.value = milestones.find((milestone) => !milestone.completed)
@@ -342,10 +341,6 @@ const triggerAddVersion = (show: boolean) => (showAddVersion.value = show)
 const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
-
-const showContributor = ref(false)
-
-const triggerShowContributor = (show: boolean) => (showContributor.value = show)
 
 const redirectToMilestone = async () => await router.push({ path: route.params.projectHash + "/milestones" })
 </script>
