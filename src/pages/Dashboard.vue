@@ -133,7 +133,7 @@
                 </div>
             </div>
         </div>
-        <CreateRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
+        <AddRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -142,7 +142,7 @@ import { storeToRefs } from "pinia"
 import { useRouter } from "vue-router"
 import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
-import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
+import AddRepositorySlideOver from "~/components/AddRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 
 const router = useRouter()

@@ -11,9 +11,13 @@
                                 type="text"
                                 name="commitMessage"
                                 id="commitMessage"
-                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                :class="[v$.commitMessage.$error ? 'ring-red-400' : 'ring-gray-300']"
+                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 outline-none focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
                                 placeholder="Commit message"
                             />
+                            <div v-if="v$.commitMessage.$error" class="text-sm text-red-500 py-1 ml-2">
+                                {{ v$.commitMessage.$errors[0]?.$message.toString() }}
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -21,7 +25,7 @@
                         <label
                             for="dropzone-file"
                             class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed hover:border-violet-500 rounded-lg cursor-pointer bg-white"
-                            :class="{ 'border-violet-400': hasUploaded }"
+                            :class="[v$.files.$error ? 'border-red-400' : 'border-gray-300', { 'border-violet-400': hasUploaded }]"
                         >
                             <div v-if="hasUploaded" class="flex space-x-2 justify-center items-center text-gray-500">
                                 <div class="text-sm">
@@ -46,6 +50,9 @@
                             </div>
                             <input @change="handleFolderToUpload($event)" webkitdirectory multiple id="dropzone-file" type="file" class="hidden" />
                         </label>
+                        <div v-if="v$.files.$error" class="text-sm text-red-500 py-1 ml-2">
+                            {{ v$.files.$errors[0]?.$message.toString() }}
+                        </div>
                     </div>
                 </div>
                 <div v-if="currentLoaderStep >= 0" class="items-center flex justify-center py-20">
@@ -155,7 +162,7 @@
             <div class="px-4 py-3 flex justify-end sm:px-6">
                 <button
                     @click="createVersion(commitMessage, files, folderName, repositoryAddress)"
-                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
                 >
                     Create new version
                 </button>
@@ -171,12 +178,25 @@ import { useRepositoryStore } from "~/stores/repos"
 import { useRoute } from "vue-router"
 import { addFolderToIPFS } from "~/composables/ipfs"
 import { CheckCircleIcon } from "@heroicons/vue/20/solid"
+import { useVuelidate } from "@vuelidate/core"
+import { required, helpers } from "@vuelidate/validators"
 
 const { addVersionOfRepository } = useRepositoryStore()
 const route = useRoute()
 
 const files: Ref<FileList | undefined> = ref()
 const commitMessage: Ref<string | undefined> = ref()
+
+const rules = {
+    files: {
+        required: helpers.withMessage("Hold on! This field can't be left empty. Please fill it out so we can proceed.", required),
+    },
+    commitMessage: {
+        required: helpers.withMessage("Hold on! This field can't be left empty. Please fill it out so we can proceed.", required),
+    },
+}
+
+const v$ = useVuelidate(rules, { files, commitMessage })
 
 const currentLoaderStep = ref(-1)
 
@@ -186,6 +206,11 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 const createVersion = async (commitMessage: string | undefined, files: FileList | undefined, folderName: string, repositoryAddress: string) => {
+    const isFormCorrect = await v$.value.$validate()
+    if (!isFormCorrect) {
+        return
+    }
+
     currentLoaderStep.value = 0
     let hash = "invalid"
     await sleep(1200)

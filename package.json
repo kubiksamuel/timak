@@ -20,6 +20,8 @@
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@openzeppelin/contracts": "^4.8.3",
     "@unocss/reset": "^0.48.5",
+    "@vuelidate/core": "^2.0.2",
+    "@vuelidate/validators": "^2.0.2",
     "@vuepic/vue-datepicker": "^4.5.1",
     "@vueuse/core": "^9.13.0",
     "@vueuse/head": "^1.1.26",

@@ -35,10 +35,6 @@ import { useRoute } from "vue-router"
 import { toSvg } from "jdenticon"
 
 defineProps({
-    open: {
-        type: Boolean,
-        required: true,
-    },
     title: {
         type: String,
         required: true,
