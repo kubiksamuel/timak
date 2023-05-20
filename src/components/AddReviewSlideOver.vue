@@ -44,6 +44,44 @@
                             </div>
                         </RadioGroup>
                     </div>
+                    <Listbox as="div" v-model="selectedMilestone">
+                        <div class="relative my-2 w-full">
+                            <ListboxButton
+                                class="relative w-full cursor-pointer rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 sm:text-sm sm:leading-6"
+                            >
+                                <span class="flex items-cente justify-between">
+                                    <span class="ml-3 block truncate">{{ selectedMilestone.title }}</span>
+                                    <span class="ml-3 block truncate text-gray-500">{{ selectedMilestone.version.commitName }}</span>
+                                </span>
+                                <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
+                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </span>
+                            </ListboxButton>
+
+                            <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                <ListboxOptions
+                                    class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                >
+                                    <ListboxOption as="template" v-for="milestone in repository.milestones" :key="milestone.id" :value="milestone" v-slot="{ active, selected }">
+                                        <li :class="[active ? 'bg-violet-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9 list-none']">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <img src="/src/img/arrow_right.png" alt="" class="h-5 w-5 flex-shrink-0 rounded-full" />
+                                                    <span class="ml-3 block truncate"> {{ milestone.title }} </span>
+                                                </div>
+                                                <span class="mr-3 block truncate" :class="[active ? ' text-white' : 'text-gray-500']"> {{ milestone.version.commitName }}</span>
+                                            </div>
+
+                                            <span v-if="selected" :class="[active ? 'text-white' : 'text-violet-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                            </span>
+                                        </li>
+                                    </ListboxOption>
+                                </ListboxOptions>
+                            </transition>
+                        </div>
+                    </Listbox>
+
                     <div>
                         <div class="ml-px block text-sm font-medium leading-10 text-gray-900">Review Document</div>
                         <label
@@ -196,6 +234,8 @@ import { RadioGroup, RadioGroupDescription, RadioGroupLabel, RadioGroupOption } 
 import { CheckCircleIcon } from "@heroicons/vue/20/solid"
 import { StarIcon } from "@heroicons/vue/20/solid"
 import { addFileToIPFS } from "~/composables/ipfs"
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue"
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid"
 
 const skillLevels = [
     { title: "Beginner", description: "Limited knowledge, new to the field." },
@@ -206,9 +246,6 @@ const skillLevels = [
         description: "Leading authority, exceptional knowledge and expertise in the area.",
     },
 ]
-
-const selectedSkillLevel = ref(skillLevels[0])
-const selectedRating = ref(0)
 
 const props = defineProps({
     open: {
@@ -224,6 +261,12 @@ const props = defineProps({
         required: true,
     },
 })
+
+console.log("Props rep: ", props.repository)
+
+const selectedSkillLevel = ref(skillLevels[0])
+const selectedRating = ref(0)
+const selectedMilestone = ref(props.repository.milestones[props.repository.milestones.length - 1])
 
 const emit = defineEmits<{
     (e: "close"): void
@@ -244,6 +287,11 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+// const change = (ipfsHash: string) => {
+//     console.log("Changing version: ", ipfsHash)
+//     selectedVersionIpfs.value = ipfsHash
+// }
+
 const addReview = async () => {
     currentLoaderStep.value = 0
     await sleep(1200)
@@ -255,11 +303,11 @@ const addReview = async () => {
     currentLoaderStep.value = 3
     await sleep(1200)
     const newReview: Omit<Review, "reviewer"> = {
-        repositoryHash: props.repository.id,
+        repositoryHash: props.repository.repositoryHash,
         contentIdentifier,
         rating: selectedRating.value,
         reviewerSkillLevel: SkillLevel[selectedSkillLevel.value.title],
-        milestoneId: props.repository.milestone.id,
+        milestoneId: selectedMilestone.value.id,
     }
 
     emit("create", newReview)

@@ -78,27 +78,22 @@
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
                                     <span class="lg:pl-2">Repository</span>
                                 </th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Milestone</th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Version</th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-center text-sm font-semibold text-gray-900" scope="col">Number of reviews</th>
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
-                            <tr v-for="repository in allRepositories" @click="showRepoReviews(repository)" :key="repository.id" class="hover:bg-violet-100 cursor-pointer w-full h-full relative">
+                            <tr
+                                v-for="repository in allRepositories"
+                                @click="redirectToReviewableRepository(repository.id)"
+                                :key="repository.id"
+                                class="hover:bg-violet-100 cursor-pointer w-full h-full relative"
+                            >
                                 <td class="whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <span>
                                             {{ repository.title }}
                                             {{ " " }}
                                         </span>
-                                    </div>
-                                </td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.title }}</td>
-                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">{{ repository.milestone.version.commitName }}</td>
-                                <td class="px-6 py-3 text-sm font-medium text-gray-500 flex justify-center">
-                                    <div class="flex transform items-center space-x-1.5 rounded-3xl py-1 px-3 w-fit duration-500 bg-violet-50 text-indigo-700 shadow-sm">
-                                        <span class="rounded-3xl text-gray-600 text-sm">{{ repository.milestone.committedReviews }}/{{ repository.milestone.requiredReviews }}</span>
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
@@ -115,55 +110,10 @@
                     </div>
                 </div>
             </div>
-
-            <div v-else-if="allRepositories.length > 0 && selectedRepository" class="pt-10">
-                <div class="xlg:grid-cols-3 grid grid-cols-1 gap-6 pb-6 sm:grid-cols-2 md:grid-cols-3 2xl:lg:grid-cols-5 3xl:lg:grid-cols-6">
-                    <div v-for="review in reviews" :key="review.contentIdentifier" class="group relative rounded-lg bg-white shadow hover:shadow-lg">
-                        <div class="flex flex-col p-6 pb-16 space-y-1">
-                            <div class="flex items-center truncate justify-between space-x-3">
-                                <p class="text-lg w-full font-medium bg-white truncate hover:break-words hover:whitespace-normal hover:overflow-visible">{{ review.reviewer }}</p>
-                                <div class="bg-gray-100 p-1 rounded-full" v-html="toSvg(review.reviewer, 25)"></div>
-                            </div>
-
-                            <div class="flex flex-wrap overflow-hidden text-ellipsis whitespace-normal">
-                                <div class="mr-1 mt-1 h-max">
-                                    <div class="h-6 w-fit rounded bg-violet-50">
-                                        <div class="pl-2 mr-2 pt-[.2rem] text-xs font-normal">#{{ SkillLevel[review.reviewerSkillLevel] }}</div>
-                                    </div>
-                                </div>
-                                <div class="mr-1 mt-1 h-max">
-                                    <div class="h-6 w-fit rounded bg-violet-50">
-                                        <div class="ml-2 mr-2 pt-[.2rem] text-xs font-normal">#{{ review.reviewerScore }} reviews</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex justify-start items-center pt-1">
-                                <div>
-                                    <div class="flex items-center">
-                                        <StarIcon
-                                            v-for="rating in [0, 1, 2, 3, 4]"
-                                            :key="rating"
-                                            :class="[review.rating > rating ? 'text-yellow-400' : 'text-gray-300', 'h-5 w-5 flex-shrink-0']"
-                                            aria-hidden="true"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="absolute bottom-0 flex h-11 w-full items-center border-t px-6">
-                            <a
-                                :href="'https://gateway.pinata.cloud/ipfs/' + review.contentIdentifier"
-                                class="focus:ring-none w-full group inline-flex flex-shrink-0 h-full items-center text-sm font-medium text-violet-500 hover:text-violet-800 focus:outline-none"
-                            >
-                                Download review
-                                <DownloadReviewIcon class="ml-1 w-4" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            <div v-else-if="allRepositories.length > 0 && selectedRepository">
+                <ReviewGrid :selected-repository="selectedRepository" :reviews="reviews" />
             </div>
         </div>
-        <AddReviewSlideOver v-if="selectedRepository" :repository="selectedRepository" title="Add new review" :open="showCreateReview" @close="triggerCreateReview(false)" @create="createNewReview" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -171,13 +121,12 @@ import { ArrowUturnLeftIcon as BackIcon } from "@heroicons/vue/20/solid"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
 import { ref, computed, Ref, onMounted } from "vue"
-import AddReviewSlideOver from "~/components/AddReviewSlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
-import { Review, SkillLevel } from "~/types/review"
-import { toSvg } from "jdenticon"
+import { Review } from "~/types/review"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
-import { PencilSquareIcon, ArrowDownTrayIcon as DownloadReviewIcon, StarIcon, ChevronDownIcon, NoSymbolIcon, FolderArrowDownIcon as DownloadRepositoryIcon } from "@heroicons/vue/20/solid"
+import { PencilSquareIcon, ChevronDownIcon, NoSymbolIcon, FolderArrowDownIcon as DownloadRepositoryIcon } from "@heroicons/vue/20/solid"
+import ReviewGrid from "~/pages/ReviewGrid.vue"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
@@ -204,26 +153,10 @@ const reviews: Ref<Array<Review>> = ref([])
 const triggerCreateReview = (show: boolean) => {
     showCreateReview.value = show
 }
-const showRepoReviews = async (repository) => {
-    selectedRepository.value = repository
-    const repositoryReviews = await repositoryStore.getReviewsByRepository(repository.id)
-    if (repositoryReviews) {
-        reviews.value = await Promise.all(
-            repositoryReviews.map(async (review: Review) => {
-                return {
-                    reviewer: review.reviewer,
-                    reviewerScore: await repositoryStore.getReviewerScore(review.reviewer),
-                    reviewerSkillLevel: review.reviewerSkillLevel,
-                    rating: review.rating,
-                    contentIdentifier: review.contentIdentifier,
-                }
-            })
-        )
-        console.log("Reviews: ", reviews.value)
-    }
-}
 
-const createNewReview = async (newReview: Omit<Review, "reviewer">) => {
-    reviews.value.push(await repositoryStore.createReview(newReview))
+const redirectToReviewableRepository = (repositoryHash: string) => {
+    router.push({
+        path: "/toReview/" + repositoryHash,
+    })
 }
 </script>

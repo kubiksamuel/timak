@@ -11,15 +11,17 @@ import index from "./pages/index.vue"
 import Dashboard from "~/pages/Dashboard.vue"
 import Project from "~/pages/Project.vue"
 import ToReview from "~/pages/ToReview.vue"
+import ReviewGrid from "~/pages/ReviewGrid.vue"
 import MilestoneTimeline from "~/pages/MilestoneTimeline.vue"
 import HomeLayout from "./layouts/home.vue"
 import SidebarLayout from "./layouts/SidebarLayout.vue"
-import ContributorProjects from "~/pages/ContributorProjects.vue";
+import ContributorProjects from "~/pages/ContributorProjects.vue"
 
 const routes = [
     { path: "/", component: index },
     { path: "/dashboard", component: Dashboard },
     { path: "/toReview", component: ToReview },
+    { path: "/toReview/:projectHash", component: ReviewGrid },
     { path: "/dashboard/project/:projectHash", component: Project },
     { path: "/dashboard/project/:projectHash/milestones", component: MilestoneTimeline },
     { path: "/contributor_projects", component: ContributorProjects },
