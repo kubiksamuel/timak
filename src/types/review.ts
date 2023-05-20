@@ -1,4 +1,5 @@
 export type Review = {
+    id: number
     repositoryHash?: string
     reviewer: string
     reviewerSkillLevel: number
@@ -6,6 +7,7 @@ export type Review = {
     contentIdentifier: string
     reviewerScore?: number
     milestoneId: number
+    reward: number
     // versionId: string
 }
 

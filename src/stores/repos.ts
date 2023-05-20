@@ -435,9 +435,34 @@ export const useRepositoryStore = defineStore("user", {
                 const { ethereum } = window
                 if (ethereum) {
                     // create provider object from ethers library, using ethereum object injected by metamask
+                    const reviews = []
                     const provider = new ethers.providers.Web3Provider(ethereum)
-                    const repositoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
-                    return await repositoryContract.getRepositoryReviews(repositoryHash)
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
+                    const repositorReviews = await repositoryFactoryContract.getRepositoryReviews(repositoryHash)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    for (const review of repositorReviews) {
+                        const reviewMilestone = await repositoryContract.milestones(review.milestoneId.toNumber())
+                        console.log("Rev: ", reviewMilestone)
+                        const version = await repositoryContract.getVersion(reviewMilestone.versionHash)
+                        const reviewWithMilestone = {
+                            contentIdentifier: review.contentIdentifier,
+                            id: review.id.toNumber(),
+                            rating: review.rating.toNumber(),
+                            repository: review.repository,
+                            reviewer: review.reviewer,
+                            reviewerScore: await this.getReviewerScore(review.reviewer),
+                            reviewerSkillLevel: review.reviewerSkillLevel,
+                            reward: parseFloat(ethers.utils.formatEther(review.reward.toString())),
+                            milestone: {
+                                title: reviewMilestone.title,
+                                description: reviewMilestone.description,
+                                versionName: (await repositoryContract.getVersion(reviewMilestone.versionHash)).commitName,
+                            },
+                        }
+                        console.log("Rewaaard: ", reviewWithMilestone)
+                        reviews.push(reviewWithMilestone)
+                    }
+                    return reviews
                 }
             } catch (error) {
                 console.log(error)
@@ -507,6 +532,29 @@ export const useRepositoryStore = defineStore("user", {
                         contentIdentifier: eventData.contentIdentifier,
                         milestoneId: eventData.milestoneId,
                     }
+                } else {
+                    throw new "Ethereum object doesn't exist!"()
+                }
+            } catch (error) {
+                console.log(error)
+                throw new error()
+            }
+        },
+
+        async rewardReview(reviewer: string, reviewId: number, ethersAmount: number) {
+            try {
+                const { ethereum } = window
+                console.log("revawfa: ", reviewer, reviewId, ethersAmount)
+                if (ethereum) {
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
+                    const repositoryTxn = await repositoryFactoryContract.payReviewer(reviewer, reviewId, { value: ethers.utils.parseEther(ethersAmount.toString()) })
+                    console.log("Mining...", repositoryTxn)
+                    const transaction = await repositoryTxn.wait()
+                    const eventData = transaction.events.find((event) => event.event === "ReviewRewarded").args
+                    console.log("Mined -- ", repositoryTxn.hash)
+                    return parseFloat(ethers.utils.formatEther(eventData.reward.toString()))
                 } else {
                     throw new "Ethereum object doesn't exist!"()
                 }

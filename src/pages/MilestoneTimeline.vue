@@ -108,7 +108,7 @@
                                                                         <button
                                                                             v-if="(!milestone.completed && index === 0) || (!milestone.completed && index > 0 && milestones[index - 1].completed)"
                                                                             type="button"
-                                                                            class="order-0 inline-flex items-center px-2 py-1 justify-between rounded-md text-sm underline font-semibold text-indigo-700 hover:text-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                                                                            class="order-0 inline-flex items-center px-2 py-1 justify-between rounded-md text-sm underline font-semibold text-violet-700 hover:text-violet-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                                                                             @click="triggerCompleteMilestone(true, milestone.id)"
                                                                         >
                                                                             Complete

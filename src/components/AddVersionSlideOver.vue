@@ -29,10 +29,8 @@
                         >
                             <div v-if="hasUploaded" class="flex space-x-2 justify-center items-center text-gray-500">
                                 <div class="text-sm">
-                                    <span class="underline">
-                                        {{ Object.values(files)[0].name }}
-                                    </span>
-                                    <span> and other files were selected </span>
+                                    <span class="underline"> /{{ Object.values(files)[0].webkitRelativePath.split("/")[0] }} </span>
+                                    <span> folder was selected </span>
                                 </div>
                                 <CheckCircleIcon class="h-5 w-5 text-violet-600" aria-hidden="true" />
                             </div>

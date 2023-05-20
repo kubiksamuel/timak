@@ -7,8 +7,8 @@ import "./Repository.sol";
 contract RepositoryFactory {
     event NewRepositorySet(string name, uint256 createdAt, address owner, Repository repository);
     event ReviewAdded(address indexed repository, address indexed reviewer, uint reviewerSkillLevel, string contentIdentifier, uint rating, uint milestoneId);
-    event ReviewRewarded(address reviewer, uint reviewId, address owner, uint reward);
-    
+    event ReviewRewarded(address reviewer, uint reviewId, uint reward);
+
     Repository[] public repositories;
     uint256 public userCounter;
 
@@ -39,10 +39,10 @@ contract RepositoryFactory {
         return repositoryMapping[repositoryHash];
     }
 
-    function payReviewer(address reviewer, uint _id, uint reward) external payable {
-        payable(reviewer).transfer(reward);
-        reviews[_id].reward += reward;
-        emit ReviewRewarded(reviewer, reviewId, reward);
+    function payReviewer(address reviewer, uint reviewId) external payable {
+        payable(reviewer).transfer(msg.value);
+        reviews[reviewId].reward += msg.value;
+        emit ReviewRewarded(reviewer, reviewId, msg.value);
     }
 
     function createRepositoryContract(string memory _name, string memory _description) public {

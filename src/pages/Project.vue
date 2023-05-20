@@ -73,7 +73,7 @@
             </div>
             <!-- Project files table (small breakpoint and up) -->
             <div v-if="data" class="flex-1 mt-8 w-full pb-4 mx-auto hidden sm:block">
-                <div class="flex justify-between px-4 divide-x-2 divide-gray-200">
+                <div class="flex justify-between px-4">
                     <div class="w-full px-4 flex flex-col space-y-4">
                         <div class="flex flex-col">
                             <div class="font-medium text-sm text-gray-900">Versions</div>
@@ -139,12 +139,12 @@
                             </table>
                         </div>
                     </div>
-                    <div class="flex flex-col w-2/3 space-y-10 px-4">
+                    <div class="flex flex-col divide-y-2 divide-gray-200 w-2/3 space-y-10 px-4">
                         <div>
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Repository description</div>
                             <div class="text-sm text-gray-500">{{ repository.description }}</div>
                         </div>
-                        <div>
+                        <div class="pt-6">
                             <div class="font-medium leading-6 text-sm text-gray-900 mb-1">Current milestone</div>
                             <div v-if="currentMilestone">
                                 <div class="relative min-w-80 overflow-hidden rounded-lg bg-white pb-12 pt-5 shadow px-4 sm:pt-6">
@@ -186,7 +186,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div>
+                        <div class="pt-6">
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Contributors</div>
                             <ContributorsTable title="Show contributors" />
                         </div>

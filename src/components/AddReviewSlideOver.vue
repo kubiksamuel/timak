@@ -111,7 +111,7 @@
                         </label>
                     </div>
                 </div>
-                <div v-if="currentLoaderStep >= 0" class="items-center flex justify-center pt-10">
+                <div v-if="currentLoaderStep >= 0" class="items-center flex justify-center pt-5">
                     <ul class="max-w-md space-y-2 text-gray-500 list-inside">
                         <li class="flex items-center">
                             <div v-if="currentLoaderStep === 0">
@@ -175,7 +175,7 @@
                                     ></path>
                                 </svg>
                             </div>
-                            <span class="text-gray-400"> Uploading files to ipfs</span>
+                            <span class="text-gray-400"> Uploading review to ipfs</span>
                         </li>
                         <li class="flex items-center">
                             <div v-if="currentLoaderStep === 2">

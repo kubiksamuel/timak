@@ -68,7 +68,7 @@
                                 <div>
                                     <div
                                         @click="downloadRepository('currentVersionHash')"
-                                        class="whitespace-nowrap cursor-pointer text-sm group flex items space-x-2 medium text-violet-500 hover:text-violet-800 focus:outline-none transition ease-in-out delay-150 hover:scale-105 duration-300"
+                                        class="whitespace-nowrap cursor-pointer text-sm group flex items space-x-2 medium text-violet-500 hover:text-violet-800 focus:outline-none transition ease-in-out hover:scale-105 duration-300"
                                     >
                                         <div>Download zip</div>
                                         <div class="ml-2">
@@ -180,6 +180,11 @@
                                                             <div class="ml-2 mr-2 pt-[.2rem] text-xs font-normal">#{{ review.reviewerScore }} reviews</div>
                                                         </div>
                                                     </div>
+                                                    <div class="mr-1 mt-1 h-max">
+                                                        <div class="h-6 w-fit rounded bg-cyan-50">
+                                                            <div class="pl-2 mr-2 pt-[.2rem] text-xs font-normal">#{{ review.milestone.versionName }}</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -195,16 +200,19 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="flex h-11 justify-end items-center w-full px-6">
-                                        <span
+                                        <div
                                             @click="downloadFile(review.contentIdentifier)"
-                                            class="text-sm group flex items space-x-2 medium text-violet-500 hover:text-violet-800 focus:outline-none"
+                                            class="whitespace-nowrap ml-10 justify-start cursor-pointer text-sm group flex items space-x-2 medium text-violet-500 hover:text-violet-800 focus:outline-none transition ease-in-out hover:scale-105 duration-300"
                                         >
-                                            Download review
+                                            <div>Download review</div>
                                             <DownloadReviewIcon class="ml-1 w-4" />
-                                        </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col space-y-2 h-11 justify-center items-center w-full px-6">
+                                        <div class="cursor-pointer transition ease-in-out hover:scale-120 duration-300" @click="setReward(review.reviewer, review.id)">
+                                            <img alt="PayEthers" :src="PayIcon" class="w-8 h-8" />
+                                        </div>
+                                        <div class="text-gray-500 text-sm">Rewarded: {{ review.reward }} Ethers</div>
                                     </div>
                                 </div>
                             </div>
@@ -220,6 +228,80 @@
                 @close="triggerCreateReview(false)"
                 @create="createNewReview"
             />
+
+            <TransitionRoot appear :show="showEthersModal" as="template">
+                <Dialog as="div" @close="showEthersModal = false" class="relative z-10">
+                    <TransitionChild
+                        as="template"
+                        enter="duration-300 ease-out"
+                        enter-from="opacity-0"
+                        enter-to="opacity-100"
+                        leave="duration-200 ease-in"
+                        leave-from="opacity-100"
+                        leave-to="opacity-0"
+                    >
+                        <div class="fixed inset-0 bg-black bg-opacity-25" />
+                    </TransitionChild>
+
+                    <div class="fixed inset-0 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4 text-center">
+                            <TransitionChild
+                                as="template"
+                                enter="duration-300 ease-out"
+                                enter-from="opacity-0 scale-95"
+                                enter-to="opacity-100 scale-100"
+                                leave="duration-200 ease-in"
+                                leave-from="opacity-100 scale-100"
+                                leave-to="opacity-0 scale-95"
+                            >
+                                <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                    <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900"> Payment </DialogTitle>
+                                    <div class="mt-2">
+                                        <div>
+                                            <label for="price" class="block text-sm font-medium leading-6 text-gray-900">Reward</label>
+                                            <div class="relative mt-1 rounded-md shadow-sm">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                    <span class="text-gray-500 sm:text-sm"><img class="h-4.5 w-4.5" :src="EtherIcon" alt="Ethereum Icon" /> </span>
+                                                </div>
+                                                <input
+                                                    v-model="reviewToReward.ethersAmount"
+                                                    min="0"
+                                                    type="number"
+                                                    name="price"
+                                                    id="price"
+                                                    class="block w-full rounded-md border-0 py-1.5 pl-10 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
+                                                    placeholder="0.00"
+                                                    aria-describedby="price-currency"
+                                                />
+                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <span class="text-gray-500 sm:text-sm" id="price-currency">Ethers</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 flex justify-between">
+                                        <button
+                                            type="button"
+                                            class="order-0 inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1"
+                                            @click="showEthersModal = false"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1"
+                                            @click="rewardReview"
+                                        >
+                                            Pay reward
+                                        </button>
+                                    </div>
+                                </DialogPanel>
+                            </TransitionChild>
+                        </div>
+                    </div>
+                </Dialog>
+            </TransitionRoot>
         </div>
     </SidebarLayout>
 </template>
@@ -233,6 +315,11 @@ import { toSvg } from "jdenticon"
 import { useRoute } from "vue-router"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { ArrowDownTrayIcon as DownloadRepositoryIcon } from "@heroicons/vue/20/solid"
+import PayIcon from "~/img/ethPay.png"
+import EtherIcon from "~/img/ethereum.png"
+import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle } from "@headlessui/vue"
+
+const showEthersModal = ref(false)
 
 const repositoryStore = useRepositoryStore()
 const route = useRoute()
@@ -248,7 +335,7 @@ const selectedVersionIpfs = ref()
 
 onMounted(async () => {
     repositoryWithMilestones.value = await repositoryStore.fetchReviewableRepositoryMilestones(repositoryHash)
-    rawRepositoryReviews.value = await repositoryStore.getReviewsByRepository(repositoryHash)
+    reviews.value = await repositoryStore.getReviewsByRepository(repositoryHash)
     repositoryReviewableVersions.value = repositoryWithMilestones.value.milestones.map((milestone, index) => {
         return {
             id: index,
@@ -259,18 +346,6 @@ onMounted(async () => {
         }
     })
     selectedVersionIpfs.value = repositoryReviewableVersions.value[repositoryReviewableVersions.value.length - 1].IPFSHash
-
-    reviews.value = await Promise.all(
-        rawRepositoryReviews.value.map(async (review: Review) => {
-            return {
-                reviewer: review.reviewer,
-                reviewerScore: await repositoryStore.getReviewerScore(review.reviewer),
-                reviewerSkillLevel: review.reviewerSkillLevel,
-                rating: review.rating,
-                contentIdentifier: review.contentIdentifier,
-            }
-        })
-    )
 })
 
 const info = computed(() => {
@@ -289,7 +364,7 @@ const info = computed(() => {
         }
         reviews.value.forEach((review) => {
             infoData.totalCount++
-            infoData.counts[review.rating].count++
+            // infoData.counts[review.rating - 1].count++
             infoData.totalRates += review.rating
         })
         if (infoData.totalCount > 0) {
@@ -322,6 +397,24 @@ const createNewReview = async (newReview: Omit<Review, "reviewer">) => {
     reviews.value.push(await repositoryStore.createReview(newReview))
 }
 
+const reviewToReward = reactive({
+    reviewer: "",
+    reviewId: -1,
+    ethersAmount: 0.0,
+})
+
+const setReward = (reviewer: string, reviewId: number) => {
+    reviewToReward.reviewer = reviewer
+    reviewToReward.reviewId = reviewId
+    showEthersModal.value = true
+}
+
+const rewardReview = async () => {
+    showEthersModal.value = false
+    const reward = await repositoryStore.rewardReview(reviewToReward.reviewer, reviewToReward.reviewId, reviewToReward.ethersAmount)
+    reviews.value[reviewToReward.reviewId].reward += reward
+}
+
 const changeVersion = (ipfsHash: string) => {
     selectedVersionIpfs.value = ipfsHash
 }
@@ -330,3 +423,15 @@ const downloadFile = (ipfsHash: string) => {
     downloadFileFromIPFS(ipfsHash, "review")
 }
 </script>
+<style>
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+</style>
