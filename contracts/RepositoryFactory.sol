@@ -33,6 +33,10 @@ contract RepositoryFactory {
     address[] public users;
     Review[] public reviews;
 
+    function getRepositoryByHash(address repositoryHash) external view returns (Repository) {
+        return repositoryMapping[repositoryHash];
+    }
+
     function createRepositoryContract(string memory _name, string memory _description) public {
         if (usersData[msg.sender].id == 0) {
             userCounter++;

@@ -44,10 +44,9 @@
                                                 Add version
                                             </button>
                                         </MenuItem>
-                                        <MenuItem class="p-1.5 hover:bg-violet-50">
+                                        <MenuItem v-if="isOwner" class="p-1.5 hover:bg-violet-50">
                                             <button
                                                 type="button"
-                                                :disabled="!isOwner"
                                                 class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
                                                 @click="triggerAddContributor(true)"
                                             >
@@ -75,7 +74,7 @@
             <!-- Project files table (small breakpoint and up) -->
             <div v-if="data" class="flex-1 mt-8 w-full pb-4 mx-auto hidden sm:block">
                 <div class="flex justify-between px-4 divide-x-2 divide-gray-200">
-                    <div class="w-full px-4">
+                    <div class="w-full px-4 flex flex-col space-y-4">
                         <div class="flex flex-col">
                             <div class="font-medium text-sm text-gray-900">Versions</div>
                             <div class="flex items-center justify-between space-x-4 mr-3">

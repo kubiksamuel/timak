@@ -25,10 +25,10 @@
                                 <div class="bg-white rounded-full p-1 w-8" v-html="svgString"></div>
                                 <span class="text-sm truncate">{{ account }}</span>
                             </div>
-                            <div class="justify-center text-white flex items-center px-1 space-x-1 rounded-md hover:bg-violet-700">
+                            <button @click="logout" class="justify-center text-white flex items-center px-1 space-x-1 rounded-md hover:bg-violet-700 py-1">
                                 <LogoutIcon class="w-4 h-4" />
-                                <button @click="logout" class="text-sm py-1 font-medium">Logout</button>
-                            </div>
+                                <span class="text-sm font-medium">Logout</span>
+                            </button>
                         </li>
                     </ul>
                 </nav>

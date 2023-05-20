@@ -66,7 +66,7 @@
                 </div>
             </div>
             <!--            v-if="allContributorRepositories.length > 0"-->
-            <div class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+            <div v-if="allContributorRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div>Contributor repositories</div>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
