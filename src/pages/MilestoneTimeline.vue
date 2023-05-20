@@ -22,6 +22,7 @@
                         </router-link>
                         <button
                             type="button"
+                            :disabled="!isOwner"
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                             @click="triggerAddMilestone(true)"
                         >
@@ -167,9 +168,11 @@ const milestones = ref()
 const progressMilestoneId = ref()
 const showAddMilestone = ref(false)
 const showCompleteMilestone = ref(false)
+const isOwner = ref()
 
 onMounted(async () => {
     milestones.value = await repositoryStore.getMilestones(route.params.projectHash)
+    isOwner.value = repositoryStore.account.value === (await repositoryStore.getRepository)
 })
 
 const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)

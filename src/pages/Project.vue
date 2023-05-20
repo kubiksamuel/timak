@@ -47,6 +47,7 @@
                                         <MenuItem class="p-1.5 hover:bg-violet-50">
                                             <button
                                                 type="button"
+                                                :disabled="!isOwner"
                                                 class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
                                                 @click="triggerAddContributor(true)"
                                             >
@@ -78,7 +79,7 @@
                         <div class="flex flex-col">
                             <div class="font-medium text-sm text-gray-900">Versions</div>
                             <div class="flex items-center justify-between space-x-4 mr-3">
-                                <VersionHistoryDropdown class="w-full" :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
+                                <VersionHistoryDropdown class="w-full" v-if="repository" :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
                                 <div>
                                     <div
                                         @click="download(currentVersionHash, repository?.title)"
@@ -139,7 +140,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="flex flex-col w-1/3 space-y-10 px-4">
+                    <div class="flex flex-col w-2/3 space-y-10 px-4">
                         <div>
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Repository description</div>
                             <div class="text-sm text-gray-500">{{ repository.description }}</div>
@@ -180,8 +181,10 @@
                             </div>
                             <div v-else class="text-sm text-gray-500">
                                 No milestone in progress.
-                                <button class="underline text-violet-500" @click="redirectToMilestone">Set your milestone</button>
-                                to track the progress
+                                <p v-if="isOwner">
+                                    <button class="underline text-violet-500" @click="redirectToMilestone">Set your milestone</button>
+                                    to track the progress
+                                </p>
                             </div>
                         </div>
                         <div>
@@ -232,7 +235,7 @@
 <script setup lang="ts">
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { storeToRefs } from "pinia"
-import { ref, computed, onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import AddVersionSlideOver from "~/components/AddVersionSlideOver.vue"
 import AddcontributorSlideOver from "~/components/AddcontributorSlideOver.vue"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
@@ -243,7 +246,6 @@ import {
     FolderPlusIcon as AddVersionIcon,
     ArrowDownTrayIcon as DownloadRepositoryIcon,
     CheckBadgeIcon as MilestoneIcon,
-    FolderArrowDownIcon as DownloadIcon,
 } from "@heroicons/vue/20/solid"
 
 import { useRepositoryStore } from "~/stores/repos"
@@ -253,53 +255,47 @@ import { useRouter } from "vue-router"
 const route = useRoute()
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
-const { account } = storeToRefs(repositoryStore)
 
-const { repositories } = storeToRefs(repositoryStore)
+const { repositories, account } = storeToRefs(repositoryStore)
 
-const repository = computed(() => {
-    const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == route.params.projectHash)
-    if (!r) {
-        return null
-    }
-
-    const versions: Array<Object> = []
-    r.versions.forEach((version, index) => {
-        const timeInSeconds = parseInt(version[0].hex, 16)
-        const timeInMiliseconds = timeInSeconds * 1000
-        versions.push({
-            id: ++index,
-            commitMessage: version[2],
-            commiter: version[1],
-            IPFSHash: version[3],
-            commitDate: timeInMiliseconds,
-        })
-    })
-
-    return {
-        owner: r.owner,
-        address: r.repositoryHash,
-        title: r.name,
-        initials: r.name.slice(0, 2),
-        description: r.description,
-        versions: versions,
-        lastVersion: versions[versions.length - 1],
-        contributors: r.contributors,
-        totalMembers: 12,
-        createdAt: r.createdAt,
-        updatedAt: r.createdAt,
-        pinned: true,
-    }
-})
-
-const { getLatestVersion } = useRepositoryStore()
+const repository = ref()
 const data = ref()
 const currentMilestone = ref()
 const currentVersionHash = ref()
 const loaderStep = ref(-1)
+const isOwner = ref()
 
 onMounted(async () => {
-    if (repository.value) {
+    const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == route.params.projectHash)
+    if (r) {
+        const versions: Array<Object> = []
+        r.versions.forEach((version, index) => {
+            const timestamp = Number.isNaN(parseInt(version[0].hex, 16)) ? version[0]?.toNumber() : parseInt(version[0].hex, 16)
+            const timeInMiliseconds = timestamp * 1000
+            versions.push({
+                id: ++index,
+                commitMessage: version[2],
+                commiter: version[1],
+                IPFSHash: version[3],
+                commitDate: timeInMiliseconds,
+            })
+        })
+        console.log("Account: ", account.value.toLowerCase() === r.owner.toLowerCase())
+        isOwner.value = account.value.toLowerCase() === r.owner.toLowerCase()
+        repository.value = {
+            owner: r.owner,
+            address: r.repositoryHash,
+            title: r.name,
+            initials: r.name.slice(0, 2),
+            description: r.description,
+            versions: versions,
+            lastVersion: versions[versions.length - 1],
+            contributors: r.contributors,
+            totalMembers: 12,
+            createdAt: r.createdAt,
+            updatedAt: r.createdAt,
+            pinned: true,
+        }
         const ipfsHash = repository.value.lastVersion.IPFSHash
         await changeVersion(ipfsHash)
 

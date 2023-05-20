@@ -10,11 +10,11 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
-                    <tr v-for="contributor in repositoryCon.contributors" class="hover:bg-violet-100 cursor-pointer">
-                        <td class="w-full max-w-0 whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
+                    <tr v-for="contributor in repositoryCon.contributors" class="hover:bg-violet-100">
+                        <td class="w-full max-w-0 whitespace-nowrap truncate px-6 py-3 text-sm font-medium text-gray-900">
                             {{ contributor.name }}
                         </td>
-                        <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 2xl:table-cell">
+                        <td class="hidden truncate whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 2xl:table-cell">
                             {{ contributor.address }}
                         </td>
                         <td class="whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500">
