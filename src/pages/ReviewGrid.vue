@@ -10,11 +10,11 @@
                 <div class="col-span-5">
                     <h2 class="text-2xl font-bold tracking-tight text-gray-900">Repository overview</h2>
 
-                    <div class="mt-3 flex items-center">
+                    <div v-if="repositoryReviewableVersions" class="mt-3 flex items-center">
                         <div class="flex flex-col w-full">
                             <div class="font-medium text-sm text-gray-900">Versions</div>
                             <div class="flex items-center justify-between space-x-4">
-                                <VersionHistoryDropdown class="w-full" v-if="repositoryReviewableVersions" :versions="repositoryReviewableVersions" @change-version="changeVersion" />
+                                <VersionHistoryDropdown class="w-full" :versions="repositoryReviewableVersions" @change-version="changeVersion" />
                                 <div>
                                     <div
                                         @click="downloadRepository('currentVersionHash')"
@@ -98,13 +98,18 @@
                         <p class="mt-1 text-sm text-gray-600">If you’ve used this product, share your thoughts with other customers</p>
 
                         <button
+                            :disabled="!repositoryReviewableVersions"
                             type="button"
-                            class="text-center w-full flex justify-center items-center rounded-md bg-violet-700 py-2 mt-4 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+                            :class="{ 'opacity-50 cursor-not-allowed': !repositoryReviewableVersions }"
+                            class="text-center w-full flex justify-center cursor-pointer items-center rounded-md bg-violet-700 py-2 mt-4 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
                             @click="triggerCreateReview(true)"
                         >
                             <PencilSquareIcon class="mr-2 h-4 w-4 text-white" />
                             Add review
                         </button>
+                        <div v-if="!repositoryReviewableVersions" class="text-gray-500 py-4 text-center">
+                            No required reviews for this repository at this moment. Come back later and share your thougths!
+                        </div>
                     </div>
                 </div>
 
