@@ -2,7 +2,7 @@
     <SlideOver v-bind="{ open }" @close="emit('close')" :title="title">
         <div class="flex h-full flex-col pt-1">
             <div class="h-full flex-1">
-                <div class="flex flex-col space-y-3">
+                <div v-if="currentStep === 0" class="flex flex-col space-y-3">
                     <div>
                         <RadioGroup v-model="selectedSkillLevel">
                             <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Evaluate your skills</RadioGroupLabel>
@@ -83,7 +83,9 @@
                             </transition>
                         </div>
                     </Listbox>
+                </div>
 
+                <div v-else class="flex flex-col space-y-3">
                     <div>
                         <div class="ml-px block text-sm font-medium leading-10 text-gray-900">Review Document</div>
                         <label
@@ -116,7 +118,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="currentLoaderStep >= 0" class="items-center py-5 flex justify-center">
+                <div v-if="currentStep === 1 && currentLoaderStep >= 0" class="items-center py-5 flex justify-center">
                     <ul class="max-w-md space-y-2 text-gray-500 list-inside">
                         <li class="flex items-center">
                             <div v-if="currentLoaderStep === 0">
@@ -220,7 +222,21 @@
 
             <hr class="-mx-6" />
 
-            <div class="px-4 py-3 text-right sm:px-6">
+            <div v-if="currentStep === 0" class="px-4 py-3 text-right sm:px-6">
+                <button
+                    @click="currentStep = 1"
+                    class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
+                >
+                    Next step
+                </button>
+            </div>
+            <div v-else class="px-4 py-3 flex justify-between sm:px-6">
+                <button
+                    @click="currentStep = 0"
+                    class="inline-flex items-center rounded-md bg-violet-300 px-4 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+                >
+                    Back
+                </button>
                 <button
                     @click="addReview"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
@@ -270,6 +286,7 @@ const props = defineProps({
     },
 })
 
+const currentStep = ref(0)
 const selectedSkillLevel = ref(skillLevels[0])
 const selectedRating = ref(1)
 const selectedMilestone = ref(props.repository.milestones[props.repository.milestones.length - 1])
