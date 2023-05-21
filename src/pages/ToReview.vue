@@ -87,7 +87,7 @@
                         <tbody class="divide-y divide-gray-100 bg-white">
                             <tr
                                 v-for="repository in toReviewRepositories"
-                                @click="redirectToReviewableRepository(repository.id)"
+                                @click="redirectToReviewableRepository(repository.repositoryHash)"
                                 :key="repository.id"
                                 class="hover:bg-violet-100 cursor-pointer w-full h-full relative"
                             >
@@ -95,7 +95,6 @@
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <span>
                                             {{ repository.name }}
-                                            {{ " " }}
                                         </span>
                                     </div>
                                 </td>
