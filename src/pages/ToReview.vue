@@ -7,6 +7,10 @@
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repository to review</h1>
+                    <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                        Discover a curated collection of repositories awaiting reviews from the community. Browse through this diverse selection of projects and contribute your expertise to help shape
+                        their development and provide valuable feedback
+                    </p>
                 </div>
                 <div v-if="selectedRepository" class="mt-4 flex space-x-4 items-center sm:mt-0 sm:ml-4">
                     <div>
@@ -70,30 +74,42 @@
                 </div>
             </div>
             <!-- Projects table (small breakpoint and up) -->
-            <div v-if="allRepositories.length > 0 && !selectedRepository" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+            <div v-if="toReviewRepositories.length > 0 && !selectedRepository" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
                             <tr class="border-t border-gray-200">
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
-                                    <span class="lg:pl-2">Repository</span>
+                                    <span class="lg:pl-2">Name</span>
                                 </th>
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Description</th>
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-center text-sm font-semibold text-gray-900" scope="col">Added/Required Reviews</th>
+
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
                             <tr
-                                v-for="repository in allRepositories"
-                                @click="redirectToReviewableRepository(repository.id)"
+                                v-for="repository in toReviewRepositories"
+                                @click="redirectToReviewableRepository(repository.repositoryHash)"
                                 :key="repository.id"
                                 class="hover:bg-violet-100 cursor-pointer w-full h-full relative"
                             >
                                 <td class="whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
                                     <div class="flex items-center space-x-3 lg:pl-2">
                                         <span>
-                                            {{ repository.title }}
-                                            {{ " " }}
+                                            {{ repository.name }}
                                         </span>
+                                    </div>
+                                </td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">
+                                    {{ repository.description }}
+                                </td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 flex justify-center text-sm text-gray-500">
+                                    <div class="bg-indigo-50 w-fit rounded-xl px-3 py-0.5">
+                                        {{ repository.allCommitedReviews }}
+                                        /
+                                        {{ repository.allRequiredReviews }}
                                     </div>
                                 </td>
                                 <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
@@ -102,7 +118,7 @@
                     </table>
                 </div>
             </div>
-            <div v-else-if="allRepositories.length === 0" class="flex-1 items-center justify-center h-full text-center flex flex-col">
+            <div v-else-if="toReviewRepositories.length === 0" class="flex-1 items-center justify-center h-full text-center flex flex-col">
                 <div class="border rounded-md p-10 mb-10 border-dotted border-4">
                     <div class="flex flex-col items-center justify-center space-y-2">
                         <NoSymbolIcon class="h-6 w-6 text-gray-800" />
@@ -110,7 +126,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else-if="allRepositories.length > 0 && selectedRepository">
+            <div v-else-if="toReviewRepositories.length > 0 && selectedRepository">
                 <ReviewGrid :selected-repository="selectedRepository" :reviews="reviews" />
             </div>
         </div>
@@ -134,18 +150,7 @@ const repositoryStore = useRepositoryStore()
 onMounted(async () => await repositoryStore.fetchReviewableRepositories())
 
 const { toReviewRepositories } = storeToRefs(repositoryStore)
-const allRepositories = computed(() => {
-    return Object.values(toReviewRepositories.value).map((repository) => {
-        return {
-            id: repository.repositoryHash,
-            title: repository.name,
-            description: repository.description,
-            createdAt: repository.createdAt,
-            pinned: true,
-            milestone: repository.milestone,
-        }
-    })
-})
+
 const showCreateReview = ref(false)
 const selectedRepository = ref()
 

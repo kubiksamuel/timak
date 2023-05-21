@@ -88,7 +88,6 @@ export const useRepositoryStore = defineStore("user", {
                     const signer = provider.getSigner()
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
                     const rawRepository = await repositoryFactoryContract.getRepositoryByHash(repositoryHash)
-                    console.log("RawRepository: ", rawRepository)
                     if (rawRepository) {
                         const repositoryProxy = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
                         const name = await repositoryProxy.name()
@@ -138,6 +137,8 @@ export const useRepositoryStore = defineStore("user", {
                         const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                         const description = await repositoryProxy.description()
                         const toReview = await repositoryProxy.toReview()
+                        let allCommitedReviews = 0
+                        let allRequiredReviews = 0
                         if (toReview > 0) {
                             const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
                             const repositoryReviewData = {
@@ -150,6 +151,8 @@ export const useRepositoryStore = defineStore("user", {
                             }
                             for (const repoMilestone of requiredReviews) {
                                 const rawVersion = await repositoryProxy.version(repoMilestone.versionHash)
+                                allCommitedReviews += repoMilestone.numberOfCommittedReviews.toNumber()
+                                allRequiredReviews += repoMilestone.numberOfRequiredReviews.toNumber()
                                 repositoryReviewData.milestone.push({
                                     version: {
                                         timestamp: rawVersion.timestamp.toNumber(),
@@ -166,6 +169,9 @@ export const useRepositoryStore = defineStore("user", {
                                     completed: repoMilestone.completed,
                                 })
                             }
+                            repositoryReviewData.allRequiredReviews = allRequiredReviews
+                            repositoryReviewData.allCommitedReviews = allCommitedReviews
+                            console.log("Rep rev: ", repositoryReviewData)
                             this.toReviewRepositories.push(repositoryReviewData)
                         }
                     }
@@ -296,8 +302,6 @@ export const useRepositoryStore = defineStore("user", {
 
                     // get repository
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
-
-                    console.log(repositoryContract)
                     const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address, ConName)
                     console.log("Mining...", repositoryTxn1.hash)
                     const transaction1 = await repositoryTxn1.wait()
@@ -367,6 +371,10 @@ export const useRepositoryStore = defineStore("user", {
                                 deadline: parseFloat(milestone.deadline.toString()),
                                 requestReview: milestone.requestReview,
                                 completed: milestone.completed,
+                                versionHash: milestone.versionHash,
+                                ...(milestone.versionHash !== "0x0000000000000000000000000000000000000000000000000000000000000000" && {
+                                    versionCommitName: (await repositoryContract.getVersion(milestone.versionHash)).commitName,
+                                }),
                             }
                         })
                     )
@@ -417,7 +425,7 @@ export const useRepositoryStore = defineStore("user", {
                         const contributor = await repositoryContract.getContributor(contributorAddress)
 
                         const cons = {
-                            id: contributor[0],
+                            id: contributor[0].toNumber(),
                             name: contributor[1],
                             address: contributorAddress,
                         }
@@ -442,7 +450,6 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
                     for (const review of repositorReviews) {
                         const reviewMilestone = await repositoryContract.milestones(review.milestoneId.toNumber())
-                        console.log("Rev: ", reviewMilestone)
                         const version = await repositoryContract.getVersion(reviewMilestone.versionHash)
                         const reviewWithMilestone = {
                             contentIdentifier: review.contentIdentifier,
@@ -459,7 +466,6 @@ export const useRepositoryStore = defineStore("user", {
                                 versionName: (await repositoryContract.getVersion(reviewMilestone.versionHash)).commitName,
                             },
                         }
-                        console.log("Rewaaard: ", reviewWithMilestone)
                         reviews.push(reviewWithMilestone)
                     }
                     return reviews
@@ -544,7 +550,6 @@ export const useRepositoryStore = defineStore("user", {
         async rewardReview(reviewer: string, reviewId: number, ethersAmount: number) {
             try {
                 const { ethereum } = window
-                console.log("revawfa: ", reviewer, reviewId, ethersAmount)
                 if (ethereum) {
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const signer = provider.getSigner()
@@ -586,6 +591,46 @@ export const useRepositoryStore = defineStore("user", {
                     const latestVersion = await repositoryContract.getLatestVersion()
                     repo.versions.push(latestVersion)
                     repo.latestVersion = latestVersion
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async getLastVersionHashOfRepository(repositoryHash: string): Promise<any> {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    let repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
+
+                    repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    const latestVersion = await repositoryContract.getVersionsHashes()
+                    if (latestVersion.length) {
+                        return latestVersion[latestVersion.length - 1]
+                    } else {
+                        return ""
+                    }
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async getContributorData(contributorAddress: string, repositoryHash: string): Promise<any> {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    const contributor = await repositoryContract.getContributor(contributorAddress)
+                    return {
+                        id: contributor[0].toNumber(),
+                        name: contributor[1],
+                        address: contributorAddress,
+                    }
                 }
             } catch (error) {
                 console.log(error)

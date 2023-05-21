@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChartPieIcon, DocumentDuplicateIcon, ArrowLeftOnRectangleIcon as LogoutIcon, HomeIcon } from "@heroicons/vue/24/outline"
+import { ChartPieIcon, StarIcon, ArrowLeftOnRectangleIcon as LogoutIcon, HomeIcon } from "@heroicons/vue/24/outline"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
 import { toSvg } from "jdenticon"
@@ -55,11 +55,10 @@ const router = useRouter()
 const repositoryStore = useRepositoryStore()
 
 const { account } = storeToRefs(repositoryStore)
-console.log("SVG account: ", account.value)
 const svgString = toSvg(account.value, 25)
 const navigation = ref([
     { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-    { name: "To review", href: "/toReview", icon: DocumentDuplicateIcon },
+    { name: "To review", href: "/toReview", icon: StarIcon },
 ])
 
 const redirect = (_path: string) => {

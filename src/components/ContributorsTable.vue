@@ -10,9 +10,14 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
-                    <tr v-for="contributor in repositoryCon.contributors" class="hover:bg-violet-100">
+                    <tr v-for="contributor in repositoryCon.contributors" :class="{ 'bg-violet-100': contributor.id === commiterId }">
                         <td class="w-full max-w-0 whitespace-nowrap truncate px-6 py-3 text-sm font-medium text-gray-900">
                             {{ contributor.name }}
+                            <div v-if="contributor.id === commiterId" class="mr-1 mt-1 h-max">
+                                <div class="h-6 w-fit rounded bg-white text-gray-500">
+                                    <div class="ml-2 mr-2 pt-[.2rem] text-xs font-normal">#commiter</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="hidden truncate whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 2xl:table-cell">
                             {{ contributor.address }}
@@ -37,6 +42,10 @@ import { toSvg } from "jdenticon"
 defineProps({
     title: {
         type: String,
+        required: true,
+    },
+    commiterId: {
+        type: Number,
         required: true,
     },
 })

@@ -101,18 +101,24 @@
                                                                             Awaiting
                                                                         </span>
                                                                     </div>
-                                                                    <div class="flex justify-between items-center w-full">
+                                                                    <div class="flex justify-between items-center flex-wrap">
                                                                         <p class="text-gray-500 hyphens-auto">
                                                                             {{ milestone.description }}
                                                                         </p>
                                                                         <button
-                                                                            v-if="(!milestone.completed && index === 0) || (!milestone.completed && index > 0 && milestones[index - 1].completed)"
+                                                                            v-if="
+                                                                                (isOwner && !milestone.completed && index === 0) ||
+                                                                                (!milestone.completed && index > 0 && milestones[index - 1].completed)
+                                                                            "
                                                                             type="button"
                                                                             class="order-0 inline-flex items-center px-2 py-1 justify-between rounded-md text-sm underline font-semibold text-violet-700 hover:text-violet-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                                                                             @click="triggerCompleteMilestone(true, milestone.id)"
                                                                         >
                                                                             Complete
                                                                         </button>
+                                                                        <div v-else-if="milestone.completed" class="text-gray-400 text-right text-xs truncate w-28">
+                                                                            {{ milestone.versionCommitName }}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -147,10 +153,11 @@
                         </div>
                     </div>
                 </div>
+                <AddMilestoneSlideOver title="Add milestone" :min-date="minDate" :open="showAddMilestone" @create="createMilestone" @close="triggerAddMilestone(false)" />
+                <CompleteMilestoneModal :open="showCompleteMilestone" @complete="completeMilestone" @close="triggerCompleteMilestone(false)" />
+                <MilestoneFailModal :open="showFailModal" @close="triggerFailModal(false)" />
             </div>
         </SidebarLayout>
-        <AddMilestone title="Add milestone" :open="showAddMilestone" @create="createMilestone" @close="triggerAddMilestone(false)" />
-        <CompleteMilestone title="Complete milestone" :open="showCompleteMilestone" @complete="completeMilestone" @close="triggerCompleteMilestone(false)" />
     </div>
 </template>
 <script setup lang="ts">
@@ -159,10 +166,11 @@ import { useRoute } from "vue-router"
 import { ref, onMounted } from "vue"
 import SidebarLayout from "../layouts/SidebarLayout.vue"
 import { MilestoneMeta } from "~/types/milestone"
-import CompleteMilestone from "~/components/CompleteMilestone.vue"
+import CompleteMilestoneModal from "~/components/CompleteMilestoneModal.vue"
+import AddMilestoneSlideOver from "~/components/AddMilestoneSlideOver.vue"
+import MilestoneFailModal from "~/components/MilestoneFailModal.vue"
 import { ArrowUturnLeftIcon as BackIcon } from "@heroicons/vue/20/solid"
 import { PlusIcon } from "@heroicons/vue/20/solid"
-import { FaceFrownIcon } from "@heroicons/vue/20/solid"
 import { storeToRefs } from "pinia"
 
 const route = useRoute()
@@ -172,32 +180,47 @@ const milestones = ref()
 const progressMilestoneId = ref()
 const showAddMilestone = ref(false)
 const showCompleteMilestone = ref(false)
+const showFailModal = ref(false)
+const latestRepositoryVersionHash = ref()
 const isOwner = ref()
+const minDate = ref(new Date())
 
 const repositoryHash = route.params.projectHash
 
 onMounted(async () => {
     milestones.value = await repositoryStore.getMilestones(repositoryHash)
+    if (milestones.value.length) {
+        minDate.value = new Date(milestones.value[milestones.value.length - 1].deadline)
+    }
     isOwner.value = account.value.toLowerCase() === (await repositoryStore.getRepositoryByHash(repositoryHash)).owner.toLowerCase()
+    latestRepositoryVersionHash.value = await repositoryStore.getLastVersionHashOfRepository(repositoryHash)
 })
 
 const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)
+
+const triggerFailModal = (show: boolean) => {
+    showFailModal.value = show
+}
 const triggerCompleteMilestone = (show: boolean, milestoneId?: number) => {
-    if (milestoneId) {
-        progressMilestoneId.value = milestoneId
+    if (milestoneId > 0 && milestones.value[milestoneId - 1].versionHash === latestRepositoryVersionHash.value) {
+        triggerFailModal(true)
+        return
     }
+    progressMilestoneId.value = milestoneId
     showCompleteMilestone.value = show
 }
 
 const createMilestone = async (newMilestone: MilestoneMeta) => {
     newMilestone.deadline = new Date(newMilestone.deadline).getTime()
-    const createdMilestone = await repositoryStore.createMilestone(newMilestone, route.params.projectHash)
-    milestones.value.push(createdMilestone)
+    await repositoryStore.createMilestone(newMilestone, route.params.projectHash)
+    window.location.reload()
 }
 
-const completeMilestone = async (numberOfReviews: number, reviewReward: number) => {
+const completeMilestone = async (numberOfReviews: number) => {
+    console.log("PMI: ", progressMilestoneId.value)
     if (await repositoryStore.completeMilestone(route.params.projectHash, progressMilestoneId.value, numberOfReviews)) {
         milestones.value[progressMilestoneId.value].completed = true
     }
+    showCompleteMilestone.value = false
 }
 </script>

@@ -28,17 +28,9 @@ import { storeToRefs } from "pinia"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
 
-const something = "s"
-console.log("something: ", something)
-if (something == "s") {
-    console.log(something)
-}
-
 const repositoryStore = useRepositoryStore()
 const { connectWallet } = useRepositoryStore()
-console.log("Account in index: ", repositoryStore.account)
 const router = useRouter()
-console.log("Router: ", router)
 watchEffect(async () => {
     if (repositoryStore.account) {
         setTimeout(async () => await router.push({ path: "/dashboard" }, 1000))

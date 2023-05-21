@@ -6,7 +6,7 @@
             <!-- Page title & actions -->
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ $route.params.projectHash }})</h1>
+                    <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">{{ repository?.title }} ({{ repositoryHash }})</h1>
                     <p class="mt-2 max-w-4xl text-sm text-gray-500">
                         The repository section is a place for managing all aspects of a project, including adding new versions, managing contributors, and creating milestones to track progress.
                     </p>
@@ -64,6 +64,16 @@
                                                 Milestones
                                             </button>
                                         </MenuItem>
+                                        <MenuItem class="p-1.5 hover:bg-violet-50">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
+                                                @click="redirectToReviews"
+                                            >
+                                                <ReviewIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Reviews
+                                            </button>
+                                        </MenuItem>
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -72,16 +82,16 @@
                 </div>
             </div>
             <!-- Project files table (small breakpoint and up) -->
-            <div v-if="data" class="flex-1 mt-8 w-full pb-4 mx-auto hidden sm:block">
+            <div v-if="data" class="flex-1 mt-8 w-full pb-4 mx-auto">
                 <div class="flex justify-between px-4">
                     <div class="w-full px-4 flex flex-col space-y-4">
                         <div class="flex flex-col">
-                            <div class="font-medium text-sm text-gray-900">Versions</div>
+                            <div class="font-medium text-sm text-gray-900">Selected version</div>
                             <div class="flex items-center justify-between space-x-4 mr-3">
                                 <VersionHistoryDropdown class="w-full" v-if="repository" :versions="repository?.versions" @change-version="changeVersion"></VersionHistoryDropdown>
                                 <div>
                                     <div
-                                        @click="download(currentVersionHash, repository?.title)"
+                                        @click="download(repository?.title)"
                                         class="whitespace-nowrap cursor-pointer text-sm group flex items space-x-2 medium text-violet-500 hover:text-violet-800 focus:outline-none transition ease-in-out delay-150 hover:scale-105 duration-300"
                                     >
                                         <div>Download zip</div>
@@ -139,7 +149,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="flex flex-col divide-y-2 divide-gray-200 w-2/3 space-y-10 px-4">
+                    <div class="sm:flex sm:flex-col divide-y-2 divide-gray-200 w-2/3 space-y-10 px-4 hidden">
                         <div>
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Repository description</div>
                             <div class="text-sm text-gray-500">{{ repository.description }}</div>
@@ -188,7 +198,7 @@
                         </div>
                         <div class="pt-6">
                             <div class="font-medium text-sm leading-6 text-gray-900 mb-1">Contributors</div>
-                            <ContributorsTable title="Show contributors" />
+                            <ContributorsTable :commiter-id="currentVersion.commiter.id" title="Show contributors" />
                         </div>
                     </div>
                 </div>
@@ -243,7 +253,8 @@ import {
     UserPlusIcon as AddContributorIcon,
     FolderPlusIcon as AddVersionIcon,
     ArrowDownTrayIcon as DownloadRepositoryIcon,
-    CheckBadgeIcon as MilestoneIcon,
+    CalendarIcon as MilestoneIcon,
+    StarIcon as ReviewIcon,
 } from "@heroicons/vue/20/solid"
 
 import { useRepositoryStore } from "~/stores/repos"
@@ -259,25 +270,29 @@ const { repositories, account } = storeToRefs(repositoryStore)
 const repository = ref()
 const data = ref()
 const currentMilestone = ref()
-const currentVersionHash = ref()
+const currentVersion = ref()
 const loaderStep = ref(-1)
 const isOwner = ref()
 
+const repositoryHash = route.params.projectHash
+
 onMounted(async () => {
-    const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == route.params.projectHash)
+    const r = Object.values(repositories.value).find((repo) => repo.repositoryHash == repositoryHash)
     if (r) {
         const versions: Array<Object> = []
-        r.versions.forEach((version, index) => {
-            const timestamp = Number.isNaN(parseInt(version[0].hex, 16)) ? version[0]?.toNumber() : parseInt(version[0].hex, 16)
-            const timeInMiliseconds = timestamp * 1000
-            versions.push({
-                id: ++index,
-                commitMessage: version[2],
-                commiter: version[1],
-                IPFSHash: version[3],
-                commitDate: timeInMiliseconds,
+        await Promise.all(
+            r.versions.map(async (version, index) => {
+                const timestamp = Number.isNaN(parseInt(version[0].hex, 16)) ? version[0]?.toNumber() : parseInt(version[0].hex, 16)
+                const timeInMiliseconds = timestamp * 1000
+                versions.push({
+                    id: ++index,
+                    commitMessage: version[2],
+                    commiter: await repositoryStore.getContributorData(version[1], repositoryHash),
+                    IPFSHash: version[3],
+                    commitDate: timeInMiliseconds,
+                })
             })
-        })
+        )
         isOwner.value = account.value.toLowerCase() === r.owner.toLowerCase()
         repository.value = {
             owner: r.owner,
@@ -294,16 +309,17 @@ onMounted(async () => {
             pinned: true,
         }
         if (repository.value.lastVersion) {
-            await changeVersion(repository.value.lastVersion?.IPFSHash)
+            await changeVersion(repository.value.lastVersion)
         }
 
-        const milestones = await repositoryStore.getMilestones(route.params.projectHash)
+        const milestones = await repositoryStore.getMilestones(repositoryHash)
         currentMilestone.value = milestones.find((milestone) => !milestone.completed)
     }
 })
 
-const changeVersion = async (ipfsHash) => {
-    const res = await getFolderFromIPFS(ipfsHash)
+const changeVersion = async (selectedVersion) => {
+    console.log("ipfs: ", selectedVersion)
+    const res = await getFolderFromIPFS(selectedVersion.IPFSHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
         result.push({
@@ -314,12 +330,12 @@ const changeVersion = async (ipfsHash) => {
         })
     })
     data.value = result
-    currentVersionHash.value = ipfsHash
+    currentVersion.value = selectedVersion
 }
 
-const download = (ipfsHash: string, folderName: string) => {
+const download = (folderName: string) => {
     loaderStep.value = 0
-    downloadFolderFromIPFS(ipfsHash, folderName)
+    downloadFolderFromIPFS(currentVersion.value.IPFSHash, folderName)
     setTimeout(() => {
         loaderStep.value = 1
     }, 1500)
@@ -342,5 +358,7 @@ const showAddContributor = ref(false)
 
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
 
-const redirectToMilestone = async () => await router.push({ path: route.params.projectHash + "/milestones" })
+const redirectToMilestone = async () => await router.push({ path: repositoryHash + "/milestones" })
+
+const redirectToReviews = async () => await router.replace({ path: "/toReview/" + repositoryHash })
 </script>

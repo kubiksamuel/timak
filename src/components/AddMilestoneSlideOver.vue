@@ -40,7 +40,7 @@
                     <div>
                         <div class="ml-px block text-sm font-medium leading-6 text-gray-900">Finish deadline</div>
                         <div class="mt-1 pl-2">
-                            <VueDatePicker v-model="newMilestone.deadline" :min-date="new Date()" :enable-time-picker="false" />
+                            <VueDatePicker v-model="newMilestone.deadline" :min-date="minDate" :enable-time-picker="false" />
                         </div>
                         <div v-if="v$.deadline.$error" class="text-sm text-red-500 py-1 ml-2">
                             {{ v$.deadline.$errors[0]?.$message.toString() }}
@@ -70,7 +70,7 @@ import "@vuepic/vue-datepicker/dist/main.css"
 import { useVuelidate } from "@vuelidate/core"
 import { required, helpers } from "@vuelidate/validators"
 
-defineProps({
+const props = defineProps({
     open: {
         type: Boolean,
         required: true,
@@ -79,7 +79,12 @@ defineProps({
         type: String,
         required: true,
     },
+    minDate: {
+        type: Date,
+        required: true,
+    },
 })
+
 const emit = defineEmits<{
     (e: "close"): void
     (e: "create", newMilestone: MilestoneMeta): void
