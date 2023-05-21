@@ -9,6 +9,7 @@
                         <p class="mt-2 max-w-4xl text-sm text-gray-500">
                             Stay up-to-date with your project's progress by checking out dynamic timeline section, where you can view all the significant milestones and achievements in chronological
                             order.
+                            {{ isOwner }}
                         </p>
                     </div>
                     <div class="mt-4 flex sm:mt-0 sm:ml-4">
@@ -22,6 +23,7 @@
                         </router-link>
                         <button
                             type="button"
+                            v-if="isOwner"
                             class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                             @click="triggerAddMilestone(true)"
                         >
@@ -106,7 +108,7 @@
                                                                         <button
                                                                             v-if="(!milestone.completed && index === 0) || (!milestone.completed && index > 0 && milestones[index - 1].completed)"
                                                                             type="button"
-                                                                            class="order-0 inline-flex items-center px-2 py-1 justify-between rounded-md text-sm underline font-semibold text-indigo-700 hover:text-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
+                                                                            class="order-0 inline-flex items-center px-2 py-1 justify-between rounded-md text-sm underline font-semibold text-violet-700 hover:text-violet-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                                                                             @click="triggerCompleteMilestone(true, milestone.id)"
                                                                         >
                                                                             Complete
@@ -131,9 +133,10 @@
                 <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
                     <div class="border rounded-md p-10 mb-10 border-dotted border-4">
                         <h3 class="mt-2 text-sm font-semibold text-gray-900">No milestones</h3>
-                        <p class="mt-1 text-sm text-gray-500">Set the first milestone to track the progress!</p>
+                        <p v-if="isOwner" class="mt-1 text-sm text-gray-500">Set the first milestone to track the progress!</p>
                         <div class="mt-6">
                             <button
+                                v-if="isOwner"
                                 @click="triggerAddMilestone(true)"
                                 type="button"
                                 class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
@@ -160,16 +163,22 @@ import CompleteMilestone from "~/components/CompleteMilestone.vue"
 import { ArrowUturnLeftIcon as BackIcon } from "@heroicons/vue/20/solid"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import { FaceFrownIcon } from "@heroicons/vue/20/solid"
+import { storeToRefs } from "pinia"
 
 const route = useRoute()
 const repositoryStore = useRepositoryStore()
+const { account } = storeToRefs(repositoryStore)
 const milestones = ref()
 const progressMilestoneId = ref()
 const showAddMilestone = ref(false)
 const showCompleteMilestone = ref(false)
+const isOwner = ref()
+
+const repositoryHash = route.params.projectHash
 
 onMounted(async () => {
-    milestones.value = await repositoryStore.getMilestones(route.params.projectHash)
+    milestones.value = await repositoryStore.getMilestones(repositoryHash)
+    isOwner.value = account.value.toLowerCase() === (await repositoryStore.getRepositoryByHash(repositoryHash)).owner.toLowerCase()
 })
 
 const triggerAddMilestone = (show: boolean) => (showAddMilestone.value = show)

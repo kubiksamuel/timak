@@ -5,10 +5,8 @@ import RepositoryABI from "../artifacts/contracts/Repository.sol/Repository.json
 
 import { RepositoryMeta } from "~/types/repository"
 import { MilestoneMeta } from "~/types/milestone"
-import { Review, SkillLevel } from "~/types/review"
-import { getAddress } from "ethers/lib/utils"
+import { Review } from "~/types/review"
 
-import { isProxy, toRaw } from "vue"
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 export const useRepositoryStore = defineStore("user", {
@@ -81,6 +79,46 @@ export const useRepositoryStore = defineStore("user", {
                 console.log(error)
             }
         },
+        async getRepositoryByHash(repositoryHash: string) {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    this.toReviewRepositories = []
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
+                    const rawRepository = await repositoryFactoryContract.getRepositoryByHash(repositoryHash)
+                    console.log("RawRepository: ", rawRepository)
+                    if (rawRepository) {
+                        const repositoryProxy = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                        const name = await repositoryProxy.name()
+                        const owner = await repositoryProxy.owner()
+                        const createdAt = await repositoryProxy.createdAt()
+                        const repoTime = new Date(createdAt * 1000)
+                        const repoTimeFormatted = new Intl.DateTimeFormat("en", {
+                            dateStyle: "full",
+                            timeStyle: "short",
+                            timeZone: "Europe/Bratislava",
+                        }).format(repoTime) as any
+                        const description = await repositoryProxy.description()
+                        return {
+                            repositoryHash: repositoryHash,
+                            name: name,
+                            createdAt: repoTimeFormatted,
+                            owner: owner,
+                            description: description,
+                            versions: [],
+                            latestVersion: [],
+                            contributors: [],
+                        }
+                    } else {
+                        console.log("Ethereum object doesn't exist!")
+                    }
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
 
         async fetchReviewableRepositories() {
             try {
@@ -102,34 +140,87 @@ export const useRepositoryStore = defineStore("user", {
                         const toReview = await repositoryProxy.toReview()
                         if (toReview > 0) {
                             const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
+                            const repositoryReviewData = {
+                                repositoryHash: repository,
+                                name: name,
+                                createdAt: repoTimeFormatted,
+                                owner: owner,
+                                description: description,
+                                milestone: [],
+                            }
                             for (const repoMilestone of requiredReviews) {
                                 const rawVersion = await repositoryProxy.version(repoMilestone.versionHash)
-                                const repositoryReviewData = {
-                                    repositoryHash: repository,
-                                    name: name,
-                                    createdAt: repoTimeFormatted,
-                                    owner: owner,
-                                    description: description,
-                                    milestone: {
-                                        version: {
-                                            timestamp: rawVersion.timestamp.toNumber(),
-                                            committer: rawVersion.committer,
-                                            commitName: rawVersion.commitName,
-                                            ipfsHash: rawVersion.ipfsHash,
-                                        },
-                                        requiredReviews: repoMilestone.numberOfRequiredReviews.toNumber(),
-                                        committedReviews: repoMilestone.numberOfCommittedReviews.toNumber(),
-                                        id: repoMilestone.id.toNumber(),
-                                        deadline: parseFloat(repoMilestone.deadline.toString()),
-                                        title: repoMilestone.title,
-                                        description: repoMilestone.description,
-                                        completed: repoMilestone.completed,
+                                repositoryReviewData.milestone.push({
+                                    version: {
+                                        timestamp: rawVersion.timestamp.toNumber(),
+                                        committer: rawVersion.committer,
+                                        commitName: rawVersion.commitName,
+                                        ipfsHash: rawVersion.ipfsHash,
                                     },
-                                }
-                                this.toReviewRepositories.push(repositoryReviewData)
+                                    requiredReviews: repoMilestone.numberOfRequiredReviews.toNumber(),
+                                    committedReviews: repoMilestone.numberOfCommittedReviews.toNumber(),
+                                    id: repoMilestone.id.toNumber(),
+                                    deadline: parseFloat(repoMilestone.deadline.toString()),
+                                    title: repoMilestone.title,
+                                    description: repoMilestone.description,
+                                    completed: repoMilestone.completed,
+                                })
                             }
+                            this.toReviewRepositories.push(repositoryReviewData)
                         }
                     }
+                } else {
+                    console.log("Ethereum object doesn't exist!")
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async fetchReviewableRepositoryMilestones(repositoryHash: string) {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    let reviewableRepository = {}
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryProxy = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    const name = await repositoryProxy.name()
+                    const owner = await repositoryProxy.owner()
+                    const createdAt = await repositoryProxy.createdAt()
+                    const repoTime = new Date(createdAt * 1000)
+                    const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
+                    const description = await repositoryProxy.description()
+                    const toReview = await repositoryProxy.toReview()
+                    if (toReview > 0) {
+                        const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
+                        const repositoryReviewData = {
+                            repositoryHash,
+                            name,
+                            createdAt: repoTimeFormatted,
+                            owner,
+                            description,
+                            milestones: [],
+                        }
+                        for (const repoMilestone of requiredReviews) {
+                            const rawVersion = await repositoryProxy.version(repoMilestone.versionHash)
+                            repositoryReviewData.milestones.push({
+                                version: {
+                                    timestamp: rawVersion.timestamp.toNumber(),
+                                    committer: rawVersion.committer,
+                                    commitName: rawVersion.commitName,
+                                    ipfsHash: rawVersion.ipfsHash,
+                                },
+                                requiredReviews: repoMilestone.numberOfRequiredReviews.toNumber(),
+                                committedReviews: repoMilestone.numberOfCommittedReviews.toNumber(),
+                                id: repoMilestone.id.toNumber(),
+                                deadline: parseFloat(repoMilestone.deadline.toString()),
+                                title: repoMilestone.title,
+                                description: repoMilestone.description,
+                                completed: repoMilestone.completed,
+                            })
+                        }
+                        reviewableRepository = repositoryReviewData
+                    }
+                    return reviewableRepository
                 } else {
                     console.log("Ethereum object doesn't exist!")
                 }
@@ -197,18 +288,6 @@ export const useRepositoryStore = defineStore("user", {
 
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
 
-                    const isAlreadyUser = await repositoryFactoryContract.isAlreadyUser(ConAddress)
-                    if (isAlreadyUser) {
-                    } else {
-                        const a = await repositoryFactoryContract.addUser(ConAddress)
-                        console.log("Mining...", a.hash)
-                        const transaction = await a.wait()
-                        console.log("Event: ", transaction.logs)
-                        console.log("Transaction reciept: ", transaction)
-                        console.log("Mined -- ", a.hash)
-                    }
-
-                    // check if user is already contributor
                     const repo = this.repositories.find((repo) => repo.repositoryHash == repoAddress)
                     if (repo.contributors.find((repo) => repo.contributors == ConAddress)) {
                         console.log("User is already contributor")
@@ -218,15 +297,8 @@ export const useRepositoryStore = defineStore("user", {
                     // get repository
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
 
-                    const repositoryTxn = await repositoryContract.addContributor(ConAddress, ConName)
-                    console.log("Mining...", repositoryTxn.hash)
-                    const transaction = await repositoryTxn.wait()
-                    console.log("Event: ", transaction.logs)
-                    console.log("Transaction reciept: ", transaction)
-                    console.log("Mined -- ", repositoryTxn.hash)
-
                     console.log(repositoryContract)
-                    const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address)
+                    const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address, ConName)
                     console.log("Mining...", repositoryTxn1.hash)
                     const transaction1 = await repositoryTxn1.wait()
                     console.log("Event: ", transaction1.logs)
@@ -363,9 +435,34 @@ export const useRepositoryStore = defineStore("user", {
                 const { ethereum } = window
                 if (ethereum) {
                     // create provider object from ethers library, using ethereum object injected by metamask
+                    const reviews = []
                     const provider = new ethers.providers.Web3Provider(ethereum)
-                    const repositoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
-                    return await repositoryContract.getRepositoryReviews(repositoryHash)
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, provider)
+                    const repositorReviews = await repositoryFactoryContract.getRepositoryReviews(repositoryHash)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    for (const review of repositorReviews) {
+                        const reviewMilestone = await repositoryContract.milestones(review.milestoneId.toNumber())
+                        console.log("Rev: ", reviewMilestone)
+                        const version = await repositoryContract.getVersion(reviewMilestone.versionHash)
+                        const reviewWithMilestone = {
+                            contentIdentifier: review.contentIdentifier,
+                            id: review.id.toNumber(),
+                            rating: review.rating.toNumber(),
+                            repository: review.repository,
+                            reviewer: review.reviewer,
+                            reviewerScore: await this.getReviewerScore(review.reviewer),
+                            reviewerSkillLevel: review.reviewerSkillLevel,
+                            reward: parseFloat(ethers.utils.formatEther(review.reward.toString())),
+                            milestone: {
+                                title: reviewMilestone.title,
+                                description: reviewMilestone.description,
+                                versionName: (await repositoryContract.getVersion(reviewMilestone.versionHash)).commitName,
+                            },
+                        }
+                        console.log("Rewaaard: ", reviewWithMilestone)
+                        reviews.push(reviewWithMilestone)
+                    }
+                    return reviews
                 }
             } catch (error) {
                 console.log(error)
@@ -435,6 +532,29 @@ export const useRepositoryStore = defineStore("user", {
                         contentIdentifier: eventData.contentIdentifier,
                         milestoneId: eventData.milestoneId,
                     }
+                } else {
+                    throw new "Ethereum object doesn't exist!"()
+                }
+            } catch (error) {
+                console.log(error)
+                throw new error()
+            }
+        },
+
+        async rewardReview(reviewer: string, reviewId: number, ethersAmount: number) {
+            try {
+                const { ethereum } = window
+                console.log("revawfa: ", reviewer, reviewId, ethersAmount)
+                if (ethereum) {
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
+                    const repositoryTxn = await repositoryFactoryContract.payReviewer(reviewer, reviewId, { value: ethers.utils.parseEther(ethersAmount.toString()) })
+                    console.log("Mining...", repositoryTxn)
+                    const transaction = await repositoryTxn.wait()
+                    const eventData = transaction.events.find((event) => event.event === "ReviewRewarded").args
+                    console.log("Mined -- ", repositoryTxn.hash)
+                    return parseFloat(ethers.utils.formatEther(eventData.reward.toString()))
                 } else {
                     throw new "Ethereum object doesn't exist!"()
                 }

@@ -7,7 +7,7 @@ import "./Repository.sol";
 contract RepositoryFactory {
     event NewRepositorySet(string name, uint256 createdAt, address owner, Repository repository);
     event ReviewAdded(address indexed repository, address indexed reviewer, uint reviewerSkillLevel, string contentIdentifier, uint rating, uint milestoneId);
-    // error NotReviewable(string contentIdentifier);
+    event ReviewRewarded(address reviewer, uint reviewId, uint reward);
 
     Repository[] public repositories;
     uint256 public userCounter;
@@ -24,6 +24,8 @@ contract RepositoryFactory {
         string contentIdentifier;
         uint rating;
         uint milestoneId;
+        uint reward;
+        uint id;
     }
 
     mapping(address => Repository) internal repositoryMapping;
@@ -32,6 +34,16 @@ contract RepositoryFactory {
     mapping(address => User) internal usersData;
     address[] public users;
     Review[] public reviews;
+
+    function getRepositoryByHash(address repositoryHash) external view returns (Repository) {
+        return repositoryMapping[repositoryHash];
+    }
+
+    function payReviewer(address reviewer, uint reviewId) external payable {
+        payable(reviewer).transfer(msg.value);
+        reviews[reviewId].reward += msg.value;
+        emit ReviewRewarded(reviewer, reviewId, msg.value);
+    }
 
     function createRepositoryContract(string memory _name, string memory _description) public {
         if (usersData[msg.sender].id == 0) {
@@ -53,7 +65,7 @@ contract RepositoryFactory {
                 usersData[msg.sender].id = userCounter;
                 users.push(msg.sender);
             }
-            Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating, _milestoneId);
+            Review memory newReview = Review(_repository, msg.sender, _reviewerSkillLevel, _contentIdentifier, _rating, _milestoneId, 0, reviews.length);
             reviews.push(newReview);
             repositoryReview[_repository].push(reviews.length - 1);
             reviewerReview[msg.sender].push(reviews.length - 1);
@@ -108,7 +120,11 @@ contract RepositoryFactory {
         users.push(user);
     }
 
-    function addRepositoryToUser(address user, Repository repository)public{
+    function addRepositoryToUser(address user, Repository repository, string memory _name)public{
+        if(!this.isAlreadyUser(user)){
+            this.addUser(user);
+        }
+        repository.addContributor(user, _name);
         usersData[user].listOfRepositories.push(repository);
     }
 

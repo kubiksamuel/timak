@@ -26,6 +26,7 @@
 
             <!-- Projects table (small breakpoint and up) -->
             <div v-if="allOwnerRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+                <div>Owner repositories</div>
                 <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
                     <table class="min-w-full">
                         <thead>
@@ -64,7 +65,49 @@
                     </table>
                 </div>
             </div>
-            <div v-else class="flex-1 items-center justify-center h-full text-center flex flex-col">
+            <!--            v-if="allContributorRepositories.length > 0"-->
+            <div v-if="allContributorRepositories.length > 0" class="flex-1 mt-8 w-full px-8 pb-4 mx-auto hidden sm:block">
+                <div>Contributor repositories</div>
+                <div class="inline-block min-w-full shadow-md border-b border-gray-200 align-middle">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-t border-gray-200">
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">
+                                    <span class="lg:pl-2">Name</span>
+                                </th>
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Description</th>
+                                <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
+
+                                <!--                                    <th class="border-b border-gray-200 bg-gray-50 py-3 pr-6 text-right text-sm font-semibold text-gray-900" scope="col" />-->
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 bg-white">
+                            <tr
+                                v-for="repository in allContributorRepositories"
+                                @click="redirectToRepo(repository.id)"
+                                :key="repository.id"
+                                class="hover:bg-violet-100 cursor-pointer w-full h-full relative"
+                            >
+                                <td class="whitespace-nowrap px-6 py-3 text-sm font-medium text-gray-900">
+                                    <div class="flex items-center space-x-3 lg:pl-2">
+                                        <span>
+                                            {{ repository.title }}
+                                            {{ " " }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-left text-sm text-gray-500 md:table-cell">
+                                    {{ repository.description }}
+                                </td>
+
+                                <td class="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">{{ repository.createdAt }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div v-if="allOwnerRepositories?.length === 0 && allContributorRepositories.length === 0" class="flex-1 items-center justify-center h-full text-center flex flex-col">
                 <div class="border rounded-md p-10 mb-10 border-dotted border-4">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path
@@ -90,7 +133,7 @@
                 </div>
             </div>
         </div>
-        <CreateRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
+        <AddRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -99,7 +142,7 @@ import { storeToRefs } from "pinia"
 import { useRouter } from "vue-router"
 import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
-import CreateRepositorySlideOver from "~/components/CreateRepositorySlideOver.vue"
+import AddRepositorySlideOver from "~/components/AddRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
 
 const router = useRouter()
@@ -113,6 +156,8 @@ const { repositories, account } = storeToRefs(repositoryStore)
 
 const ownerRepositories = computed(() => Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() == account.value))
 
+const contributorRepositories = computed(() => Object.values(repositories.value).filter((repo) => repo.owner.toLowerCase() !== account.value))
+
 const allOwnerRepositories = computed(() => {
     return ownerRepositories.value.map((repository) => {
         return {
@@ -125,6 +170,20 @@ const allOwnerRepositories = computed(() => {
         }
     })
 })
+
+const allContributorRepositories = computed(() => {
+    return contributorRepositories.value.map((repository) => {
+        return {
+            id: repository.repositoryHash,
+            title: repository.name,
+            description: repository.description,
+            createdAt: repository.createdAt,
+            updatedAt: repository.createdAt,
+            pinned: true,
+        }
+    })
+})
+
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
