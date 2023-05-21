@@ -9,7 +9,7 @@
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Owner project</h1>
                     <p class="mt-2 max-w-4xl text-sm text-gray-500">
                         Welcome to your dashboard section! Here, you'll find all the repositories that you own so you have owner-level permissions, giving you complete control to manage your
-                        repositories with ease.
+                        repositories with ease and also repositories where you own contributor-level permissions to add new versions.
                     </p>
                 </div>
                 <div class="mt-4 flex sm:mt-0 sm:ml-4">
@@ -76,8 +76,6 @@
                                 </th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Description</th>
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
-
-                                <!--                                    <th class="border-b border-gray-200 bg-gray-50 py-3 pr-6 text-right text-sm font-semibold text-gray-900" scope="col" />-->
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">

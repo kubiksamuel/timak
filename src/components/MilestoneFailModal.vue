@@ -29,7 +29,7 @@
                                         class="inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
                                         @click="emit('close')"
                                     >
-                                        Got it, thanks!
+                                        Alright, got it!
                                     </button>
                                 </div>
                             </DialogPanel>

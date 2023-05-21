@@ -2,7 +2,8 @@
     <SidebarLayout>
         <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
             <div class="min-w-0 flex-1">
-                <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repository to review</h1>
+                <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Reviews of ,, {{ repositoryWithMilestones?.name }}" repository</h1>
+                <p class="mt-2 max-w-4xl text-sm text-gray-500">Explore the repository's reviews from users. Gain valuable insights and perspectives on the project's performance and quality.</p>
             </div>
         </div>
         <div class="bg-white px-8 2xl:px-40">
@@ -94,8 +95,8 @@
                     </div>
 
                     <div class="mt-10">
-                        <h3 class="text-lg font-medium text-gray-900">Share your thoughts</h3>
-                        <p class="mt-1 text-sm text-gray-600">If you’ve used this product, share your thoughts with other customers</p>
+                        <h3 class="text-lg font-medium text-gray-900">Share your opinions</h3>
+                        <p class="mt-1 text-sm text-gray-600">If you’ve some experience in this area, share your opinions.</p>
 
                         <button
                             :disabled="!repositoryReviewableVersions"

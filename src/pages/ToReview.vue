@@ -7,6 +7,10 @@
             <div class="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
                 <div class="min-w-0 flex-1">
                     <h1 class="text-lg font-medium leading-6 text-gray-900 sm:truncate">Repository to review</h1>
+                    <p class="mt-2 max-w-4xl text-sm text-gray-500">
+                        Discover a curated collection of repositories awaiting reviews from the community. Browse through this diverse selection of projects and contribute your expertise to help shape
+                        their development and provide valuable feedback
+                    </p>
                 </div>
                 <div v-if="selectedRepository" class="mt-4 flex space-x-4 items-center sm:mt-0 sm:ml-4">
                     <div>
