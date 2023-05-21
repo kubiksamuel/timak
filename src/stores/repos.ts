@@ -137,6 +137,8 @@ export const useRepositoryStore = defineStore("user", {
                         const repoTimeFormatted = new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone: "Europe/Bratislava" }).format(repoTime) as any
                         const description = await repositoryProxy.description()
                         const toReview = await repositoryProxy.toReview()
+                        let allCommitedReviews = 0
+                        let allRequiredReviews = 0
                         if (toReview > 0) {
                             const requiredReviews = await repositoryProxy.getAllReviewableMilestones()
                             const repositoryReviewData = {
@@ -149,6 +151,8 @@ export const useRepositoryStore = defineStore("user", {
                             }
                             for (const repoMilestone of requiredReviews) {
                                 const rawVersion = await repositoryProxy.version(repoMilestone.versionHash)
+                                allCommitedReviews += repoMilestone.numberOfCommittedReviews.toNumber()
+                                allRequiredReviews += repoMilestone.numberOfRequiredReviews.toNumber()
                                 repositoryReviewData.milestone.push({
                                     version: {
                                         timestamp: rawVersion.timestamp.toNumber(),
@@ -165,6 +169,9 @@ export const useRepositoryStore = defineStore("user", {
                                     completed: repoMilestone.completed,
                                 })
                             }
+                            repositoryReviewData.allRequiredReviews = allRequiredReviews
+                            repositoryReviewData.allCommitedReviews = allCommitedReviews
+                            console.log("Rep rev: ", repositoryReviewData)
                             this.toReviewRepositories.push(repositoryReviewData)
                         }
                     }
