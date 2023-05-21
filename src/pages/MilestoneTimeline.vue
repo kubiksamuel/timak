@@ -101,7 +101,7 @@
                                                                             Awaiting
                                                                         </span>
                                                                     </div>
-                                                                    <div class="flex justify-between items-center truncate">
+                                                                    <div class="flex justify-between items-center flex-wrap">
                                                                         <p class="text-gray-500 hyphens-auto">
                                                                             {{ milestone.description }}
                                                                         </p>
