@@ -178,83 +178,74 @@
                 @close="triggerCreateReview(false)"
                 @create="createNewReview"
             />
-
-            <TransitionRoot appear :show="showEthersModal" as="template">
-                <Dialog as="div" @close="showEthersModal = false" class="relative z-10">
-                    <TransitionChild
-                        as="template"
-                        enter="duration-300 ease-out"
-                        enter-from="opacity-0"
-                        enter-to="opacity-100"
-                        leave="duration-200 ease-in"
-                        leave-from="opacity-100"
-                        leave-to="opacity-0"
-                    >
-                        <div class="fixed inset-0 bg-black bg-opacity-25" />
-                    </TransitionChild>
-
-                    <div class="fixed inset-0 overflow-y-auto">
-                        <div class="flex min-h-full items-center justify-center p-4 text-center">
-                            <TransitionChild
-                                as="template"
-                                enter="duration-300 ease-out"
-                                enter-from="opacity-0 scale-95"
-                                enter-to="opacity-100 scale-100"
-                                leave="duration-200 ease-in"
-                                leave-from="opacity-100 scale-100"
-                                leave-to="opacity-0 scale-95"
-                            >
-                                <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                    <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900"> Payment </DialogTitle>
-                                    <div class="mt-2">
-                                        <div>
-                                            <label for="price" class="block text-sm font-medium leading-6 text-gray-900">Reward</label>
-                                            <div class="relative mt-1 rounded-md shadow-sm">
-                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                    <span class="text-gray-500 sm:text-sm"><img class="h-4.5 w-4.5" :src="EtherIcon" alt="Ethereum Icon" /> </span>
-                                                </div>
-                                                <input
-                                                    v-model="reviewToReward.ethersAmount"
-                                                    min="0.1"
-                                                    type="number"
-                                                    name="price"
-                                                    id="price"
-                                                    :class="[invalidEthersAmount ? 'ring-red-400' : 'ring-gray-300']"
-                                                    class="block w-full rounded-md border-0 py-1.5 pl-10 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
-                                                    placeholder="0.00"
-                                                    aria-describedby="price-currency"
-                                                />
-                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                    <span class="text-gray-500 sm:text-sm" id="price-currency">Ethers</span>
-                                                </div>
-                                            </div>
-                                            <div v-if="invalidEthersAmount" class="text-sm text-red-500 py-1 ml-2">The minimum amount of ethers to send as reward is 0.01 Ethers.</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-4 flex justify-between">
-                                        <button
-                                            type="button"
-                                            class="order-0 inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1"
-                                            @click="showEthersModal = false"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1"
-                                            @click="rewardReview"
-                                        >
-                                            Pay reward
-                                        </button>
-                                    </div>
-                                </DialogPanel>
-                            </TransitionChild>
-                        </div>
-                    </div>
-                </Dialog>
-            </TransitionRoot>
         </div>
+        <TransitionRoot appear :show="showEthersModal" as="template">
+            <Dialog as="div" @close="showEthersModal = false" class="relative z-10">
+                <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
+                    <div class="fixed inset-0 bg-black bg-opacity-25" />
+                </TransitionChild>
+
+                <div class="fixed inset-0 overflow-y-auto">
+                    <div class="flex min-h-full items-center justify-center p-4 text-center">
+                        <TransitionChild
+                            as="template"
+                            enter="duration-300 ease-out"
+                            enter-from="opacity-0 scale-95"
+                            enter-to="opacity-100 scale-100"
+                            leave="duration-200 ease-in"
+                            leave-from="opacity-100 scale-100"
+                            leave-to="opacity-0 scale-95"
+                        >
+                            <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900"> Payment </DialogTitle>
+                                <div class="mt-2">
+                                    <div>
+                                        <label for="price" class="block text-sm font-medium leading-6 text-gray-900">Reward</label>
+                                        <div class="relative mt-1 rounded-md shadow-sm">
+                                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                <span class="text-gray-500 sm:text-sm"><img class="h-4.5 w-4.5" :src="EtherIcon" alt="Ethereum Icon" /> </span>
+                                            </div>
+                                            <input
+                                                v-model="reviewToReward.ethersAmount"
+                                                min="0.1"
+                                                type="number"
+                                                name="price"
+                                                id="price"
+                                                :class="[invalidEthersAmount ? 'ring-red-400' : 'ring-gray-300']"
+                                                class="block w-full rounded-md border-0 py-1.5 pl-10 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
+                                                placeholder="0.00"
+                                                aria-describedby="price-currency"
+                                            />
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <span class="text-gray-500 sm:text-sm" id="price-currency">Ethers</span>
+                                            </div>
+                                        </div>
+                                        <div v-if="invalidEthersAmount" class="text-sm text-red-500 py-1 ml-2">The minimum amount of ethers to send as reward is 0.01 Ethers.</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 flex justify-between">
+                                    <button
+                                        type="button"
+                                        class="order-0 inline-flex items-center rounded-md bg-violet-300 px-3 py-2 text-sm font-semibold text-indigo-700 font-medium shadow-sm hover:bg-violet-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1"
+                                        @click="showEthersModal = false"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="order-0 inline-flex items-center rounded-md bg-violet-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1"
+                                        @click="rewardReview"
+                                    >
+                                        Pay reward
+                                    </button>
+                                </div>
+                            </DialogPanel>
+                        </TransitionChild>
+                    </div>
+                </div>
+            </Dialog>
+        </TransitionRoot>
     </SidebarLayout>
 </template>
 
@@ -381,7 +372,7 @@ const downloadFile = (ipfsHash: string) => {
     downloadFileFromIPFS(ipfsHash, "review")
 }
 </script>
-<style>
+<style scoped>
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;

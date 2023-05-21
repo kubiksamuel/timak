@@ -360,6 +360,7 @@ export const useRepositoryStore = defineStore("user", {
                     const allMilestones = await repositoryContract.getAllMilestones()
                     return await Promise.all(
                         allMilestones.map(async (milestone: MilestoneMeta) => {
+                            console.log("Milestone1: ", milestone)
                             return {
                                 id: milestone.id,
                                 title: milestone.title,
@@ -367,6 +368,10 @@ export const useRepositoryStore = defineStore("user", {
                                 deadline: parseFloat(milestone.deadline.toString()),
                                 requestReview: milestone.requestReview,
                                 completed: milestone.completed,
+                                versionHash: milestone.versionHash,
+                                ...(milestone.versionHash !== "0x0000000000000000000000000000000000000000000000000000000000000000" && {
+                                    versionCommitName: (await repositoryContract.getVersion(milestone.versionHash)).commitName,
+                                }),
                             }
                         })
                     )
@@ -586,6 +591,27 @@ export const useRepositoryStore = defineStore("user", {
                     const latestVersion = await repositoryContract.getLatestVersion()
                     repo.versions.push(latestVersion)
                     repo.latestVersion = latestVersion
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async getLastVersionHashOfRepository(repositoryHash: string): Promise<any> {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const signer = provider.getSigner()
+                    let repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, signer)
+
+                    repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    const latestVersion = await repositoryContract.getVersionsHashes()
+                    if (latestVersion.length) {
+                        return latestVersion[latestVersion.length - 1]
+                    } else {
+                        return ""
+                    }
                 }
             } catch (error) {
                 console.log(error)
