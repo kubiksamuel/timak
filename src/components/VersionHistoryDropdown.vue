@@ -1,5 +1,5 @@
 <template>
-    <Listbox as="div" v-model="selected" @click="$emit('changeVersion', selected.IPFSHash)">
+    <Listbox as="div" v-model="selected" @click="$emit('changeVersion', selected)">
         <div class="relative my-2 w-full">
             <ListboxButton
                 class="relative w-full cursor-pointer rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 sm:text-sm sm:leading-6"
@@ -55,6 +55,7 @@ const props = defineProps({
         required: true,
     },
 })
+console.log("versions: ", props.versions)
 
 const { versions } = toRefs(props)
 

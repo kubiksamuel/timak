@@ -270,8 +270,6 @@ const props = defineProps({
     },
 })
 
-console.log("Props rep: ", props.repository)
-
 const selectedSkillLevel = ref(skillLevels[0])
 const selectedRating = ref(1)
 const selectedMilestone = ref(props.repository.milestones[props.repository.milestones.length - 1])
@@ -302,7 +300,7 @@ const rules = {
 }
 
 const v$ = useVuelidate(rules, {
-    file: file.value,
+    file,
 })
 
 const addReview = async () => {

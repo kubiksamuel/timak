@@ -85,7 +85,6 @@ const props = defineProps({
     },
 })
 
-console.log("props: ", props)
 const emit = defineEmits<{
     (e: "close"): void
     (e: "create", newMilestone: MilestoneMeta): void

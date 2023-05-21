@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
-                    <div class="flow-root">
+                    <div v-if="reviews?.length" class="flow-root">
                         <div class="-my-12 divide-y divide-gray-200">
                             <div v-for="review in reviews" :key="review.contentIdentifier" class="py-12 px-6">
                                 <div class="flex items-center justify-between">
@@ -131,7 +131,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="mr-1 mt-1 h-max">
-                                                        <div class="h-6 w-fit rounded bg-cyan-50">
+                                                        <div class="h-6 w-fit rounded bg-sky-50">
                                                             <div class="pl-2 mr-2 pt-[.2rem] text-xs font-normal">#{{ review.milestone.versionName }}</div>
                                                         </div>
                                                     </div>
@@ -167,6 +167,9 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div v-else class="flex flex-col justify-center items-center h-full text-gray-400 px-20 text-center">
+                        No reviews have been added yet. Share your thoughts and be the first to leave a review!
                     </div>
                 </div>
             </div>
@@ -306,7 +309,7 @@ const info = computed(() => {
         }
         reviews.value.forEach((review) => {
             infoData.totalCount++
-            // infoData.counts[review.rating - 1].count++
+            infoData.counts[review.rating - 1].count++
             infoData.totalRates += review.rating
         })
         if (infoData.totalCount > 0) {
@@ -337,6 +340,7 @@ const triggerCreateReview = (show: boolean) => {
 
 const createNewReview = async (newReview: Omit<Review, "reviewer">) => {
     reviews.value.push(await repositoryStore.createReview(newReview))
+    window.location.reload()
 }
 
 const reviewToReward = reactive({
@@ -364,8 +368,8 @@ const rewardReview = async () => {
     reviews.value[reviewToReward.reviewId].reward += reward
 }
 
-const changeVersion = (ipfsHash: string) => {
-    selectedVersionIpfs.value = ipfsHash
+const changeVersion = (version: any) => {
+    selectedVersionIpfs.value = version.IPFSHash
 }
 
 const downloadFile = (ipfsHash: string) => {

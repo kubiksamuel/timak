@@ -88,7 +88,6 @@ export const useRepositoryStore = defineStore("user", {
                     const signer = provider.getSigner()
                     const repositoryFactoryContract = new ethers.Contract(contractAddress, contractABI.abi, signer)
                     const rawRepository = await repositoryFactoryContract.getRepositoryByHash(repositoryHash)
-                    console.log("RawRepository: ", rawRepository)
                     if (rawRepository) {
                         const repositoryProxy = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
                         const name = await repositoryProxy.name()
@@ -296,8 +295,6 @@ export const useRepositoryStore = defineStore("user", {
 
                     // get repository
                     const repositoryContract = new ethers.Contract(repoAddress, RepositoryABI.abi, signer)
-
-                    console.log(repositoryContract)
                     const repositoryTxn1 = await repositoryFactoryContract.addRepositoryToUser(ConAddress, repositoryContract.address, ConName)
                     console.log("Mining...", repositoryTxn1.hash)
                     const transaction1 = await repositoryTxn1.wait()
@@ -360,7 +357,6 @@ export const useRepositoryStore = defineStore("user", {
                     const allMilestones = await repositoryContract.getAllMilestones()
                     return await Promise.all(
                         allMilestones.map(async (milestone: MilestoneMeta) => {
-                            console.log("Milestone1: ", milestone)
                             return {
                                 id: milestone.id,
                                 title: milestone.title,
@@ -422,7 +418,7 @@ export const useRepositoryStore = defineStore("user", {
                         const contributor = await repositoryContract.getContributor(contributorAddress)
 
                         const cons = {
-                            id: contributor[0],
+                            id: contributor[0].toNumber(),
                             name: contributor[1],
                             address: contributorAddress,
                         }
@@ -447,7 +443,6 @@ export const useRepositoryStore = defineStore("user", {
                     const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
                     for (const review of repositorReviews) {
                         const reviewMilestone = await repositoryContract.milestones(review.milestoneId.toNumber())
-                        console.log("Rev: ", reviewMilestone)
                         const version = await repositoryContract.getVersion(reviewMilestone.versionHash)
                         const reviewWithMilestone = {
                             contentIdentifier: review.contentIdentifier,
@@ -464,7 +459,6 @@ export const useRepositoryStore = defineStore("user", {
                                 versionName: (await repositoryContract.getVersion(reviewMilestone.versionHash)).commitName,
                             },
                         }
-                        console.log("Rewaaard: ", reviewWithMilestone)
                         reviews.push(reviewWithMilestone)
                     }
                     return reviews
@@ -549,7 +543,6 @@ export const useRepositoryStore = defineStore("user", {
         async rewardReview(reviewer: string, reviewId: number, ethersAmount: number) {
             try {
                 const { ethereum } = window
-                console.log("revawfa: ", reviewer, reviewId, ethersAmount)
                 if (ethereum) {
                     const provider = new ethers.providers.Web3Provider(ethereum)
                     const signer = provider.getSigner()
@@ -611,6 +604,25 @@ export const useRepositoryStore = defineStore("user", {
                         return latestVersion[latestVersion.length - 1]
                     } else {
                         return ""
+                    }
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        async getContributorData(contributorAddress: string, repositoryHash: string): Promise<any> {
+            try {
+                const { ethereum } = window
+                if (ethereum) {
+                    // create provider object from ethers library, using ethereum object injected by metamask
+                    const provider = new ethers.providers.Web3Provider(ethereum)
+                    const repositoryContract = new ethers.Contract(repositoryHash, RepositoryABI.abi, provider)
+                    const contributor = await repositoryContract.getContributor(contributorAddress)
+                    return {
+                        id: contributor[0].toNumber(),
+                        name: contributor[1],
+                        address: contributorAddress,
                     }
                 }
             } catch (error) {

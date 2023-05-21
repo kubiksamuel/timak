@@ -12,7 +12,7 @@
                                 name="name"
                                 id="name"
                                 :class="[v$.name.$error ? 'ring-red-400' : 'ring-gray-300']"
-                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
+                                class="block w-full rounded-full border-0 px-4 py-1.5 outline-none text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
                                 placeholder="Name"
                             />
                             <div v-if="v$.name.$error" class="text-sm text-red-500 py-1 ml-2">
@@ -28,7 +28,7 @@
                                 type="text"
                                 name="description"
                                 :class="[v$.description.$error ? 'ring-red-400' : 'ring-gray-300']"
-                                class="block w-full rounded-full border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
+                                class="block w-full rounded-full border-0 px-4 outline-none py-1.5 text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6"
                                 placeholder="Description"
                             />
                             <div v-if="v$.description.$error" class="text-sm text-red-500 py-1 ml-2">

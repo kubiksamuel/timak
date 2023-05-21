@@ -106,7 +106,10 @@
                                                                             {{ milestone.description }}
                                                                         </p>
                                                                         <button
-                                                                            v-if="(!milestone.completed && index === 0) || (!milestone.completed && index > 0 && milestones[index - 1].completed)"
+                                                                            v-if="
+                                                                                (isOwner && !milestone.completed && index === 0) ||
+                                                                                (!milestone.completed && index > 0 && milestones[index - 1].completed)
+                                                                            "
                                                                             type="button"
                                                                             class="order-0 inline-flex items-center px-2 py-1 justify-between rounded-md text-sm underline font-semibold text-violet-700 hover:text-violet-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 sm:order-1 sm:ml-3"
                                                                             @click="triggerCompleteMilestone(true, milestone.id)"
@@ -199,13 +202,11 @@ const triggerFailModal = (show: boolean) => {
     showFailModal.value = show
 }
 const triggerCompleteMilestone = (show: boolean, milestoneId?: number) => {
-    if (milestoneId > 0) {
-        if (milestones.value[milestoneId - 1].versionHash === latestRepositoryVersionHash.value) {
-            triggerFailModal(true)
-            return
-        }
-        progressMilestoneId.value = milestoneId
+    if (milestoneId > 0 && milestones.value[milestoneId - 1].versionHash === latestRepositoryVersionHash.value) {
+        triggerFailModal(true)
+        return
     }
+    progressMilestoneId.value = milestoneId
     showCompleteMilestone.value = show
 }
 
@@ -216,8 +217,10 @@ const createMilestone = async (newMilestone: MilestoneMeta) => {
 }
 
 const completeMilestone = async (numberOfReviews: number) => {
+    console.log("PMI: ", progressMilestoneId.value)
     if (await repositoryStore.completeMilestone(route.params.projectHash, progressMilestoneId.value, numberOfReviews)) {
         milestones.value[progressMilestoneId.value].completed = true
     }
+    showCompleteMilestone.value = false
 }
 </script>
