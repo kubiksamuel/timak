@@ -64,6 +64,16 @@
                                                 Milestones
                                             </button>
                                         </MenuItem>
+                                        <MenuItem class="p-1.5 hover:bg-violet-50">
+                                            <button
+                                                type="button"
+                                                class="flex h-full w-full items-center rounded-md border-gray-300 px-1.5 text-left text-sm font-medium text-gray-700"
+                                                @click="redirectToReviews"
+                                            >
+                                                <ReviewIcon class="mr-2 h-4 w-4 text-gray-700" />
+                                                Reviews
+                                            </button>
+                                        </MenuItem>
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -243,7 +253,8 @@ import {
     UserPlusIcon as AddContributorIcon,
     FolderPlusIcon as AddVersionIcon,
     ArrowDownTrayIcon as DownloadRepositoryIcon,
-    CheckBadgeIcon as MilestoneIcon,
+    CalendarIcon as MilestoneIcon,
+    StarIcon as ReviewIcon,
 } from "@heroicons/vue/20/solid"
 
 import { useRepositoryStore } from "~/stores/repos"
@@ -348,4 +359,6 @@ const showAddContributor = ref(false)
 const triggerAddContributor = (show: boolean) => (showAddContributor.value = show)
 
 const redirectToMilestone = async () => await router.push({ path: repositoryHash + "/milestones" })
+
+const redirectToReviews = async () => await router.replace({ path: "/toReview/" + repositoryHash })
 </script>
