@@ -180,7 +180,7 @@
                 </div>
             </div>
             <AddReviewSlideOver
-                v-if="repositoryWithMilestones"
+                v-if="repositoryReviewableVersions?.length"
                 :repository="repositoryWithMilestones"
                 title="Add new review"
                 :open="showCreateReview"
@@ -287,16 +287,18 @@ const selectedVersionIpfs = ref()
 onMounted(async () => {
     repositoryWithMilestones.value = await repositoryStore.fetchReviewableRepositoryMilestones(repositoryHash)
     reviews.value = await repositoryStore.getReviewsByRepository(repositoryHash)
-    repositoryReviewableVersions.value = repositoryWithMilestones.value.milestones.map((milestone, index) => {
-        return {
-            id: index,
-            commitMessage: milestone.version.commitName,
-            commiter: milestone.version.comitteer,
-            IPFSHash: milestone.version.ipfsHash,
-            commitDate: milestone.version.timestamp * 1000,
-        }
-    })
-    selectedVersionIpfs.value = repositoryReviewableVersions.value[repositoryReviewableVersions.value.length - 1].IPFSHash
+    if (repositoryWithMilestones.value.milestones?.length) {
+        repositoryReviewableVersions.value = repositoryWithMilestones.value.milestones.map((milestone, index) => {
+            return {
+                id: index,
+                commitMessage: milestone.version.commitName,
+                commiter: milestone.version.comitteer,
+                IPFSHash: milestone.version.ipfsHash,
+                commitDate: milestone.version.timestamp * 1000,
+            }
+        })
+        selectedVersionIpfs.value = repositoryReviewableVersions.value[repositoryReviewableVersions.value.length - 1].IPFSHash
+    }
 })
 
 const info = computed(() => {
