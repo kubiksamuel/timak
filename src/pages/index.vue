@@ -9,7 +9,7 @@
                     </h1>
                     <p class="mt-6 text-lg leading-8 text-gray-600"></p>
                     <div class="mt-12 flex items-center gap-x-6">
-                        <button class="mx-auto bg-violet-700 text-white rounded p-4" @click="connectWallet">Connect Wallet</button>
+                        <button class="mx-auto bg-violet-700 text-white rounded p-4" @click="connect">Connect Wallet</button>
                     </div>
                 </div>
             </div>
@@ -23,17 +23,14 @@
 <!--path: /home-->
 <!--</route>-->
 <script setup lang="ts">
-import { watch, watchEffect } from "vue"
-import { storeToRefs } from "pinia"
 import { useRepositoryStore } from "~/stores/repos"
 import { useRouter } from "vue-router"
 
-const repositoryStore = useRepositoryStore()
 const { connectWallet } = useRepositoryStore()
+
 const router = useRouter()
-watchEffect(async () => {
-    if (repositoryStore.account) {
-        setTimeout(async () => await router.push({ path: "/dashboard" }, 1000))
-    }
-})
+const connect = async () => {
+    await connectWallet()
+    await router.push({ path: "/dashboard" }, 1000)
+}
 </script>
