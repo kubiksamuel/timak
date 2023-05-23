@@ -88,16 +88,18 @@ contract RepositoryFactory {
     }
 
     function getReviewableRepositories() external view returns(Repository[] memory reviewableRepository){
-        uint counter = 0;
+        uint counterInit = 0;
         for (uint i = 0; i < repositories.length; i++ ){
             if (repositories[i].toReview()){
-                counter++;
+                counterInit++;
             }
         }
-        Repository[] memory tmpReviewableRepository = new Repository[](counter);
+        Repository[] memory tmpReviewableRepository = new Repository[](counterInit);
+        uint counterIndex = 0;
         for (uint i = 0; i< repositories.length; i++){
             if (repositories[i].toReview()){
-                tmpReviewableRepository[i] = repositories[i];
+                tmpReviewableRepository[counterIndex] = repositories[i];
+                counterIndex++;
             }
 
         }

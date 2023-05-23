@@ -237,7 +237,7 @@
             @close="triggerAddVersion(false)"
             @change-version="$forceUpdate()"
         />
-        <AddContributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" />
+        <AddContributorSlideOver title="Add contributor" :open="showAddContributor" @close="triggerAddContributor(false)" @create="createContributor" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -318,7 +318,6 @@ onMounted(async () => {
 })
 
 const changeVersion = async (selectedVersion) => {
-    console.log("ipfs: ", selectedVersion)
     const res = await getFolderFromIPFS(selectedVersion.IPFSHash)
     const result: Array<Object> = []
     res.forEach((item, index) => {
@@ -361,4 +360,9 @@ const triggerAddContributor = (show: boolean) => (showAddContributor.value = sho
 const redirectToMilestone = async () => await router.push({ path: repositoryHash + "/milestones" })
 
 const redirectToReviews = async () => await router.replace({ path: "/toReview/" + repositoryHash })
+
+const createContributor = async (contributorAddress: string, contributorName: string) => {
+    await repositoryStore.addContributor(repositoryHash, contributorAddress, contributorName)
+    triggerAddContributor(false)
+}
 </script>

@@ -36,7 +36,7 @@
                         <RadioGroup v-model="selectedRating">
                             <RadioGroupLabel class="ml-px block text-sm font-medium leading-6 text-gray-900">Rate a review</RadioGroupLabel>
                             <div class="mt-1 flex items-center space-x-3">
-                                <RadioGroupOption as="template" v-for="rating in [0, 1, 2, 3, 4]" :key="rating" :value="rating + 1" v-slot="{ active, checked }">
+                                <RadioGroupOption as="template" v-for="rating in [0, 1, 2, 3, 4]" :key="rating" :value="rating + 1">
                                     <div class="flex items-center">
                                         <StarIcon :class="[selectedRating > rating ? 'text-yellow-400' : 'text-gray-300', 'h-5 w-5 flex-shrink-0 hover:text-yellow-500']" aria-hidden="true" />
                                     </div>
@@ -51,9 +51,9 @@
                             <ListboxButton
                                 class="relative w-full cursor-pointer rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 sm:text-sm sm:leading-6"
                             >
-                                <span class="flex items-cente justify-between">
-                                    <span class="ml-3 block truncate">{{ selectedMilestone.title }}</span>
-                                    <span class="ml-3 block truncate text-gray-500">{{ selectedMilestone.version.commitName }}</span>
+                                <span class="flex items-center justify-between">
+                                    <span class="ml-3 block truncate">{{ selectedMilestone.version.commitName }}</span>
+                                    <span class="ml-3 block truncate text-gray-500">{{ selectedMilestone.title }}</span>
                                 </span>
                                 <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
                                     <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -69,9 +69,9 @@
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center">
                                                     <img src="/src/img/arrow_right.png" alt="" class="h-5 w-5 flex-shrink-0 rounded-full" />
-                                                    <span class="ml-3 block truncate"> {{ milestone.title }} </span>
+                                                    <span class="ml-3 block truncate"> {{ milestone.version.commitName }} </span>
                                                 </div>
-                                                <span class="mr-3 block truncate" :class="[active ? ' text-white' : 'text-gray-500']"> {{ milestone.version.commitName }}</span>
+                                                <span class="mr-3 block truncate" :class="[active ? ' text-white' : 'text-gray-500']">{{ milestone.title }} </span>
                                             </div>
 
                                             <span v-if="selected" :class="[active ? 'text-white' : 'text-violet-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">

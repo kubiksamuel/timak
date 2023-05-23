@@ -168,7 +168,7 @@
                                         <div class="cursor-pointer transition ease-in-out hover:scale-120 duration-300" @click="setReward(review.reviewer, review.id)">
                                             <img alt="PayEthers" :src="PayIcon" class="w-8 h-8" />
                                         </div>
-                                        <div class="text-gray-500 text-sm">Rewarded: {{ review.reward }} Ethers</div>
+                                        <div class="text-gray-500 text-sm">Rewarded: {{ review?.reward || 0.0 }} Ethers</div>
                                     </div>
                                 </div>
                             </div>
@@ -373,7 +373,12 @@ const rewardReview = async () => {
     invalidEthersAmount.value = false
     showEthersModal.value = false
     const reward = await repositoryStore.rewardReview(reviewToReward.reviewer, reviewToReward.reviewId, reviewToReward.ethersAmount)
-    reviews.value[reviewToReward.reviewId].reward += reward
+    reviews.value.forEach((review: any, index: number) => {
+        if (review.id === reviewToReward.reviewId) {
+            reviews.value[index].reward += reward
+            return
+        }
+    })
 }
 
 const changeVersion = (version: any) => {

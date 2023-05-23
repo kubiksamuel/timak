@@ -6,7 +6,7 @@
             >
                 <span class="flex items-cente justify-between">
                     <span class="ml-3 block truncate">{{ selected?.commitMessage }}</span>
-                    <span class="ml-3 block truncate" :class="[active ? ' text-white' : 'text-gray-500']">
+                    <span class="ml-3 block truncate text-gray-500">
                         {{ new Date(parseFloat(selected?.commitDate)).toLocaleString("default", { day: "numeric" }) }}.{{
                             new Date(parseFloat(selected?.commitDate)).toLocaleString("default", { month: "numeric" })
                         }}.{{ new Date(parseFloat(selected?.commitDate)).toLocaleString("default", { year: "numeric" }) }}</span
@@ -55,7 +55,6 @@ const props = defineProps({
         required: true,
     },
 })
-console.log("versions: ", props.versions)
 
 const { versions } = toRefs(props)
 

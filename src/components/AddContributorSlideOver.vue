@@ -79,6 +79,7 @@ defineProps({
 
 const emit = defineEmits<{
     (e: "close"): void
+    (e: "create", contributorAddress: string, contributorName: string): void
 }>()
 
 const newContributor = reactive({
@@ -102,7 +103,6 @@ const addNewContributor = async () => {
     if (!isFormCorrect) {
         return
     }
-
-    await addContributor(repositoryHash, newContributor.address, newContributor.name)
+    emit("create", newContributor.address, newContributor.name)
 }
 </script>

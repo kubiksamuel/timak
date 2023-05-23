@@ -42,7 +42,7 @@
 
             <div class="px-4 py-3 text-right sm:px-6">
                 <button
-                    @click="createNewRepository"
+                    @click="createRepository"
                     class="inline-flex justify-center rounded-md bg-violet-700 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
                 >
                     Create repository
@@ -55,12 +55,9 @@
 <script setup lang="ts">
 import { reactive } from "vue"
 import SlideOver from "./SlideOver.vue"
-import { useRepositoryStore } from "~/stores/repos"
 import { RepositoryMeta } from "~/types/repository"
 import { useVuelidate } from "@vuelidate/core"
 import { required, helpers } from "@vuelidate/validators"
-
-const { createRepository } = useRepositoryStore()
 
 defineProps({
     open: {
@@ -75,6 +72,7 @@ defineProps({
 
 const emit = defineEmits<{
     (e: "close"): void
+    (e: "create", newRepository: RepositoryMeta): void
 }>()
 
 const newRepository: RepositoryMeta = reactive({
@@ -93,11 +91,11 @@ const rules = {
 
 const v$ = useVuelidate(rules, newRepository)
 
-const createNewRepository = async () => {
+const createRepository = async () => {
     const isFormCorrect = await v$.value.$validate()
     if (!isFormCorrect) {
         return
     }
-    await createRepository(newRepository)
+    emit("create", newRepository)
 }
 </script>

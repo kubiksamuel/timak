@@ -83,7 +83,9 @@
                                     <span class="lg:pl-2">Name</span>
                                 </th>
                                 <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900" scope="col">Description</th>
-                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-center text-sm font-semibold text-gray-900" scope="col">Added/Required Reviews</th>
+                                <th class="border-b border-gray-200 bg-gray-50 px-6 py-3 text-center text-sm font-semibold text-gray-900" scope="col">
+                                    Added/Required Reviews of reviewable milestones
+                                </th>
 
                                 <th class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell" scope="col">Created at</th>
                             </tr>

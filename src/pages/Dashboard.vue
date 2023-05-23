@@ -130,7 +130,7 @@
                 </div>
             </div>
         </div>
-        <AddRepositorySlideOver title="Create new repository" :open="showCreateRepository" @close="triggerCreateRepository(false)" />
+        <AddRepositorySlideOver title="Create new repository" :open="showCreateRepository" @create="createNewRepository" @close="triggerCreateRepository(false)" />
     </SidebarLayout>
 </template>
 <script setup lang="ts">
@@ -141,6 +141,7 @@ import { ref, computed, onMounted } from "vue"
 import { PlusIcon } from "@heroicons/vue/20/solid"
 import AddRepositorySlideOver from "~/components/AddRepositorySlideOver.vue"
 import { useRepositoryStore } from "~/stores/repos"
+import { RepositoryMeta } from "~/types/repository"
 
 const router = useRouter()
 const repositoryStore = useRepositoryStore()
@@ -184,6 +185,12 @@ const allContributorRepositories = computed(() => {
 const showCreateRepository = ref(false)
 
 const triggerCreateRepository = (show: boolean) => (showCreateRepository.value = show)
+
+const createNewRepository = async (newRepository: RepositoryMeta) => {
+    await repositoryStore.createRepository(newRepository)
+    triggerCreateRepository(false)
+}
+
 const redirectToRepo = (repositoryHash: string) => {
     router.push({
         path: "/dashboard/project/" + repositoryHash,
